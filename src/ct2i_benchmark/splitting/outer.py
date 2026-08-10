@@ -96,14 +96,27 @@ def _inner_split(local_idx, y_tr, g_tr, seed, frac):
 
 def oof_folds(inner_train_ids: np.ndarray, y: np.ndarray, groups: np.ndarray,
               k: int = 5, seed: int = 4211):
-    """Deterministic group-aware OOF folds over the given rows (for supervised
-    encoder cross-fitting). Returns list of (fit_local_idx, holdout_local_idx)."""
+    """Deterministic LABEL-FREE group-aware OOF folds for supervised-encoder
+    cross-fitting. The partition is a function of (row ids, groups, seed) ONLY:
+    stratifying the OOF partition on labels would make the partition itself
+    label-dependent and break the self-influence invariant (P-C test 2).
+    Groups are seed-shuffled and round-robin assigned to k folds.
+    Returns list of (fit_local_idx, holdout_local_idx)."""
     ids = np.asarray(inner_train_ids)
-    y_l, g_l = y[ids], groups[ids]
-    k_eff = min(k, len(np.unique(g_l)), int(np.bincount(y_l).min()) or 1)
-    k_eff = max(2, k_eff)
-    sgkf = StratifiedGroupKFold(n_splits=k_eff, shuffle=True, random_state=seed)
-    return [(fit, hold) for fit, hold in sgkf.split(ids.reshape(-1, 1), y_l, g_l)]
+    g_l = groups[ids]
+    uniq = np.unique(g_l)
+    k_eff = max(2, min(k, len(uniq)))
+    rng = np.random.default_rng(seed)
+    order = rng.permutation(uniq)
+    fold_of_group = {g: i % k_eff for i, g in enumerate(order)}
+    assign = np.array([fold_of_group[g] for g in g_l])
+    out = []
+    for f in range(k_eff):
+        hold = np.where(assign == f)[0]
+        fit = np.where(assign != f)[0]
+        if len(hold) and len(fit):
+            out.append((fit, hold))
+    return out
 
 
 def _assert_no_group_overlap(folds, groups):

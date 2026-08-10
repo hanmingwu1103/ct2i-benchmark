@@ -39,12 +39,19 @@ from .statuses import Status
 
 @dataclass
 class EncodedFold:
-    """Fold-safe encoded matrices + lineage for one (dataset, fold, encoder)."""
+    """Fold-safe encoded matrices + lineage for one (dataset, fold, encoder).
+
+    Z_* are SCALED (MinMax on training-side codes). Z_*_raw are the unscaled
+    encoder codes; the self-influence invariant (PC2) is defined on raw codes,
+    because the scaler is a separate training-side fitted state whose value for
+    a row may legitimately move when other training rows' codes move."""
     Z_inner_train: np.ndarray
     Z_inner_val: np.ndarray
     Z_outer_train: np.ndarray
     Z_outer_test: np.ndarray
     lineage: list
+    Z_inner_train_raw: np.ndarray | None = None
+    Z_outer_train_raw: np.ndarray | None = None
 
 
 def encode_foldsafe(X: pd.DataFrame, y: np.ndarray, groups: np.ndarray, fold,
@@ -121,7 +128,8 @@ def encode_foldsafe(X: pd.DataFrame, y: np.ndarray, groups: np.ndarray, fold,
         transform_row_ids=ote, outer_fold=fold.outer_fold, role="outer",
         seed_set={}, commit=commit))
     return EncodedFold(sc_i.transform(Z_itr), sc_i.transform(Z_iva),
-                       sc_o.transform(Z_otr), sc_o.transform(Z_ote), lineage)
+                       sc_o.transform(Z_otr), sc_o.transform(Z_ote), lineage,
+                       Z_inner_train_raw=Z_itr, Z_outer_train_raw=Z_otr)
 
 
 def encode_global(X: pd.DataFrame, y: np.ndarray, fold, encoder_name: str,
