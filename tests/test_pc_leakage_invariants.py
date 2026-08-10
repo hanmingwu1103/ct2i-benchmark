@@ -83,20 +83,26 @@ def test_pc3_unique_category_memorization_trap():
     fold = folds[0]
     ef = encode_foldsafe(X, y, g, fold, "target")
     from ct2i_benchmark.encoders.supervised import TARGET_ALPHA
-    # OOF code of a unique level (unseen by its OOF-fit encoder) = smoothed prior
     col_u = 0
-    codes_u = ef.Z_inner_train[:, col_u]
+    codes_u = ef.Z_inner_train_raw[:, col_u]
+    y_itr = y[fold.inner_train_ids]
     # global (contaminated) encoding for contrast
     from ct2i_benchmark.encoders import TargetEncoder
     glob = TargetEncoder().fit(X, y).transform(X)[fold.inner_train_ids, col_u]
-    oof_spread = float(np.ptp(codes_u))
-    glob_spread = float(np.ptp(glob))
-    _record("PC3", oof_spread < 0.1 < 0.2 < glob_spread,
-            {"oof_spread": oof_spread, "global_spread": glob_spread})
-    # prior fallback: only across-OOF-fold prior variation remains (small);
-    # global memorization separates levels by their own labels (large)
-    assert oof_spread < 0.1
-    assert glob_spread > 0.2
+    # memorization statistic: separation of codes by the row's OWN label.
+    # Global: code = (y_i + alpha*prior)/(1+alpha) -> gap = 1/(1+alpha) exactly.
+    # OOF: unique level unseen by its OOF-fit encoder -> prior fallback, no
+    # own-label information -> gap ~ 0 (only fold-prior noise).
+    def own_label_gap(codes):
+        return float(codes[y_itr == 1].mean() - codes[y_itr == 0].mean())
+    gap_oof = own_label_gap(codes_u)
+    gap_glob = own_label_gap(glob)
+    expected_glob = 1.0 / (1.0 + TARGET_ALPHA)
+    _record("PC3", abs(gap_oof) < 0.01 < gap_glob,
+            {"own_label_gap_oof": gap_oof, "own_label_gap_global": gap_glob,
+             "expected_global_gap": expected_glob})
+    assert abs(gap_oof) < 0.01                       # OOF: no memorization
+    assert abs(gap_glob - expected_glob) < 1e-6      # global memorizes exactly
 
 
 def test_pc4_unseen_category_fallback(toy):
