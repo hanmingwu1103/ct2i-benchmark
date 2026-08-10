@@ -25,14 +25,16 @@ from __future__ import annotations
 
 import time
 import traceback
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutTimeout
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FutTimeout
 from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
 
 from .artifacts.lineage import LineageRecord
-from .encoders import REGISTRY as ENC_REGISTRY, SUPERVISED, MinMaxScaler01
+from .encoders import REGISTRY as ENC_REGISTRY
+from .encoders import SUPERVISED, MinMaxScaler01
 from .splitting.outer import oof_folds
 from .statuses import Status
 

@@ -22,7 +22,7 @@ class Encoder:
     name: str = "base"
     supervised: bool = False
 
-    def fit(self, X: pd.DataFrame, y: np.ndarray | None = None) -> "Encoder":
+    def fit(self, X: pd.DataFrame, y: np.ndarray | None = None) -> Encoder:
         raise NotImplementedError
 
     def transform(self, X: pd.DataFrame) -> np.ndarray:
@@ -36,7 +36,7 @@ class Encoder:
 class MinMaxScaler01:
     """Min-Max to [0,1] fitted on training-side codes only; transform clips."""
 
-    def fit(self, Z: np.ndarray) -> "MinMaxScaler01":
+    def fit(self, Z: np.ndarray) -> MinMaxScaler01:
         self.lo_ = Z.min(axis=0)
         self.hi_ = Z.max(axis=0)
         self.span_ = np.where(self.hi_ > self.lo_, self.hi_ - self.lo_, 1.0)

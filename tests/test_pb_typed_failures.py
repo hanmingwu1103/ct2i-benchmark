@@ -9,7 +9,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from ct2i_benchmark.evaluation.metrics import compute_metrics
 from ct2i_benchmark.pipeline import run_protected

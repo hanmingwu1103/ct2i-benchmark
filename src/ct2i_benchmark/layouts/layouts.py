@@ -41,7 +41,7 @@ class IGTDReimpl:
         w = int(np.ceil(d / h))
         return h, w
 
-    def fit(self, Z: np.ndarray) -> "IGTDReimpl":
+    def fit(self, Z: np.ndarray) -> IGTDReimpl:
         d = Z.shape[1]
         self.h_, self.w_ = self._grid(d)
         # feature distance ranks (Pearson-correlation distance)

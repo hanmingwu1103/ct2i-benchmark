@@ -20,7 +20,7 @@ class PcaMlpReader:
         self.seed = seed
         self.max_iter = max_iter
 
-    def fit(self, images_train: np.ndarray, y_train: np.ndarray) -> "PcaMlpReader":
+    def fit(self, images_train: np.ndarray, y_train: np.ndarray) -> PcaMlpReader:
         Xf = images_train.reshape(len(images_train), -1)
         k = int(min(self.n_components, Xf.shape[1], max(2, len(Xf) - 1)))
         self.pca_ = PCA(n_components=k, random_state=self.seed).fit(Xf)

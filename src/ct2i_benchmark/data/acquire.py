@@ -10,14 +10,14 @@ from __future__ import annotations
 import gzip
 import io
 import urllib.request
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from ..hashing import sha256_file, sha256_array
+from ..hashing import sha256_array, sha256_file
 
 SOURCES = {
     "tictactoe": {
@@ -118,7 +118,7 @@ def acquire(dataset_id: str, cache_dir: str | Path):
         levels = ",".join(sorted(df["class"].unique()))
     elif dataset_id == "bace":
         df = pd.read_csv(raw_path)
-        from .molecular import morgan_fingerprints, scaffold_groups, canonical_smiles
+        from .molecular import canonical_smiles, morgan_fingerprints, scaffold_groups
         smiles = df["mol"].astype(str).tolist()
         canon = canonical_smiles(smiles)
         fps = morgan_fingerprints(canon, n_bits=1024, radius=2)  # all 1024 bits retained
@@ -147,7 +147,7 @@ def acquire(dataset_id: str, cache_dir: str | Path):
         canonical_source=spec["canonical_source"],
         source_url_or_id=spec["url"],
         license=spec["license"],
-        download_time=datetime.now(timezone.utc).isoformat(),
+        download_time=datetime.now(UTC).isoformat(),
         raw_path_private=str(raw_path.name),
         raw_sha256=raw_sha,
         n_raw=len(df),

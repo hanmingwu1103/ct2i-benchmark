@@ -7,14 +7,16 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ct2i_benchmark.encoders import REGISTRY, SUPERVISED
-from ct2i_benchmark.encoders.hashing_enc import (ColumnAwareHashEncoder,
-                                                 SharedValueHashEncoder, HASH_SEED,
-                                                 bucket_rule)
+from ct2i_benchmark.artifacts.lineage import LeakageError
+from ct2i_benchmark.encoders.hashing_enc import (
+    HASH_SEED,
+    ColumnAwareHashEncoder,
+    SharedValueHashEncoder,
+    bucket_rule,
+)
 from ct2i_benchmark.hashing import bucket_of, sha256_array
 from ct2i_benchmark.layouts.layouts import IGTDReimpl
 from ct2i_benchmark.pipeline import encode_foldsafe
-from ct2i_benchmark.artifacts.lineage import LeakageError
 
 EVIDENCE = Path(__file__).resolve().parents[1] / ".cache" / "test_evidence"
 EVIDENCE.mkdir(parents=True, exist_ok=True)
@@ -231,7 +233,7 @@ def test_ac5_zero_one_buckets_recorded_per_width():
 
 def test_ac6_onehot_label_unknown_deterministic():
     """AC6: one-hot and label unknown-level behavior is deterministic."""
-    from ct2i_benchmark.encoders import OneHotEncoder01, LabelEncoder
+    from ct2i_benchmark.encoders import LabelEncoder, OneHotEncoder01
     Xf = pd.DataFrame({"a": ["p", "q", "r"]})
     Xt = pd.DataFrame({"a": ["zzz"]})
     oh = OneHotEncoder01().fit(Xf)

@@ -2,8 +2,14 @@
 from __future__ import annotations
 
 import numpy as np
-from sklearn.metrics import (average_precision_score, balanced_accuracy_score,
-                             brier_score_loss, f1_score, log_loss, roc_auc_score)
+from sklearn.metrics import (
+    average_precision_score,
+    balanced_accuracy_score,
+    brier_score_loss,
+    f1_score,
+    log_loss,
+    roc_auc_score,
+)
 
 from ..statuses import Status
 

@@ -135,8 +135,8 @@ class TabMModel:
         self.config = {"seed": seed, "epochs": epochs, "d_block": d_block, "k": k}
 
     def fit(self, X, y):
-        import torch
         import tabm
+        import torch
         torch.manual_seed(self.seed)
         X = np.asarray(X, np.float32)
         self._mean = X.mean(0); self._std = X.std(0) + 1e-8

@@ -7,8 +7,8 @@ their deterministic hashes and counts are exposed for validation.
 from __future__ import annotations
 
 import subprocess
-from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
 
 from ..hashing import sha256_int_ids, sha256_obj
 
@@ -39,7 +39,7 @@ class LineageRecord:
     outer_fold: int
     inner_fold_or_role: str
     seed_set: dict
-    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     sha256: str = ""
     # private (not serialized into reports, but kept for in-process validation)
     _fit_row_ids: frozenset = field(default_factory=frozenset, repr=False)

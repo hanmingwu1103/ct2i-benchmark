@@ -31,7 +31,6 @@ def morgan_fingerprints(canon_smiles, n_bits=1024, radius=2) -> np.ndarray:
 
 def scaffold_groups(canon_smiles) -> np.ndarray:
     """Integer group id per molecule from Bemis-Murcko scaffold SMILES."""
-    from rdkit import Chem
     from rdkit.Chem.Scaffolds import MurckoScaffold
     keys = []
     for s in canon_smiles:
