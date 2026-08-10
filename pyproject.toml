@@ -1,0 +1,36 @@
+[project]
+name = "ct2i-benchmark"
+version = "0.2.0"
+description = "Fold-safe encoding-aware benchmark of tabular-to-image learning on categorical data (Stage 2 pilot)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "BSD-3-Clause" }
+authors = [
+  { name = "Po-Han Chen" },
+  { name = "Chun-houh Chen" },
+  { name = "Han-Ming Wu", email = "wuhm@g.nccu.edu.tw" },
+]
+dependencies = [
+  "numpy", "pandas", "pyarrow", "scikit-learn", "scipy", "pyyaml", "psutil",
+  "lightgbm", "xgboost", "catboost",
+]
+
+[project.optional-dependencies]
+torch = ["torch", "torchvision"]
+chem = ["rdkit"]
+foundation = ["tabm", "tabicl", "tabpfn"]
+dev = ["pytest", "pytest-cov", "ruff"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying manuscript."
+title: "ct2i-benchmark: fold-safe encoding-aware benchmark of tabular-to-image learning"
+authors:
+  - family-names: Chen
+    given-names: Po-Han
+  - family-names: Chen
+    given-names: Chun-houh
+  - family-names: Wu
+    given-names: Han-Ming
+    email: wuhm@g.nccu.edu.tw
+license: BSD-3-Clause
+repository-code: "https://github.com/hanmingwu1103/ct2i-benchmark"
