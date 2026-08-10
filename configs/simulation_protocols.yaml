@@ -1,0 +1,35 @@
+# Reissued simulation protocols (FROZEN before any run; §19-20).
+# Acceptance criteria are numerical; failures require code/theory review.
+
+simulation2:
+  K: [3, 8, 24, 72, 216]
+  sigma: [0.005, 0.01, 0.03]
+  rho: [0.0, 0.5, 0.9]
+  regimes: ["all_equal", "best=0.002", "best=0.005", "best=0.02"]
+  R: 10000
+  criteria:
+    C1_honest_unbiased: "|mean reporting bias| <= max(3*MCSE, 1e-4) under independent outer evaluation"
+    C2_oracle_within_bound: "mean oracle optimism <= sigma_max*sqrt(2 ln K) + max(5*MCSE, 1e-6)"
+    C3_regret_within_bound: "mean validation regret <= sigma_max*sqrt(2 ln K) + max(5*MCSE, 1e-6) (sharper one-sided bound)"
+    C4_monotone_K: "equal-value independent-error optimism nondecreasing in K within 3*MCSE"
+    C5_correlation: "rho=0.9 optimism <= rho=0 optimism + 3*MCSE (correlation reduces effective multiplicity)"
+    C6_asymmetric_ge: "K=72 oracle opportunity >= K=8 within 3*MCSE at equal true maxima (probabilistic wording)"
+  notes: >
+    Exchangeable correlation via Gaussian common factor. Independent-test draw
+    is a fresh realization (honest nested evaluation). One-SE rule: least
+    complex candidate within one sigma of best validation score.
+
+simulation1_checks:
+  tolerance_deterministic: 1.0e-9
+  n_train: 400
+  learned_encoder_seeds: [21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+  checks:
+    S1C1: "injective encoding -> zero log-loss and Brier gap (exact enumeration)"
+    S1C2: "non-injective merge with fiber-constant posterior -> zero gap"
+    S1C3: "posterior varying within fibers -> strictly positive gaps"
+    S1C4: "shared-value hash on binary block: M+1 reachable encodings (distinct buckets) / 1 (collision)"
+    S1C5: "column-aware hash: collision count RECORDED; B>=K does not imply zero collisions"
+    S1C6: "log-loss gap identity == fiber-aggregated conditional-entropy difference (I(Y;X|Z))"
+    S1C7: "learned target encoder risk via Monte Carlo conditional on fitted sample S (10 seeds); nonnegative gap within max(5*MCSE, 1e-4)"
+    S1C8: "learner shortfall separated from Bayes-on-Z gap (Bayes computed exactly; learner deferred to full sweep)"
+  deferred: "full factorial sweep (encoders x DGP x learners) deferred to early Stage 3 after GO"

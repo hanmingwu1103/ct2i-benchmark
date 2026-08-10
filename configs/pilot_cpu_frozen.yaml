@@ -1,0 +1,54 @@
+# FROZEN CPU pilot matrix (P-D-CPU). DRAFT until the microbenchmark stamps the
+# projection block below; frozen BEFORE any pilot metric is read.
+# CPU diagnostic resolution 64x64; ResNet-18 smoke-only; GPU hours = 0.
+
+datasets: [tictactoe, mushroom, bace, parity5_plus_5]
+n_outer_folds: 5
+seeds:
+  fold: 42
+  inner: 421
+  oof: 4211
+  layout: 7
+
+image:
+  encoders: [label, onehot, target, hash_column, hash_shared]
+  layouts: [igtd_reimpl, bie, bargraph]   # bargraph auto-skipped over pixel cap
+  reader: pca_mlp
+  seeds: [1042, 2042]                     # two PCA+MLP seeds
+  diag_resolution: 64
+
+representation:
+  encoders: [label, onehot, target, hash_column, hash_shared]
+  models: [logistic, lightgbm, xgboost, direct_mlp]
+  mlp_seeds: [5, 6]                       # two direct-MLP seeds
+
+best_practice:
+  models:
+    - {model: catboost_native, encoder: null, seeds: [5]}
+    - {model: tabm, encoder: onehot, seeds: [5, 6]}   # model-appropriate numeric input; onehot fitted fold-safe
+    - {model: tabicl_v2, encoder: label, seeds: [5]}  # fixed inference config, CPU
+    # tabpfn_3 cells are emitted as MODEL_ACCESS_NOT_AUTHORIZED (license flow declined)
+
+unavailable_models:
+  tabpfn_3: MODEL_ACCESS_NOT_AUTHORIZED
+
+timeouts:                # per-operation caps (<= §7.2 defaults)
+  image_cell_s: 900
+  tabular_cell_s: 600
+  foundation_cell_s: 900
+
+pixel_cap: 262144
+onehot_width_cap: 1500
+
+pa_comparison:
+  datasets: [tictactoe, mushroom, bace, parity5_plus_5]
+  n_folds: 5
+  encoders: [target, label]      # one supervised + one label-free scaler exposure
+  layouts: [igtd_reimpl, bie]
+  seed: 1042
+  timeout_s: 900
+
+# ---- projection block: stamped from the measured microbenchmark BEFORE the
+# pilot runs; verified against MAX_ELAPSED_HOURS=24 / MAX_CPU_CORE_HOURS=192 ----
+projection:
+  stamped: false

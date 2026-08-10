@@ -47,7 +47,9 @@ class _HashBase(Encoder):
         return self
 
     def _token(self, col: str, val: str) -> str:
-        return f"{col}={val}" if self.column_aware else val
+        # length-prefixed encoding: unambiguous even when names/values contain
+        # the separator character (spec-review finding)
+        return f"{len(col)}:{col}={val}" if self.column_aware else val
 
     def transform(self, X):
         out = np.zeros((len(X), self.n_buckets_))

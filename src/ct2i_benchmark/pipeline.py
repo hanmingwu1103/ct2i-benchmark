@@ -81,7 +81,19 @@ def encode_foldsafe(X: pd.DataFrame, y: np.ndarray, groups: np.ndarray, fold,
             seed_set={"oof": seed_oof}, commit=commit))
         return enc
 
-    if supervised:
+    if encoder_name == "ordered_catboost":
+        # Ordered-CatBoost is its own cross-fitting scheme: a row's code uses
+        # strictly PRECEDING rows under seeded permutations, so its own label
+        # never enters its own code. The ordered fitted_codes_ ARE the
+        # training-side representation (OOF would be redundant and was dead
+        # code per the spec review — now operational).
+        enc_it = _fit_enc(itr, itr, "inner_ordered")
+        Z_itr = enc_it.fitted_codes_
+        Z_iva = enc_it.transform(X.iloc[iva])
+        enc_o = _fit_enc(otr, otr, "outer_ordered")
+        Z_otr = enc_o.fitted_codes_
+        Z_ote = enc_o.transform(X.iloc[ote])
+    elif supervised:
         # --- inner: OOF codes for inner-training rows ---
         Z_itr = np.zeros((len(itr), 0))
         oof = oof_folds(itr, y, groups, seed=seed_oof)
@@ -178,15 +190,19 @@ def run_protected(fn, stage_status: Status, timeout_s: float | None = None,
         if timeout_s is None:
             value = fn(*args, **kwargs)
         else:
-            with ThreadPoolExecutor(max_workers=1) as ex:
-                fut = ex.submit(fn, *args, **kwargs)
-                try:
-                    value = fut.result(timeout=timeout_s)
-                except FutTimeout:
-                    fut.cancel()
-                    return StepResult(Status.TIMEOUT.value,
-                                      elapsed_s=time.perf_counter() - t0)
-        result = np.asarray(value, dtype=object) if False else value
+            # shutdown(wait=False) so a timed-out worker is abandoned instead
+            # of blocking the caller at context exit (spec-review PB4 finding).
+            ex = ThreadPoolExecutor(max_workers=1)
+            fut = ex.submit(fn, *args, **kwargs)
+            try:
+                value = fut.result(timeout=timeout_s)
+            except FutTimeout:
+                fut.cancel()
+                ex.shutdown(wait=False, cancel_futures=True)
+                return StepResult(Status.TIMEOUT.value,
+                                  elapsed_s=time.perf_counter() - t0)
+            ex.shutdown(wait=False)
+        result = value
         # NaN/Inf guard for numeric outputs
         if isinstance(value, np.ndarray) and value.dtype.kind == "f" \
                 and not np.isfinite(value).all():

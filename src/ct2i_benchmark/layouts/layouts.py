@@ -75,12 +75,17 @@ class IGTDReimpl:
         return self
 
     def transform(self, Z: np.ndarray) -> np.ndarray:
+        # Objective semantics: perm_[cell] = feature assigned to that cell
+        # (err evaluates fr[perm,perm] against the fixed pixel-rank matrix).
+        # Rendering must therefore place feature perm_[i] AT cell i — the
+        # earlier feature->cell reading was the inverse (spec-review finding,
+        # fixed; regression-tested in test_igtd_semantics).
         n, d = Z.shape
-        img = np.zeros((n, self.h_, self.w_), dtype=np.float32)
-        rows = self.perm_ // self.w_
-        cols = self.perm_ % self.w_
-        img[:, rows, cols] = Z.astype(np.float32)
-        return img
+        if d != len(self.perm_):
+            raise ValueError(f"IGTD transform width {d} != fitted {len(self.perm_)}")
+        img_flat = np.zeros((n, self.h_ * self.w_), dtype=np.float32)
+        img_flat[:, np.arange(d)] = Z.astype(np.float32)[:, self.perm_]
+        return img_flat.reshape(n, self.h_, self.w_)
 
     def native_pixels(self, d: int) -> int:
         h, w = self._grid(d)

@@ -18,17 +18,20 @@ class LabelEncoder(Encoder):
     name = "label"
 
     def fit(self, X, y=None):
+        # vocabulary keyed with a "v:" prefix so a literal "__UNSEEN__" level
+        # can never collide with the reserved index 0 (spec-review finding)
         self.vocab_ = {}
         for c in X.columns:
             levels = sorted(X[c].astype(str).unique())
-            self.vocab_[c] = {UNSEEN: 0, **{v: i + 1 for i, v in enumerate(levels)}}
+            self.vocab_[c] = {f"v:{v}": i + 1 for i, v in enumerate(levels)}
         return self
 
     def transform(self, X):
         cols = []
         for c in X.columns:
             v = self.vocab_[c]
-            cols.append(X[c].astype(str).map(lambda s, v=v: v.get(s, 0)).to_numpy(float))
+            cols.append(X[c].astype(str)
+                        .map(lambda s, v=v: v.get(f"v:{s}", 0)).to_numpy(float))
         return np.column_stack(cols)
 
     def state_summary(self):

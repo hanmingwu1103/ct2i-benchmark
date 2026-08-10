@@ -13,7 +13,7 @@ sys.path.insert(0, str(REPO / "src"))
 
 from ct2i_benchmark.data.acquire import acquire  # noqa: E402
 from ct2i_benchmark.splitting.outer import (duplicate_groups, make_folds,  # noqa: E402
-                                            conflicting_label_groups)
+                                            conflicting_label_groups, union_groups)
 from ct2i_benchmark.hashing import sha256_obj  # noqa: E402
 
 SEED_FOLD, SEED_INNER = 42, 421
@@ -22,8 +22,11 @@ acq_rows, split_rows = [], []
 for ds in ["tictactoe", "mushroom", "bace", "parity5_plus_5"]:
     X, y, extras, rec = acquire(ds, REPO / ".cache")
     if ds == "bace":
-        groups = extras["scaffold_groups"]
-        group_type = "bemis_murcko_scaffold"
+        # union components: scaffold groups AND exact-fingerprint duplicates
+        # (fingerprint-identical molecules from different scaffolds must not
+        # cross fold boundaries either — spec-review finding)
+        groups = union_groups(extras["scaffold_groups"], duplicate_groups(X))
+        group_type = "bemis_murcko_scaffold_UNION_exact_duplicate"
     else:
         groups = duplicate_groups(X)
         group_type = "exact_feature_duplicate"

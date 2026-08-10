@@ -19,10 +19,44 @@ from ..hashing import sha256_array
 
 def duplicate_groups(X: pd.DataFrame) -> np.ndarray:
     """Exact-feature duplicate groups: identical canonical feature rows share a
-    group id. Label-free by construction (labels never consulted)."""
-    keys = X.astype(str).agg("\x1f".join, axis=1)
+    group id. Label-free by construction. Rows are serialized unambiguously
+    with length-prefixed fields so separator characters inside values cannot
+    collide distinct rows (spec-review finding)."""
+    def canon(row):
+        return "|".join(f"{len(s)}:{s}" for s in row)
+    keys = X.astype(str).apply(lambda r: canon(r.values), axis=1)
     codes, _ = pd.factorize(keys, sort=True)
     return codes.astype(np.int64)
+
+
+def union_groups(*group_vectors) -> np.ndarray:
+    """Connected components of the union of several group constraints (e.g.
+    BACE scaffold groups UNION exact-feature-duplicate groups): rows sharing a
+    group under ANY constraint land in one component (spec-review finding)."""
+    n = len(group_vectors[0])
+    parent = np.arange(n)
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    def union(i, j):
+        ri, rj = find(i), find(j)
+        if ri != rj:
+            parent[max(ri, rj)] = min(ri, rj)
+
+    for gv in group_vectors:
+        first = {}
+        for i, g in enumerate(np.asarray(gv)):
+            if g in first:
+                union(first[g], i)
+            else:
+                first[g] = i
+    roots = np.array([find(i) for i in range(n)])
+    _, comp = np.unique(roots, return_inverse=True)
+    return comp.astype(np.int64)
 
 
 def conflicting_label_groups(groups: np.ndarray, y: np.ndarray) -> int:

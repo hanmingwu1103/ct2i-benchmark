@@ -1,19 +1,24 @@
 """Supervised encoders: Target, WoE, ordered CatBoost-style (contract 10.4).
 
 Frozen constants:
-- TARGET_SMOOTHING alpha = 20.0; prior = mean of FITTED labels only.
-- WOE pseudocount = 0.5 added to both class counts; clip at +/- 5.0.
+- TARGET_SMOOTHING alpha = 20.0; prior = mean of FITTED labels only; unseen
+  level at transform -> prior.
+- WOE pseudocount = 0.5 added to each class count of a level, with the class
+  totals correspondingly augmented by 0.5 * K_c (K_c = fitted level count of
+  the column), so class-conditional probabilities are properly normalized;
+  clip at +/- 5.0; unseen level at transform -> 0.0 (neutral evidence — the
+  frozen contract; NOT the prior).
 - ORDERED_CATBOOST: n_permutations = 4, seeds = perm_seed + {0..3}, prior
   weight alpha = 1.0; code for row i under one permutation uses strictly
-  preceding rows; final code = mean over permutations. Fitted mapping for
-  transform of NEW rows = smoothed per-level target mean over ALL fitted rows
-  (standard CatBoost inference behavior: test-time codes use full training
-  statistics).
-- Unseen level at transform -> prior (all three encoders).
+  preceding rows (own label NEVER in own code); final code = mean over
+  permutations; `fitted_codes_` is the training-side representation consumed
+  by the pipeline (operational path). Mapping for NEW rows = smoothed
+  per-level target mean over ALL fitted rows (standard CatBoost inference);
+  unseen level -> prior.
 
-Cross-fitting (OOF) is orchestrated by pipeline.run: encoders themselves are
-plain fit/transform; they must never see labels of rows they will transform
-in-fold. The engine enforces it and the P-C tests verify it.
+Target/WoE are OOF-cross-fitted by pipeline.encode_foldsafe; ordered-CatBoost
+is its own cross-fitting scheme and uses fitted_codes_ directly. The P-C tests
+verify both paths.
 """
 from __future__ import annotations
 
@@ -69,9 +74,10 @@ class WoEEncoder(Encoder):
         for c in X.columns:
             df = pd.DataFrame({"v": X[c].astype(str), "y": y})
             g = df.groupby("v")["y"].agg(["sum", "size"])
+            k_c = len(g)  # class totals augmented by pseudo*K_c: proper normalization
             pos = g["sum"] + WOE_PSEUDO
             neg = (g["size"] - g["sum"]) + WOE_PSEUDO
-            woe = np.log((pos / (n1 + 2 * WOE_PSEUDO)) / (neg / (n0 + 2 * WOE_PSEUDO)))
+            woe = np.log((pos / (n1 + WOE_PSEUDO * k_c)) / (neg / (n0 + WOE_PSEUDO * k_c)))
             self.map_[c] = woe.clip(-WOE_CLIP, WOE_CLIP).to_dict()
         return self
 
