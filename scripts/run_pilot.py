@@ -129,29 +129,18 @@ for (ds, fold, branch), grp in df.groupby(["dataset_id", "outer_fold", "branch"]
                        r["inner_elapsed_s"] if r["inner_elapsed_s"] is not None else 0.0,
                        r["inner_status"] if r["inner_status"] is not None else "TRAINING_FAILURE")
              for _, r in grp.iterrows()]
-    ranked = rank_candidates(cands)
-    top, tie = select(cands)
-    if top is None:
+    # fallback skips ONLY refit failures — METRIC_UNDEFINED (an outer-label
+    # composition outcome) can never remove a candidate (final-audit fix)
+    from ct2i_benchmark.evaluation.selection import select_with_fallback
+    refit_status = {r["cell_id"]: r["status"] for _, r in grp.iterrows()}
+    chosen_id, tie, fallbacks = select_with_fallback(cands, refit_status)
+    if chosen_id is None:
         sel_rows.append({"dataset_id": ds, "outer_fold": fold, "policy_branch": branch,
-                         "candidate_count": len(cands), "status": "TRAINING_FAILURE"})
+                         "candidate_count": len(cands), "status": "TRAINING_FAILURE",
+                         "notes": f"all ranked candidates failed outer refit ({fallbacks})"})
         continue
-    # refit fallback: walk ranked candidates until one whose OUTER refit
-    # succeeded; count fallbacks (selection itself never read outer results)
-    fallbacks = 0
-    chosen = None
-    for cand in ranked:
-        row = grp[grp.cell_id == cand.config_id].iloc[0]
-        if row["status"] == "SUCCESS":
-            chosen, top, tie2 = row, cand, tie
-            break
-        fallbacks += 1
-    if chosen is None:
-        sel_rows.append({"dataset_id": ds, "outer_fold": fold, "policy_branch": branch,
-                         "candidate_count": len(cands),
-                         "status": "TRAINING_FAILURE",
-                         "notes": f"all {len(ranked)} ranked candidates failed outer refit"})
-        continue
-    r = chosen
+    top = next(c for c in rank_candidates(cands) if c.config_id == chosen_id)
+    r = grp[grp.cell_id == chosen_id].iloc[0]
     m = r["metrics"] or {}
     sel_rows.append({
         "dataset_id": ds, "outer_fold": fold, "policy_branch": branch,

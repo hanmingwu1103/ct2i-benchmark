@@ -33,3 +33,28 @@ def select(cands: list[Candidate]) -> tuple[Candidate | None, str]:
         "complexity" if len({c.complexity_key for c in tie}) > 1 else (
             "fit_time" if len({c.fit_time_s for c in tie}) > 1 else "config_id"))
     return top, tie_break
+
+
+# Outer statuses that mean "the refit itself succeeded" and therefore CANNOT
+# remove a ranked candidate from fallback consideration. METRIC_UNDEFINED
+# arises from outer-test label composition (single-class fold) — letting it
+# skip a candidate would leak outer-test label information into which policy
+# is deployed (final-audit P1 finding, closed here).
+REFIT_OK_STATUSES = frozenset({"SUCCESS", "METRIC_UNDEFINED"})
+
+
+def select_with_fallback(cands: list[Candidate], refit_status_of: dict[str, str]):
+    """Rank on inner-only quantities; walk the ranking, skipping ONLY
+    candidates whose outer REFIT failed (never ones whose outer metric is
+    undefined). Returns (chosen_config_id, tie_break, n_fallbacks) or
+    (None, 'TRAINING_FAILURE', n) when every ranked candidate's refit failed."""
+    ranked = rank_candidates(cands)
+    if not ranked:
+        return None, "TRAINING_FAILURE", 0
+    _, tie_break = select(cands)
+    fallbacks = 0
+    for cand in ranked:
+        if refit_status_of.get(cand.config_id) in REFIT_OK_STATUSES:
+            return cand.config_id, tie_break, fallbacks
+        fallbacks += 1
+    return None, "TRAINING_FAILURE", fallbacks
