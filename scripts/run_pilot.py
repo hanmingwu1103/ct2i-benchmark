@@ -38,7 +38,9 @@ for ds in CFG["datasets"]:
     X, y, g = load_dataset(ds)
     folds = load_folds(ds, AUDIT)
     for fold in folds:
-        oh_ok = onehot_eligible(X, fold.train_ids)
+        # eligibility from INNER-TRAINING cardinalities only (never touches
+        # inner-validation or outer-test content — Codex re-review finding)
+        oh_ok = onehot_eligible(X, fold.inner_train_ids)
         # ---- image branch ----
         for enc in CFG["image"]["encoders"]:
             if enc == "onehot" and not oh_ok:
@@ -114,20 +116,42 @@ for rec in results:
 
 pd.DataFrame(cells).to_csv(AUDIT / "_tmp" / "pilot_cells_raw.csv", index=False)
 
-# ---- per-(dataset, fold, branch) selection on inner AUC ----
+# ---- per-(dataset, fold, branch) selection on INNER results only ----
+# Candidate inputs are exclusively inner-phase quantities (inner_auc,
+# complexity, inner_elapsed_s, inner_status); outer refit failures are handled
+# AFTER ranking via the frozen next-ranked fallback (contract 10.6).
 sel_rows = []
 df = pd.DataFrame([r for r in results])
+from ct2i_benchmark.evaluation.selection import rank_candidates  # noqa: E402
 for (ds, fold, branch), grp in df.groupby(["dataset_id", "outer_fold", "branch"]):
     cands = [Candidate(r["cell_id"], r["inner_auc"],
                        COMPLEXITY.get(r["reader_or_model"], 3),
-                       r["elapsed_s"], r["status"])
+                       r["inner_elapsed_s"] if r["inner_elapsed_s"] is not None else 0.0,
+                       r["inner_status"] if r["inner_status"] is not None else "TRAINING_FAILURE")
              for _, r in grp.iterrows()]
+    ranked = rank_candidates(cands)
     top, tie = select(cands)
     if top is None:
         sel_rows.append({"dataset_id": ds, "outer_fold": fold, "policy_branch": branch,
                          "candidate_count": len(cands), "status": "TRAINING_FAILURE"})
         continue
-    r = grp[grp.cell_id == top.config_id].iloc[0]
+    # refit fallback: walk ranked candidates until one whose OUTER refit
+    # succeeded; count fallbacks (selection itself never read outer results)
+    fallbacks = 0
+    chosen = None
+    for cand in ranked:
+        row = grp[grp.cell_id == cand.config_id].iloc[0]
+        if row["status"] == "SUCCESS":
+            chosen, top, tie2 = row, cand, tie
+            break
+        fallbacks += 1
+    if chosen is None:
+        sel_rows.append({"dataset_id": ds, "outer_fold": fold, "policy_branch": branch,
+                         "candidate_count": len(cands),
+                         "status": "TRAINING_FAILURE",
+                         "notes": f"all {len(ranked)} ranked candidates failed outer refit"})
+        continue
+    r = chosen
     m = r["metrics"] or {}
     sel_rows.append({
         "dataset_id": ds, "outer_fold": fold, "policy_branch": branch,
@@ -141,7 +165,8 @@ for (ds, fold, branch), grp in df.groupby(["dataset_id", "outer_fold", "branch"]
         "outer_calibration_slope": m.get("calibration_slope"),
         "outer_calibration_intercept": m.get("calibration_intercept"),
         "status": r["status"],
-        "selection_churn_key": r["configuration_id"], "notes": "",
+        "selection_churn_key": r["configuration_id"],
+        "notes": f"refit_fallbacks={fallbacks}" if fallbacks else "",
     })
 pd.DataFrame(sel_rows).to_csv(AUDIT / "_tmp" / "policy_selection_rows.csv", index=False)
 el = time.perf_counter() - t_start

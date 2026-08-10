@@ -59,7 +59,8 @@ def run_image_cell(X, y, g, fold, encoder, layout_name, seed, commit,
     rec = {"encoder": encoder, "layout": layout_name, "reader_or_model": "pca_mlp",
            "seed": seed, "outer_fold": fold.outer_fold, "protocol": protocol,
            "stage_of_failure": None, "exception_class": None,
-           "inner_auc": None, "metrics": None, "threshold": None}
+           "inner_auc": None, "metrics": None, "threshold": None,
+           "inner_status": None, "inner_elapsed_s": None}
     step = run_protected(
         lambda: encode_foldsafe(X, y, g, fold, encoder, commit=commit)
         if protocol == "foldsafe" else None,
@@ -110,7 +111,8 @@ def run_image_cell(X, y, g, fold, encoder, layout_name, seed, commit,
         return rec
     di, dv, do, dt = step.value
 
-    def _train_eval():
+    # --- inner phase (only these outputs may inform selection) ---
+    def _inner():
         r = PcaMlpReader(seed=seed)
         r.fit(di, y[fold.inner_train_ids])
         s_val = r.predict_proba(dv)
@@ -118,18 +120,32 @@ def run_image_cell(X, y, g, fold, encoder, layout_name, seed, commit,
         inner_auc = (roc_auc_score(y[fold.inner_val_ids], s_val)
                      if len(np.unique(y[fold.inner_val_ids])) > 1 else None)
         thr = select_threshold(y[fold.inner_val_ids], s_val)
-        r2 = PcaMlpReader(seed=seed)
-        r2.fit(do, y[fold.train_ids])
-        s_test = r2.predict_proba(dt)
-        return inner_auc, thr, s_test
+        return inner_auc, thr
 
-    step = run_protected(_train_eval, Status.TRAINING_FAILURE, timeout_s=timeout_s)
-    if step.status != "SUCCESS":
-        rec.update(status=step.status, stage_of_failure="reader_fit",
-                   exception_class=step.exception_class,
+    step_i = run_protected(_inner, Status.TRAINING_FAILURE, timeout_s=timeout_s)
+    rec["inner_status"] = step_i.status
+    rec["inner_elapsed_s"] = step_i.elapsed_s
+    if step_i.status != "SUCCESS":
+        rec.update(status=step_i.status, stage_of_failure="reader_fit_inner",
+                   exception_class=step_i.exception_class,
                    elapsed_s=time.perf_counter() - t0, peak_rss_mb=_mem_mb())
         return rec
-    inner_auc, thr, s_test = step.value
+    inner_auc, thr = step_i.value
+
+    # --- outer phase (refit + one outer-test evaluation) ---
+    def _outer():
+        r2 = PcaMlpReader(seed=seed)
+        r2.fit(do, y[fold.train_ids])
+        return r2.predict_proba(dt)
+
+    step_o = run_protected(_outer, Status.TRAINING_FAILURE, timeout_s=timeout_s)
+    if step_o.status != "SUCCESS":
+        rec.update(status=step_o.status, stage_of_failure="reader_refit_outer",
+                   exception_class=step_o.exception_class, inner_auc=inner_auc,
+                   threshold=thr, elapsed_s=time.perf_counter() - t0,
+                   peak_rss_mb=_mem_mb())
+        return rec
+    s_test = step_o.value
     m, mstatus = compute_metrics(y[fold.test_ids], s_test, thr)
     rec.update(status=mstatus, inner_auc=inner_auc, threshold=thr, metrics=m,
                y_score_test=s_test.tolist(), elapsed_s=time.perf_counter() - t0,
@@ -145,7 +161,8 @@ def run_tabular_cell(X, y, g, fold, encoder, model_name, seed, commit,
            "reader_or_model": model_name, "seed": seed,
            "outer_fold": fold.outer_fold, "protocol": protocol,
            "stage_of_failure": None, "exception_class": None,
-           "inner_auc": None, "metrics": None, "threshold": None}
+           "inner_auc": None, "metrics": None, "threshold": None,
+           "inner_status": None, "inner_elapsed_s": None}
     if model_name == "catboost_native":
         Xi, Xv = X.iloc[fold.inner_train_ids], X.iloc[fold.inner_val_ids]
         Xo, Xt = X.iloc[fold.train_ids], X.iloc[fold.test_ids]
@@ -168,10 +185,12 @@ def run_tabular_cell(X, y, g, fold, encoder, model_name, seed, commit,
         else:
             Xi, Xv, Xo, Xt = step.value
 
-    def _train_eval():
-        kw = dict(model_kwargs or {})
-        if "seed" in MODELS[model_name].__init__.__code__.co_varnames:
-            kw.setdefault("seed", seed)
+    kw = dict(model_kwargs or {})
+    if "seed" in MODELS[model_name].__init__.__code__.co_varnames:
+        kw.setdefault("seed", seed)
+
+    # --- inner phase (only these outputs may inform selection) ---
+    def _inner():
         m1 = MODELS[model_name](**kw)
         m1.fit(Xi, y[fold.inner_train_ids])
         s_val = m1.predict_proba(Xv)
@@ -179,18 +198,32 @@ def run_tabular_cell(X, y, g, fold, encoder, model_name, seed, commit,
         inner_auc = (roc_auc_score(y[fold.inner_val_ids], s_val)
                      if len(np.unique(y[fold.inner_val_ids])) > 1 else None)
         thr = select_threshold(y[fold.inner_val_ids], s_val)
-        m2 = MODELS[model_name](**kw)
-        m2.fit(Xo, y[fold.train_ids])
-        s_test = m2.predict_proba(Xt)
-        return inner_auc, thr, s_test
+        return inner_auc, thr
 
-    step = run_protected(_train_eval, Status.TRAINING_FAILURE, timeout_s=timeout_s)
-    if step.status != "SUCCESS":
-        rec.update(status=step.status, stage_of_failure="model_fit",
-                   exception_class=step.exception_class,
+    step_i = run_protected(_inner, Status.TRAINING_FAILURE, timeout_s=timeout_s)
+    rec["inner_status"] = step_i.status
+    rec["inner_elapsed_s"] = step_i.elapsed_s
+    if step_i.status != "SUCCESS":
+        rec.update(status=step_i.status, stage_of_failure="model_fit_inner",
+                   exception_class=step_i.exception_class,
                    elapsed_s=time.perf_counter() - t0, peak_rss_mb=_mem_mb())
         return rec
-    inner_auc, thr, s_test = step.value
+    inner_auc, thr = step_i.value
+
+    # --- outer phase (refit + one outer-test evaluation) ---
+    def _outer():
+        m2 = MODELS[model_name](**kw)
+        m2.fit(Xo, y[fold.train_ids])
+        return m2.predict_proba(Xt)
+
+    step_o = run_protected(_outer, Status.TRAINING_FAILURE, timeout_s=timeout_s)
+    if step_o.status != "SUCCESS":
+        rec.update(status=step_o.status, stage_of_failure="model_refit_outer",
+                   exception_class=step_o.exception_class, inner_auc=inner_auc,
+                   threshold=thr, elapsed_s=time.perf_counter() - t0,
+                   peak_rss_mb=_mem_mb())
+        return rec
+    s_test = step_o.value
     m, mstatus = compute_metrics(y[fold.test_ids], s_test, thr)
     rec.update(status=mstatus, inner_auc=inner_auc, threshold=thr, metrics=m,
                y_score_test=s_test.tolist(), elapsed_s=time.perf_counter() - t0,
