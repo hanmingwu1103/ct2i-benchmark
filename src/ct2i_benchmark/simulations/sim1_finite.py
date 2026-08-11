@@ -362,6 +362,25 @@ def predict_proba_chunked(mapping, model, X_eval: pd.DataFrame,
     return out
 
 
+def predict_proba_chunked_multi(mapping, models: dict, X_eval: pd.DataFrame,
+                                chunk: int = EVAL_CHUNK) -> dict:
+    """Encode each evaluation chunk ONCE and predict it with every model.
+
+    All learners sharing an encoder see the same encoded matrix, so encoding it
+    per learner repeats the dominant cost. At M = 1000 the evaluation matrix is
+    50,000 x 4,000 and the transform is a large fraction of the cell cost, so
+    amortising it across the learners of one encoder is a substantial saving.
+    Output is identical to calling predict_proba_chunked once per model.
+    """
+    out = {k: np.empty(len(X_eval), dtype=float) for k in models}
+    for lo in range(0, len(X_eval), chunk):
+        hi = min(lo + chunk, len(X_eval))
+        Z = mapping.transform(X_eval.iloc[lo:hi])
+        for name, model in models.items():
+            out[name][lo:hi] = model.predict_proba(Z)[:, 1]
+    return out
+
+
 def decompose(eta: np.ndarray, ebar: np.ndarray, p_learner: np.ndarray,
               metric: str) -> dict:
     """representation loss + learner shortfall = total excess risk, exactly."""
