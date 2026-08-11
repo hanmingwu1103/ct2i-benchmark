@@ -160,9 +160,11 @@ materialises the 763 MB encoded matrix.
 
 `S0_COUNCIL_REVIEW.md` carries both reviews **verbatim**.
 
+Two seats reported. **Every BLOCKER and MAJOR was independently re-run by the
+host before being accepted** — none was taken on the reviewer's word.
+
 **Codex** (implementation and numerical verification seat) returned **1 BLOCKER
-and 6 MAJOR** findings. All were accepted as valid and closed before this report;
-the fixes are in commit `4ac67a6`. Summary:
+and 6 MAJOR** findings, all valid, all closed in commit `4ac67a6`:
 
 | Finding | Resolution |
 |---|---|
@@ -174,10 +176,32 @@ the fixes are in commit `4ac67a6`. Summary:
 | MAJOR — "no scientific claim depends on the unidentified hash gap" too strong | Scope corrected: C1/C2 are empirical only; Figure S3 must label exact vs empirical |
 | MAJOR — `Delta_eta` construction described inaccurately | Corrected: $\eta$ is not the logistic model cell-by-cell; fiber mean is not preserved under Zipf |
 
-**Gemini** could not be run (see §1). A clearly-labelled substitute design review
-occupied the seat; its findings and disposition are recorded in the council
-document. **This does not satisfy the letter of the execution prompt**, and is
-flagged for the advisor rather than papered over.
+**Gemini** could not be run (see §1). A clearly-labelled substitute filled the
+design seat and returned **4 BLOCKER, 8 MAJOR, 8 MINOR**, all closed or recorded
+in commit `bfa617d`. The four blockers were serious and are summarised below; the
+verification column reports the host's own re-measurement, not the reviewer's:
+
+| Finding | Host re-measurement | Resolution |
+|---|---|---|
+| **B1** DGP seed keyed on an index containing the contrasted factor, so every within-DGP contrast was unpaired | **A8 fails 15/15 replicates unpaired, 0/15 paired** | `dgp_block_seed` excludes contrasted factors; nested `n_train` sampling |
+| **B2** `NOT_IDENTIFIED` over-declared; both decomposition terms silently NULL for 6/13 encoder configs | **exact hash gap at M=5,K=4 computes in 4–9 ms** | per-cell identification (K^M ≤ 1e6); recovers 96 of 288 scenarios |
+| **B3** A9 — the overgeneralisation guard — satisfied by an assignment, not a computation | confirmed by inspection | routed through the generic aggregation; zero now emerges at ~1e-17 |
+| **B4** no estimand, unit of analysis, or test statistic for the contrasts whose p-values TabS3 must report | confirmed | unit = scenario; pairing, t-statistic and MDE frozen; deterministic contrast removed from the BH family |
+
+Selected MAJORs: the designed-merge Brier gap is an exact function of
+$(K, \text{marginal}, \Delta_\eta)$ alone (**host confirmed: 10 distinct values
+across the entire factorial**), so H4/A5/C5 on that encoder are construction
+identities and a companion observed-spread analysis was added; H6's instrument was
+scale-confounded **and its direction is reversed at the prespecified contrast
+under both raw SD and coefficient of variation** (host confirmed). The instrument
+was corrected; **the hypothesis direction was deliberately not changed**, and the
+pilot observation is disclosed in the freeze so that a Phase S1 rejection of H6
+cannot be mistaken for post-hoc adjustment.
+
+**This does not satisfy the letter of the execution prompt**, and is flagged for
+the advisor rather than papered over.
+
+**Critical veto count: 0.** All five blockers were closed before this report.
 
 ---
 
@@ -200,7 +224,13 @@ Installed at the version pinned in `requirements.lock.txt` (`lightgbm==4.7.0`).
 deprecated in scikit-learn 1.8 and removed in 1.10. The argument is no longer
 passed; L2 is the default and $C$ pins the regularisation.
 
-**F4 — numpy version skew for Simulation 2.** The authoritative Stage 2 output was
+**F4 — Own-label leakage was not the only latent defect.** The design seat's B1
+(unpaired contrasts) would have produced a spurious, unfixable failure of
+acceptance criterion A8 in Phase S1, because the freeze forbids retuning a failed
+criterion. It was caught only because the review ran *before* the full run. This
+is the clearest single argument for keeping the pre-run review gate.
+
+**F5 — numpy version skew for Simulation 2.** The authoritative Stage 2 output was
 produced under numpy 2.4.6; this environment has 2.4.1. PCG64 streams are stable
 across these versions so a bitwise match is expected, but this is a Phase S1
 verification step, not an assumption.
