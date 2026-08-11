@@ -502,6 +502,94 @@ class TestSeedReplay:
 
 
 # ---------------------------------------------------------------------------
+# Design-review blockers B1 and B2
+# ---------------------------------------------------------------------------
+
+class TestSeedPairing:
+    """B1: contrasted arms must share one DGP parameter draw."""
+
+    def test_seed_is_invariant_to_contrasted_factors(self):
+        block = (5, 4, "zipf", 1.5, 3)           # excludes delta_eta and n_train
+        seeds = {CORE.dgp_block_seed("1B", block, 7)}
+        assert len(seeds) == 1
+        # the same block must reproduce bitwise regardless of how often it is asked
+        assert CORE.dgp_block_seed("1B", block, 7) == CORE.dgp_block_seed("1B", block, 7)
+
+    def test_parameter_draw_is_identical_across_delta_eta(self):
+        """The whole point of B1: C5 must compare Delta levels on ONE draw."""
+        block = (5, 4, "zipf", 1.5, 3)
+        seed = CORE.dgp_block_seed("1B", block, 3)
+        prms = [CORE.draw_params(5, 4, "zipf", 1.5, 3, de, seed, d_active=3)
+                for de in (0.0, 0.1, 0.3)]
+        for p in prms[1:]:
+            assert np.array_equal(prms[0].a, p.a)
+            for b0, b1 in zip(prms[0].b, p.b):
+                assert np.array_equal(b0, b1)
+
+    def test_different_blocks_give_different_draws(self):
+        a = CORE.dgp_block_seed("1B", (5, 4, "zipf", 1.5, 3), 1)
+        b = CORE.dgp_block_seed("1B", (20, 4, "zipf", 1.5, 3), 1)
+        assert a != b
+
+    def test_replicate_still_varies_the_draw(self):
+        block = (5, 4, "zipf", 1.5, 3)
+        s1 = CORE.dgp_block_seed("1B", block, 1)
+        s2 = CORE.dgp_block_seed("1B", block, 2)
+        assert s1 != s2
+        p1 = CORE.draw_params(5, 4, "zipf", 1.5, 3, 0.3, s1, d_active=3)
+        p2 = CORE.draw_params(5, 4, "zipf", 1.5, 3, 0.3, s2, d_active=3)
+        assert not np.array_equal(p1.a, p2.a)
+
+    def test_paired_seeding_makes_A8_adjudicable(self):
+        """Unpaired seeding made A8 fail on essentially every replicate; paired
+        seeding makes the criterion evaluable. Measured, not assumed."""
+        Ms = [10, 50, 200, 1000]
+        fails_paired = 0
+        for rep in range(1, 9):
+            seed = CORE.dgp_block_seed("1C", (0.20, "position_specific"), rep)
+            gaps = [B1C.exact_1c_shared_value(M=M, q=0.20, tau=1.5,
+                                              target="position_specific",
+                                              B=2 * M, seed=seed)["gap_logloss"]
+                    for M in Ms]
+            if not all(b >= a - 1e-15 for a, b in zip(gaps, gaps[1:])):
+                fails_paired += 1
+        assert fails_paired == 0, f"{fails_paired}/8 non-monotone even when paired"
+
+
+class TestPerCellGapIdentification:
+    """B2: the population hash gap is identified wherever the space enumerates."""
+
+    @pytest.mark.parametrize("M,K,expected", [
+        (5, 4, True), (5, 12, True), (5, 50, False),
+        (20, 4, False), (20, 12, False), (20, 50, False)])
+    def test_identification_is_per_cell_not_per_encoder(self, M, K, expected):
+        assert CORE.hash_gap_identified(M, K) is expected
+
+    @pytest.mark.parametrize("encoder", ["hash_column", "hash_shared"])
+    @pytest.mark.parametrize("B", [10, 20, 40])
+    def test_exact_hash_gap_available_at_M5_K4(self, encoder, B, tol):
+        prm = CORE.draw_params(5, 4, "zipf", 1.5, 3, 0.3, seed=201, d_active=3)
+        r = CORE.exact_full_space_gap(prm, encoder, B, delta_eta=0.3)
+        assert r["theoretical_gap_status"] == "IDENTIFIED_EXACT"
+        assert r["n_cells"] == 4 ** 5
+        assert r["identity_error_logloss"] <= tol["exact_identity_abs"]
+        assert r["identity_error_brier"] <= tol["exact_identity_abs"]
+        assert r["gap_logloss"] >= -1e-12
+
+    def test_column_aware_beats_shared_value_on_the_full_space(self):
+        prm = CORE.draw_params(5, 4, "zipf", 1.5, 3, 0.3, seed=201, d_active=3)
+        for B in (10, 20, 40):
+            col = CORE.exact_full_space_gap(prm, "hash_column", B, 0.3)
+            shr = CORE.exact_full_space_gap(prm, "hash_shared", B, 0.3)
+            assert col["gap_logloss"] <= shr["gap_logloss"] + 1e-12
+
+    def test_non_enumerable_cell_refuses_rather_than_approximating(self):
+        prm = CORE.draw_params(20, 50, "zipf", 1.5, 3, 0.3, seed=201, d_active=3)
+        with pytest.raises(ValueError):
+            CORE.exact_full_space_gap(prm, "hash_column", 1000, 0.3)
+
+
+# ---------------------------------------------------------------------------
 # 10. Typed failure / null metric behaviour
 # ---------------------------------------------------------------------------
 

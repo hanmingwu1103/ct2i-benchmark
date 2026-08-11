@@ -483,12 +483,29 @@ These bound what the simulations can support. They are recorded here so the
 advisor's prose does not overreach, and so a hostile reviewer finds them already
 disclosed rather than discovered.
 
-1. **Sparse-signal restriction in 1B.** With $d = \min(M,3)$, Simulation 1B
-   speaks to encoding loss when *few* coordinates carry signal. It does **not**
-   support claims about encoding loss when many coordinates jointly carry signal.
-   Simulation 1A retains $d = M$, so the exact theorem check is unaffected.
-2. **Column-aware hashing has no identified population gap** in either 1B or 1C.
-   Contrasts C1 and C2 are empirical finite-sample comparisons only.
+1. **In Simulation 1B, $M$ is a noise-dimension factor, not a width factor.**
+   With $d = \min(M,3)$ the active block is *identical* at $M = 5$ and $M = 20$ —
+   same three coordinates, same $K$, same interactions. The only difference is 2
+   versus 17 pure-noise columns. Every "effect of $M$" reported from 1B is
+   therefore an effect of the noise-to-signal *feature ratio*, mediated through
+   the learner, and none of it is an effect of encoding width on representation.
+   In particular one-hot's dimension penalty grows with $M$ while achievable
+   signal stays constant, and hash encoders are diluted in proportion to $M$.
+   **No 1B scenario has many informative high-cardinality columns**, which is the
+   regime the manuscript's data occupies. This must be stated in the TabS1
+   caption and the FigS4 caption. Simulation 1A retains $d = M$, so the exact
+   theorem check is unaffected. *(Raised by the S0 design review, MAJOR M7.)*
+2. **Column-aware hashing has no identified population gap** in 1C, and only in
+   the enumerable cells of 1B ($M = 5$, $K \in \{4,12\}$). Outside those,
+   contrasts C1 and C2 are empirical finite-sample comparisons only, and *both*
+   `representation_loss` and `learner_shortfall` are NULL because both require
+   $R_{\text{Bayes}}(Z)$.
+2a. **Label and one-hot are not injective on the 1B population.** Both carry an
+   UNSEEN bucket fitted from the training sample, so unseen levels collapse:
+   measured representation loss $0.0031$ at $K = 50$, Zipf, $n_{\text{train}} =
+   500$. They are exact injective controls in **1A only**; in 1B they are the
+   *reference* arm of C1/C4, not a zero-gap control, and H3 is confirmed in 1A
+   alone. *(Raised by the S0 design review, MINOR m7.)*
 3. **The 1C width trend is an ensemble statement.** The position-specific target
    is re-randomised per seed and centred with an unweighted pattern mean, so
    "loss grows with $M$" is a property of the specified DGP ensemble, not a
@@ -499,7 +516,34 @@ disclosed rather than discovered.
    frozen band $[0.05, 0.95]$ keeps every cell well away from the boundary.
 5. **$\Delta_\eta$ is engineered on designed-merge fibers**, which exist in 1A but
    not in the 1B encoder list. Monotonicity in $\Delta_\eta$ is a gated criterion
-   (A6) only in 1A; in 1B it is reported descriptively under H4.
+   (A6) only in 1A, and only for the designed merge encoder: measured over the
+   1A grid with matched seeds, monotonicity fails for **9.4%** of $\Delta$-triples
+   under column-aware hashing and **16.2%** under shared-value hashing. That is
+   real mathematics — for encoders other than $\varphi_D$ the conditional
+   variance picks up a cross term linear in $\Delta$ that can be negative — not a
+   bug. *(Raised by the S0 design review, MAJOR M2.)*
+6. **The designed-merge result is a construction identity.** The Brier gap is an
+   exact function of $(K, \text{marginal}, \Delta_\eta)$ alone; $M$, $\tau$, the
+   interaction count and the seed are analytically inert. H4/A5/C5 on that
+   encoder verify the construction, and cannot distinguish "the theorem holds"
+   from "we imposed the answer". A companion analysis regresses the exact gap on
+   *observed* spread using the 1A hash and count cells, which is the version of
+   H4 that can fail. *(MAJOR M1.)*
+7. **The count encoder's population behaviour is a knife-edge tie phenomenon.**
+   Under a uniform marginal all $K$ levels have exactly equal probability, so the
+   population count map collapses the whole space to one fiber; under Zipf it is
+   perfectly injective. There is no intermediate regime, and no real marginal is
+   exactly uniform. Its finite-sample analogue is an integer-tie mixture with an
+   atom at zero (measured mean $0.0056$, SD $0.0110$ at $K=4$, uniform,
+   $n = 500$), so bootstrap rather than normal intervals are primary for any
+   count-encoder contrast. *(MAJOR M4.)*
+8. **Marginal prevalence is near $0.5$ in every cell**, since $\beta_0 = 0$ and
+   the affine squash pin it there. There is no class-imbalance factor anywhere,
+   so PR-AUC carries little independent information and the "rare category" story
+   never interacts with a rare outcome. *(MINOR m8.)*
+9. **A7 is brute-force verified only for $M \le 14$.** At the production widths
+   $M \in \{50, 200, 1000\}$ the criterion evaluates the same closed form it is
+   checking, backed by the Stage 1 proposition. TabS2 must say so. *(MINOR m2.)*
 
 ## 15. Deviations from the plan, recorded
 

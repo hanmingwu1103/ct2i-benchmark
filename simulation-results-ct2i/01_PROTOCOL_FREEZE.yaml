@@ -92,6 +92,33 @@ dgp:
       construction realises that value exactly. This is what makes the
       lossless-versus-lossy contrast a designed comparison rather than an
       observed one.
+    delta_eta_is_a_construction:
+      disclosure: >
+        Because every designed-merge fiber holds r = 2 cells whose conditional
+        weights depend only on (K, marginal), the designed-merge Brier gap is an
+        exact deterministic function of (K, marginal, Delta_eta) ALONE. Measured
+        over M in {3,5}, tau in {0.5,1.5}, interaction pairs in {0,2} and three
+        seeds, the whole 1A designed-merge factorial yields 10 distinct Brier
+        gap values, with every replicate within a condition bitwise identical.
+        M, tau, interaction count and the seed are analytically inert for this
+        quantity. The log-loss gap does vary (16 distinct values spanning
+        0.0479-0.0594 at K=4 uniform, Delta=0.3), but only through the curvature
+        of H at the fiber mean, around the same deterministic centre.
+      consequence: >
+        H4, A5 and C5 restated on the designed merge encoder are CONSTRUCTION
+        IDENTITIES, not empirical findings. They verify that the imposed
+        heterogeneity produces the predicted gap; they cannot distinguish "the
+        theorem holds" from "we imposed the answer". They must be reported as
+        controls, and the manuscript must not present them as evidence that
+        representation loss grows with heterogeneity.
+      required_companion_analysis: >
+        H4 is additionally evaluated on OBSERVED rather than imposed
+        heterogeneity, using the hash and count encoders in Simulation 1A, whose
+        max_fiber_posterior_spread is a descriptive statistic and whose gaps are
+        exact. This is a regression of exact gap on observed spread across the
+        1A grid, at negligible extra compute, and it is the version of H4 that
+        can actually fail.
+      raised_by: "S0 design review (MAJOR M1)"
 
 # -----------------------------------------------------------------------------
 # Simulation 1A - exact theorem checks (full enumeration)
@@ -192,7 +219,15 @@ simulation_1b:
         strength because no DGP factor level is dropped.
       heavy_learner_encoder_subset:
         [label, onehot, count, hash_column@B1, hash_shared@B1, target]
-      fitted_learner_cells: 259200
+      fitted_learner_cells: 360000
+      fitted_learner_cells_derivation: >
+        288 scenarios x 13 encoder configurations x 50 replicates for logistic
+        (187,200) plus 288 x 6 encoder configurations x 2 heavy learners x 50
+        replicates (172,800) = 360,000. The previously frozen 259,200 counted
+        only the heavy subset with all three learners and silently dropped
+        logistic on the other seven configurations, contradicting this variant's
+        own description. Corrected at S0 review (MINOR m1); both figures are
+        inside the CPU ceiling, so no sizing conclusion changes.
       preserved_central_contrasts:
         - "injective versus non-injective"
         - "Delta_eta = 0 versus positive"
@@ -211,8 +246,28 @@ simulation_1b:
         by coordinate, so the fibers of Z restricted to the active block are
         enumerable (K^d <= 125000) and ebar(z) and Var(eta|z) are exact.
     hash_encoders:
-      status: NOT_IDENTIFIED
+      status: PER_CELL          # decided by state-space size, not by encoder
       applies_to: [hash_column, hash_shared]
+      rule: "IDENTIFIED_EXACT when K**M <= 1000000, else NOT_IDENTIFIED"
+      enum_cap: 1000000
+      identified_cells: "M=5 with K=4 (1024 cells) and K=12 (248832 cells) -> 96 of 288 scenarios"
+      not_identified_cells: "M=5 K=50; all M=20"
+      per_cell_note: >
+        An earlier draft declared the hash gap NOT_IDENTIFIED for the whole
+        encoder family. That was over-broad: at M=5, K=4 the full space is 1024
+        cells and the exact gap computes in about 5 ms. Identification is now
+        decided per cell, so a third of the 1B scenarios carry an exact hash
+        representation loss, including the C1/C2 comparison and the bucket-width
+        sweep.
+      raised_by: "S0 design review (BLOCKER B2)"
+      decomposition_consequence: >
+        representation_loss AND learner_shortfall both require R_Bayes(Z), so in
+        NOT_IDENTIFIED cells BOTH are NULL and only total_excess_risk survives.
+        The Bayes-on-Z oracle learner is likewise undefined there. This must be
+        stated prominently in 19_VALIDATION_REPORT.md and
+        20_RESULT_HANDOFF_MEMO.md, and shown explicitly in FigS4 and TabS3, so
+        a blank is never read as a zero for the encoders the manuscript
+        indicts.
       reason: >
         A hashed record's bucket-count vector mixes all M coordinates,
         including the inactive ones, so its fibers do not factorise and the
@@ -255,6 +310,18 @@ simulation_1c:
   dgp_scenarios: 48
   encoders: [label, onehot, count, hash_column, hash_shared]
   encoder_configurations: 9      # 3 non-hash + 2 hash x 3 bucket widths
+  # previously unfrozen and budgeted anyway -- raised by the S0 design review (M5)
+  learners: [bayes_z_oracle, logistic, lightgbm, mlp]
+  tau: 1.5
+  tau_note: >
+    A single signal scale is frozen for 1C. The 1C contrast of interest is
+    across M, activation rate and target mechanism; sweeping tau as well would
+    triple the arm without bearing on the hash-collapse question, and 1B already
+    covers the tau contrast.
+  injective_on_binary_note: >
+    label, onehot and count are all injective on binary records, so all three
+    have identically zero representation gap here. They are retained as a single
+    plotted reference series rather than three coincident lines (see FigS3).
   targets:
     position_specific: >
       eta depends on the first S = 5 named coordinates through main effects and
@@ -411,14 +478,38 @@ metrics:
 # Seeds
 # -----------------------------------------------------------------------------
 seeds:
-  rule: "deterministic function of (component, scenario_index, replicate); no wall-clock or entropy source"
-  simulation_1a_dgp: "100000 + 1000 * scenario_index + replicate"
-  simulation_1b_dgp: "200000 + 1000 * scenario_index + replicate"
-  simulation_1b_data: "300000 + 1000 * scenario_index + replicate"
+  rule: >
+    Deterministic function of (component, BLOCK, replicate). The block contains
+    only the NON-contrasted factors, so both arms of every within-DGP contrast
+    share one parameter draw. No wall-clock or entropy source anywhere.
+  implementation: ct2i_benchmark.simulations.sim1_core.dgp_block_seed
+  blocking_rationale: >
+    The original rule keyed the seed on a scenario index that CONTAINED the
+    contrasted factor, so the two arms of A6, A8 and C5-C8 were drawn from
+    different parameter sets and the comparison was unpaired by construction.
+    Measured consequence: acceptance criterion A8 failed 15/15 replicates under
+    the unpaired rule and 0/15 under the paired rule. Because the freeze forbids
+    retuning a failed criterion, that would have produced an unfixable spurious
+    failure in Phase S1.
+  raised_by: "S0 design review (BLOCKER B1)"
+  contrasted_factors_excluded_from_the_block:
+    simulation_1a: [delta_eta]
+    simulation_1b: [delta_eta, n_train]
+    simulation_1c: [M, n_train]
+  block_keys:
+    simulation_1a: "(M, K, marginal, tau, interaction_pairs)"
+    simulation_1b: "(M, K, marginal, tau, interaction_pairs)"
+    simulation_1c: "(activation_rate, target_mechanism)"
+  n_train_pairing: >
+    Within a block and replicate, the n_train = 5000 sample is drawn once and
+    the n_train = 500 sample is its first 500 rows. The two training-size arms
+    are therefore nested, which pairs C6-C8 exactly.
   simulation_1b_oof: "4211 + 17 * replicate"
-  simulation_1b_learner: "500000 + 1000 * scenario_index + replicate"
-  simulation_1c_dgp: "400000 + 1000 * scenario_index + replicate"
-  simulation_1c_data: "600000 + 1000 * scenario_index + replicate"
+  simulation_1b_learner: "500000 + 1000 * block_hash + replicate"
+  verification: >
+    A property test asserts the drawn parameters (a, b) are bitwise identical
+    across all Delta_eta levels within a block, and that A8 is monotone on every
+    tested replicate once paired.
   hash_seed: 20260810
   bootstrap_seed: 90210
   replicates_1a: 100
@@ -488,6 +579,16 @@ acceptance_criteria:
     description: "Shared-value hash has zero representation gap under the Hamming-weight target (overgeneralisation guard)"
     scope: [simulation_1c]
     tolerance_ref: zero_gap_abs
+    measured_not_assigned: true
+    measurement_note: >
+      An earlier implementation ASSIGNED (risk_z, cmi, evar) = (risk_x, 0, 0) on
+      the non-collapsed branch, which made this criterion a tautology that a
+      genuine fiber-logic bug would have passed -- and this criterion is the
+      manuscript's own guard against overgeneralising the historical hash
+      failure. Both branches now go through the same generic fiber aggregation
+      as the position-specific arm, so the zero EMERGES numerically (observed
+      residual about 1e-17 rather than a literal 0.0).
+    raised_by: "S0 design review (BLOCKER B3)"
   A10:
     description: "Column-aware hash shows no deterministic Hamming-weight collapse; its fiber count strictly exceeds the shared-value fiber count at equal B"
     scope: [simulation_1a, simulation_1c]
@@ -544,7 +645,45 @@ multiplicity:
     identified.
   H3_H6_adjudication: "prespecified contrasts, Benjamini-Hochberg FDR control at 0.05 within the family"
   reporting: "raw and adjusted p-values are both reported; no contrast is added after seeing results"
-  H6_instability_measure: "across-replicate standard deviation of representation loss for target, WoE and ordered CatBoost (sim variant), contrasted between uniform and Zipf marginals at matched K"
+  H6_instability_measure: >
+    Coefficient of variation (across-replicate SD divided by the across-replicate
+    mean) of representation loss for target, WoE and ordered CatBoost (sim
+    variant), contrasted between uniform and Zipf marginals at matched K, n_train
+    and all other factors, computed WITHIN scenario and then averaged over
+    scenarios.
+  H6_instrument_change:
+    was: "raw across-replicate standard deviation"
+    now: "coefficient of variation, computed within scenario"
+    reason: >
+      The raw SD tracks the mean: the uniform arm carries roughly twice the
+      representation loss of the Zipf arm, so it mechanically shows the larger
+      SD. That is a scale confound, not instability. The earlier wording also
+      left the pooling level ambiguous between within-scenario SD and an SD over
+      a pool mixing very different loss scales, where between-scenario
+      heterogeneity would dominate and has nothing to do with rare categories.
+    raised_by: "S0 design review (MAJOR M3)"
+  H6_direction_disclosure:
+    status: DISCLOSED_BEFORE_THE_RUN
+    observation: >
+      An S0 pilot (12 replicates, M=20, d=3, tau=1.5, n_int=3, Delta=0.3) at the
+      exact contrast C9 prespecifies found the direction REVERSED under both the
+      old raw-SD instrument and the new coefficient of variation: target at
+      K=50, n=500 gave uniform CV 0.075 against Zipf CV 0.069, and the same
+      ordering at n=5000. A plausible mechanism is that under a heavy tail the
+      probability mass concentrates on frequent, well-estimated levels, so the
+      rare levels that collapse carry little mass, whereas under a uniform
+      marginal every level is equally noisily estimated and every collapse hits
+      a high-mass level.
+    what_was_NOT_done: >
+      The hypothesis direction was NOT changed to match this observation, and
+      C9-C11 remain one-sided "greater" as originally frozen. Only the
+      instrument was corrected, for the scale-confound reason above, which is
+      justified independently of the direction. H6 may well be REJECTED with the
+      wrong sign in Phase S1; if so that is reported as-is.
+    why_disclosed_now: >
+      The freeze forbids changing a criterion after seeing results. Disclosing a
+      pilot observation before the run is the honest alternative to discovering
+      it afterwards and being suspected of having adjusted for it.
 
   # ---- elementary tests, made explicit (Codex S0 review, MAJOR) -------------
   elementary_tests_note: >
@@ -553,16 +692,56 @@ multiplicity:
     contrasts C1-C11, one elementary test each, and nothing else. Each entry
     below fixes the estimand, the pairing, the test statistic, and the
     direction, so the family is fully determined before the run.
-  family_members: [C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11]
-  family_size: 11
+  # BH family: only the STOCHASTIC contrasts. C1, C2 and C5 evaluated on the 1A
+  # exact arm are deterministic (zero Monte Carlo variance); including a
+  # degenerate p ~ 0 in a step-up procedure raises the threshold index and
+  # mechanically LOOSENS the adjustment for the genuinely stochastic members,
+  # which is anti-conservative rather than safe. They are reported as exact
+  # quantities with no p-value. (S0 design review, BLOCKER B4.)
+  family_members: [C1, C2, C3, C4, C6, C7, C8, C9, C10, C11]
+  family_size: 10
+  excluded_from_family: [C5]
+  excluded_reason: >
+    C5 (designed merge, Delta = 0.3 vs 0) is exact in 1A with zero Monte Carlo
+    variance and is additionally a construction identity (see
+    delta_eta_is_a_construction below). It is reported as an exact value with
+    its closed form, never as a p-value.
+  exact_arm_contrasts_carry_no_pvalue: >
+    Where C1 or C2 are evaluated on an exact arm (1A, or the IDENTIFIED_EXACT
+    1B cells), they are reported as exact differences with mcse = 0 and empty
+    p_raw / p_bh. Only their finite-sample evaluations enter the family.
+
+  unit_of_analysis: scenario
+  unit_of_analysis_note: >
+    The estimand is the mean paired contrast across DGP scenarios. Replicates
+    are NOT the unit: with 288 scenarios x 50 replicates, treating replicates as
+    independent gives n = 14400 and every contrast becomes "significant" at any
+    threshold regardless of practical size. Replicates are averaged within
+    scenario first; the scenario mean is the observation. n = 288 (1B) or 48
+    (1C).
+  pairing: >
+    Every contrast is formed WITHIN a (block, replicate), so both arms share one
+    DGP parameter draw, then averaged to the scenario level. This is what the
+    seed blocking above exists to make possible; without it these contrasts
+    would be between-draw comparisons.
   test_statistic: >
-    Paired across replicates within scenario: the contrast is formed inside each
-    (scenario, replicate) so the DGP draw is differenced out, then aggregated
-    over scenarios. Statistic = mean paired difference divided by its
-    across-replicate standard error. Reference distribution = two-sided
-    Student t on (R - 1) degrees of freedom, R = 50, with a paired percentile
-    bootstrap (B = 2000, seed 90210) reported alongside as a distribution-free
-    check.
+    One-sample t on the scenario-level paired differences, t = mean / (sd /
+    sqrt(n_scenarios)), on (n_scenarios - 1) degrees of freedom, at the
+    directionality given below. Reported alongside: a paired percentile
+    bootstrap over scenarios (B = 2000, seed 90210) as a distribution-free
+    check, and the Wilcoxon signed-rank statistic for contrasts whose
+    scenario-level differences are visibly non-normal (the count-encoder
+    contrasts are a spike-at-zero mixture; see count_encoder_caveat).
+  minimum_detectable_effect: >
+    At n = 288 scenarios, alpha = 0.05 one-sided and power 0.80, the detectable
+    standardised paired effect is d = 0.147. At n = 48 (1C), d = 0.363. Stated
+    before the run so a null result can be read as informative rather than
+    merely underpowered.
+  count_encoder_caveat: >
+    The count encoder's finite-sample loss is an integer-tie mixture with an
+    atom at zero, so the normal interval in `uncertainty` is misspecified for
+    it. Bootstrap intervals are the primary report for any contrast involving
+    the count encoder.
   directionality:
     C1: "two-sided"
     C2: "two-sided"
@@ -630,10 +809,18 @@ figures:
     placeholder_ids: [SIM1-FIG-01, SIM-FIG-01]
     caption_topic: "estimated versus theoretical log-loss and Brier gaps"
     panels:
-      a: "1A exact: estimated vs theoretical log-loss gap, y = x reference, coloured by encoder"
-      b: "1A exact: estimated vs theoretical Brier gap, y = x reference, coloured by encoder"
-      c: "1B: estimated vs theoretical log-loss gap where identified, with MCSE bars"
-      d: "residual (estimated - theoretical) versus theoretical, symmetric log scale"
+      a: "1A + 1C exact: estimated vs theoretical log-loss AND Brier gap, y = x reference, coloured by encoder (single combined panel)"
+      b: "1B: estimated vs theoretical log-loss gap in the IDENTIFIED_EXACT cells, with MCSE bars"
+      c: "1B: estimated vs theoretical Brier gap in the IDENTIFIED_EXACT cells, with MCSE bars"
+    panel_reduction_note: >
+      The original four panels devoted three to the exact arms, where the two
+      axes agree to about 2e-15 by construction, and one of those plotted that
+      residual on a symlog axis -- i.e. plotted float64 rounding. Three panels
+      of machine precision is a tautology, not a result. The exact arms are now
+      one panel and the maximum identity error is reported as a number in TabS2
+      where it belongs; the freed space goes to the finite-sample cells, which
+      carry actual information.
+    raised_by: "S0 design review (MAJOR M6)"
     data_source: 08_SIM1_FIGURE_DATA.csv
   FigS2:
     placeholder_ids: [SIM1-FIG-02]
@@ -642,6 +829,16 @@ figures:
       a: "log-loss representation loss vs Delta_eta in {0, 0.1, 0.3}, one line per encoder, 95 percent CI"
       b: "Brier representation loss vs Delta_eta, same encoders"
     facets: "columns = marginal (uniform, Zipf)"
+    source_arm: simulation_1a
+    source_arm_note: >
+      Pinned to the 1A exact arm, because the designed merge encoder that
+      defines Delta_eta exists only there and is not in the 1B encoder list.
+      1A cells are exact, so mcse = 0 and the error band is NOT a confidence
+      interval: the band shown is the across-DGP-condition spread (min-max over
+      the 96 conditions at each Delta_eta level), and the register's
+      ci_low/ci_high columns carry that spread with an explicit
+      `interval_kind = condition_spread` marker so it cannot be misread as
+      sampling uncertainty. Raised by S0 design review (MINOR m3).
     data_source: 08_SIM1_FIGURE_DATA.csv
   FigS3:
     placeholder_ids: [SIM1-FIG-03]
@@ -651,7 +848,14 @@ figures:
     columns: "activation rate 0.05, 0.20, 0.50"
     x: "M in {10, 50, 200, 1000}, log scale"
     y: "representation loss (log loss); secondary y-axis panel row for ROC-AUC"
-    series: [label, onehot, count, hash_column, hash_shared]
+    series: ["injective reference (label/onehot/count, coincident at zero)", hash_column, hash_shared]
+    series_note: >
+      label, onehot and count are all injective on binary records and produce
+      three coincident zero lines; they are drawn once as a single reference
+      series. Every series carries an explicit exact-versus-empirical marker:
+      hash_shared is IDENTIFIED_EXACT, hash_column is NOT_IDENTIFIED on the
+      representation-loss axis and appears only on the ROC-AUC secondary row.
+      Raised by S0 design review (MAJOR M6, MINOR m4).
     must_show_both_targets: true
     data_source: 08_SIM1_FIGURE_DATA.csv
   FigS4:
@@ -681,6 +885,10 @@ tables:
   TabS1:
     placeholder_ids: [SIM1-TAB-01]
     topic: "simulation design and factor levels"
+    required_caption_disclosure: >
+      Must state that d = 3 in EVERY Simulation 1B cell, so M varies the number
+      of pure-noise columns only and the design does not test dense
+      high-cardinality signal. Same disclosure required in the FigS4 caption.
     columns: [component, M, K, marginal, tau, interaction_count, delta_eta,
               n_train, n_test, encoder, bucket_width, learner, replicate_count]
     rule: "must reflect the design actually frozen and executed, not the design contemplated"

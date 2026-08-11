@@ -51,6 +51,7 @@ re-using the risk difference, so the identity check is a real check.
 """
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -449,6 +450,106 @@ def population_fibers(name: str, cells: np.ndarray, prm: DGPParams,
 INJECTIVE_CONTROLS = ("identity", "label", "onehot")
 POPULATION_ENCODERS = ("identity", "label", "onehot", "designed_merge",
                        "count_pop", "hash_column", "hash_shared")
+
+
+# ---------------------------------------------------------------------------
+# Seed blocks: pairing for within-DGP contrasts
+# ---------------------------------------------------------------------------
+
+SEED_BASE = {"1A": 100_000, "1B": 200_000, "1B_data": 300_000,
+             "1C": 400_000, "1C_data": 600_000}
+
+# Factors that are CONTRASTED within a DGP draw and must therefore be excluded
+# from the seed key, so both arms of the contrast share one parameter draw.
+CONTRASTED_FACTORS = {
+    "1A": ("delta_eta",),
+    "1B": ("delta_eta", "n_train"),
+    "1C": ("M", "n_train"),
+}
+
+
+def dgp_block_seed(component: str, block: tuple, replicate: int) -> int:
+    """Seed for the DGP parameter draw, keyed on a block that EXCLUDES the
+    contrasted factors.
+
+    Raised by the S0 design review (BLOCKER B1). The original rule keyed the
+    seed on a scenario index that *contained* the contrasted factor, so the two
+    arms of every within-DGP contrast (A6, A8, C5-C8) were drawn from DIFFERENT
+    parameter sets. The comparison was then unpaired by construction and the
+    between-draw variance swamped the effect: acceptance criterion A8
+    ("shared-value loss nondecreasing in M") failed 15/15 measured replicates
+    under the unpaired rule and 0/15 under the paired rule. Since the freeze
+    forbids retuning a failed criterion, that would have produced an
+    unfixable spurious failure in Phase S1.
+
+    `block` must contain only the NON-contrasted factors, in a fixed order.
+    A property test asserts the parameter draw is identical across the levels
+    of each contrasted factor within a block.
+    """
+    if component not in SEED_BASE:
+        raise ValueError(f"unknown component {component!r}")
+    h = int.from_bytes(
+        hashlib.blake2b(repr(tuple(block)).encode(), digest_size=4).digest(),
+        "little")
+    return SEED_BASE[component] + 1000 * (h % 1_000_000) + int(replicate)
+
+
+# ---------------------------------------------------------------------------
+# Per-cell identification of the population gap (Simulation 1B)
+# ---------------------------------------------------------------------------
+
+ENUM_CAP = 1_000_000        # frozen: largest full state space we will enumerate
+
+
+def hash_gap_identified(M: int, K: int, cap: int = ENUM_CAP) -> bool:
+    """True when the FULL state space K**M is small enough to enumerate.
+
+    Raised by the S0 design review (BLOCKER B2). The blanket declaration that
+    hash-encoder population gaps are NOT_IDENTIFIED in Simulation 1B was
+    over-broad: it is true at M=20, K=50, but false at M=5, K=4, where the
+    whole space is 1024 cells and the exact gap computes in about 5 ms. The
+    status is therefore decided per cell rather than per encoder.
+    """
+    try:
+        return K ** M <= cap
+    except OverflowError:
+        return False
+
+
+def exact_full_space_gap(prm: DGPParams, encoder: str, B: int | None,
+                         delta_eta: float) -> dict:
+    """Exact gap over the FULL K**M space, for encoders that mix all coordinates.
+
+    eta depends only on the active block, but a hashed record's bucket-count
+    vector sums over every coordinate, so the fibers must be built on the full
+    space. Callers must check `hash_gap_identified` first.
+    """
+    if not hash_gap_identified(prm.M, prm.K):
+        raise ValueError(f"state space {prm.K}**{prm.M} exceeds ENUM_CAP={ENUM_CAP}")
+    full = enumerate_cells(prm.K, prm.M)
+    p_full = cell_probabilities(full, prm.p_marg)
+
+    # eta is a function of the active block only; look it up per full cell
+    active = full[:, :prm.d_active]
+    act_cells = enumerate_cells(prm.K, prm.d_active)
+    p_act = cell_probabilities(act_cells, prm.p_marg)
+    eta_act = impose_delta_eta(act_cells, p_act, eta_raw(act_cells, prm), delta_eta)
+    ids = np.zeros(len(active), dtype=np.int64)
+    for j in range(prm.d_active):
+        ids = ids * prm.K + active[:, j]
+    eta_full = eta_act[ids]
+
+    if encoder in ("hash_column", "hash_shared"):
+        if B is None:
+            raise ValueError("bucket width B is required for hash encoders")
+        fid = group_ids(hash_codes(full, prm.K, B, encoder == "hash_column"))
+    else:
+        fid = population_fibers(encoder, full, prm, B)
+
+    rep = exact_gap_report(fid, p_full, eta_full)
+    rep.update(n_cells=int(len(full)), exact_or_mc="exact", mcse=0.0,
+               theoretical_gap_status="IDENTIFIED_EXACT")
+    return rep
 
 
 # ---------------------------------------------------------------------------

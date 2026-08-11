@@ -66,7 +66,13 @@ def position_specific_eta(q: float, tau: float, seed: int) -> np.ndarray:
     g = pats @ c
     for (j, l), dv in zip(pairs, d):
         g = g + dv * pats[:, j] * pats[:, l]
-    g = g - g.mean()
+    # q-WEIGHTED centring: patterns are not equiprobable when q != 0.5, so an
+    # unweighted mean over the 32 patterns would let marginal prevalence drift
+    # with the activation rate, confounding the activation-rate factor with a
+    # prevalence shift. (S0 design review, MINOR m6.)
+    a = pats.sum(axis=1)
+    p_pat = q ** a * (1.0 - q) ** (S_ACTIVE - a)
+    g = g - float((p_pat * g).sum())
     return ETA_LO_1C + ETA_SPAN_1C / (1.0 + np.exp(-tau * g))
 
 
@@ -163,17 +169,30 @@ def exact_1c_shared_value(M: int, q: float, tau: float, target: str, B: int,
         eta_w = hamming_weight_eta(M, q, tau)
         risk_x_log = float((p_w * _binary_entropy(eta_w)).sum())
         risk_x_bri = float((p_w * eta_w * (1 - eta_w)).sum())
-        if collapsed:
-            ebar_all = float((p_w * eta_w).sum())
-            risk_z_log = float(_binary_entropy(np.array([ebar_all]))[0])
-            risk_z_bri = ebar_all * (1 - ebar_all)
-            cmi = float((p_w * (eta_w * np.log(eta_w / ebar_all)
-                                + (1 - eta_w) * np.log((1 - eta_w) / (1 - ebar_all)))).sum())
-            evar = float((p_w * (eta_w - ebar_all) ** 2).sum())
-        else:
-            # Z is a bijection of w and eta is a function of w -> zero gap
-            risk_z_log, risk_z_bri, cmi, evar = risk_x_log, risk_x_bri, 0.0, 0.0
-        n_fibers = 1 if collapsed else M + 1
+
+        # The zero gap under this target must EMERGE from the aggregation, not
+        # be assigned. An earlier version set (risk_z, cmi, evar) = (risk_x, 0, 0)
+        # on the non-collapsed branch, which made acceptance criterion A9 -- the
+        # guard against overgeneralising the shared-value failure -- a tautology
+        # that a genuine fiber-logic bug would have passed. Both branches now go
+        # through the same generic fiber aggregation as the position-specific
+        # arm, so A9 is measured. (Design review S0, BLOCKER B3.)
+        fw = np.zeros(M + 1, dtype=np.int64) if collapsed else np.arange(M + 1)
+        n_f = 1 if collapsed else M + 1
+        mass = np.bincount(fw, weights=p_w, minlength=n_f)
+        wsum = np.bincount(fw, weights=p_w * eta_w, minlength=n_f)
+        ebar_f = np.where(mass > 0, wsum / np.where(mass > 0, mass, 1.0), 0.0)
+        ebar_w = ebar_f[fw]
+
+        risk_z_log = float((mass * _binary_entropy(ebar_f)).sum())
+        risk_z_bri = float((mass * ebar_f * (1 - ebar_f)).sum())
+        ok = (p_w > 0) & (eta_w > 0) & (eta_w < 1) & (ebar_w > 0) & (ebar_w < 1)
+        cmi = float((p_w[ok] * (eta_w[ok] * np.log(eta_w[ok] / ebar_w[ok])
+                                + (1 - eta_w[ok])
+                                * np.log((1 - eta_w[ok]) / (1 - ebar_w[ok])))).sum())
+        evar = float((p_w * (eta_w - ebar_w) ** 2).sum())
+
+        n_fibers = n_f
         spread = 0.0 if not collapsed else float(eta_w.max() - eta_w.min())
 
     elif target == "position_specific":
