@@ -94,15 +94,23 @@ Key resolutions of ambiguities in the plan (full detail in
   representation-loss / learner-shortfall decomposition exact rather than
   approximate, and sharply reduces Monte Carlo error.
 - **Unidentified quantities are reported as NULL**, never estimated and presented
-  as theoretical. The 1B hash-encoder population gap carries
-  `theoretical_gap_status = NOT_IDENTIFIED`.
+  as theoretical. The 1B hash-encoder population gap is decided **per cell**:
+  `IDENTIFIED_EXACT` where the full state space enumerates ($K^M \le 10^6$,
+  covering 96 of 288 scenarios), `NOT_IDENTIFIED` elsewhere. Where it is
+  unidentified, **both** `representation_loss` and `learner_shortfall` are NULL,
+  because both require $R_{\text{Bayes}}(Z)$ — a blank must never be read as a
+  zero for the encoders the manuscript indicts.
+- **Contrasted arms share one DGP draw.** The seed is keyed on a block that
+  excludes the contrasted factor, so every within-DGP contrast is paired.
 
 ---
 
 ## 5. Tests
 
-**613 passed, 0 failed** (577 in the S0 module, 36 baseline tests unchanged). All
-ten required properties are covered; tolerances are read from the frozen protocol
+**632 passed, 0 failed** (596 in the S0 module, 36 baseline tests unchanged). All
+ten required properties are covered, plus the checks added to close review
+findings (dependency-free reference implementation, seed pairing, per-cell gap
+identification); tolerances are read from the frozen protocol
 so no test can silently use a looser bound. Details and measured margins in
 `S0_TEST_REPORT.md`.
 
@@ -241,12 +249,25 @@ verification step, not an assumption.
 
 Six, all recorded in `S0_IMPLEMENTATION_SPEC.md` §15 and carried forward to
 `19_VALIDATION_REPORT.md`: the ordered-CatBoost running-prior variant; the swept
-bucket-width rule overriding the baseline staircase; `NOT_IDENTIFIED` reporting
-for the 1B hash gap; the $d = \min(M,3)$ active block in 1B; the dropped `penalty`
-argument; and the LightGBM installation.
+bucket-width rule overriding the baseline staircase; per-cell identification
+reporting for the 1B hash gap; the $d = \min(M,3)$ active block in 1B; the dropped
+`penalty` argument; and the LightGBM installation.
 
-Five stated limitations bound what the simulations can support and are listed in
-`S0_IMPLEMENTATION_SPEC.md` §14a.
+**Nine stated limitations** bound what the simulations can support
+(`S0_IMPLEMENTATION_SPEC.md` §14a). The three most consequential, all surfaced by
+the council review and re-measured by the host:
+
+- In 1B, $M$ is a **noise-dimension factor, not a width factor** — the active
+  block is identical at $M = 5$ and $M = 20$, so no scenario has many *informative*
+  high-cardinality columns.
+- The designed-merge result is a **construction identity**: its Brier gap is an
+  exact function of $(K, \text{marginal}, \Delta_\eta)$ alone, so H4/A5/C5 on that
+  encoder verify the construction rather than test the theory. A companion
+  observed-spread analysis was added as the version of H4 that can fail.
+- **H6's direction may be rejected.** An S0 pilot found it reversed at the
+  prespecified contrast under both instruments. The instrument was corrected for
+  an independent scale-confound reason; **the direction was not changed**, and the
+  observation is disclosed in the freeze.
 
 ---
 
