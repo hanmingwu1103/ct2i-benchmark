@@ -328,6 +328,66 @@ def exact_gap_report(fid: np.ndarray, p_cell: np.ndarray, eta: np.ndarray) -> di
     }
 
 
+def reference_gap_report(fid, p_cell, eta) -> dict:
+    """Deliberately slow, dependency-free reference implementation.
+
+    Raised by the Codex S0 review: the fast path computes both sides of each
+    identity from the SAME `fiber_posteriors` aggregation, so a defect in fiber
+    grouping, masses, or conditional means could make both sides agree
+    incorrectly. Structural separation of the two formulas is not the same as
+    independence of the two implementations.
+
+    This function shares no code with the fast path: pure-Python dict grouping,
+    `math` rather than numpy reductions, no bincount, no `fiber_posteriors`.
+    A property test asserts the two agree across the whole grid, so a shared
+    aggregation bug would have to be reproduced independently here to escape
+    detection.
+    """
+    import math
+    from collections import defaultdict
+
+    groups: dict[int, list[int]] = defaultdict(list)
+    for i, f in enumerate(fid):
+        groups[int(f)].append(i)
+
+    r_log_x = r_bri_x = 0.0
+    for i in range(len(p_cell)):
+        p, e = float(p_cell[i]), float(eta[i])
+        if p <= 0.0:
+            continue
+        if 0.0 < e < 1.0:
+            r_log_x += p * (-(e * math.log(e) + (1.0 - e) * math.log(1.0 - e)))
+        r_bri_x += p * e * (1.0 - e)
+
+    r_log_z = r_bri_z = cmi = evar = 0.0
+    for idx in groups.values():
+        mass = sum(float(p_cell[i]) for i in idx)
+        if mass <= 0.0:
+            continue
+        ebar = sum(float(p_cell[i]) * float(eta[i]) for i in idx) / mass
+        if 0.0 < ebar < 1.0:
+            r_log_z += mass * (-(ebar * math.log(ebar)
+                                 + (1.0 - ebar) * math.log(1.0 - ebar)))
+        r_bri_z += mass * ebar * (1.0 - ebar)
+        for i in idx:
+            p, e = float(p_cell[i]), float(eta[i])
+            if p <= 0.0:
+                continue
+            if 0.0 < e < 1.0 and 0.0 < ebar < 1.0:
+                cmi += p * (e * math.log(e / ebar)
+                            + (1.0 - e) * math.log((1.0 - e) / (1.0 - ebar)))
+            evar += p * (e - ebar) ** 2
+
+    return {
+        "risk_x_logloss": r_log_x, "risk_z_logloss": r_log_z,
+        "risk_x_brier": r_bri_x, "risk_z_brier": r_bri_z,
+        "gap_logloss": r_log_z - r_log_x, "gap_brier": r_bri_z - r_bri_x,
+        "theoretical_gap_logloss": cmi, "theoretical_gap_brier": evar,
+        "identity_error_logloss": abs((r_log_z - r_log_x) - cmi),
+        "identity_error_brier": abs((r_bri_z - r_bri_x) - evar),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Population encoders: cell array -> fiber ids
 # ---------------------------------------------------------------------------

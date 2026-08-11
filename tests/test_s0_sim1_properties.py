@@ -112,6 +112,29 @@ class TestExactIdentities:
         assert abs((rl_z_w - rl_x) - cmi_w) <= 1e-12       # still an identity
         assert abs(cmi_w - cmi) > 1e-6                     # but a different value
 
+    @pytest.mark.parametrize("mk,marg,tau,n_int,de", GRID[::4])
+    @pytest.mark.parametrize("encoder", ["designed_merge", "count_pop"])
+    def test_fast_path_matches_dependency_free_reference(self, mk, marg, tau,
+                                                         n_int, de, encoder, tol):
+        """Answers the Codex S0 finding that the two identity formulas share
+        one aggregation. The reference implementation uses pure-Python dict
+        grouping and `math`, sharing no code with fiber_posteriors/bincount, so
+        a shared aggregation bug would have to be reproduced independently to
+        escape detection."""
+        M, K = mk
+        prm = CORE.draw_params(M, K, marg, tau, n_int, de, seed=101)
+        cells = CORE.enumerate_cells(prm.K, prm.d_active)
+        p = CORE.cell_probabilities(cells, prm.p_marg)
+        eta = CORE.impose_delta_eta(cells, p, CORE.eta_raw(cells, prm), de)
+        fid = CORE.population_fibers(encoder, cells, prm)
+
+        fast = CORE.exact_gap_report(fid, p, eta)
+        ref = CORE.reference_gap_report(fid, p, eta)
+        for k in ["risk_x_logloss", "risk_z_logloss", "risk_x_brier",
+                  "risk_z_brier", "gap_logloss", "gap_brier",
+                  "theoretical_gap_logloss", "theoretical_gap_brier"]:
+            assert abs(fast[k] - ref[k]) <= tol["exact_identity_abs"], k
+
     def test_gaps_are_nonnegative(self):
         """Data processing: encoding can never reduce Bayes risk."""
         for mk, marg, tau, n_int, de in GRID:

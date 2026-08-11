@@ -1,0 +1,793 @@
+# =============================================================================
+# cT2I Simulation-Only Protocol Freeze
+#
+# FROZEN AT PHASE S0, BEFORE ANY FULL SIMULATION RUN.
+#
+# Binding rule: no factor, level, tolerance, seed rule, acceptance criterion,
+# hypothesis, figure panel, or table column in this file may be changed after
+# the Phase S1 run begins. If a criterion fails, the failure is reported; the
+# criterion is not retuned. Every deviation is recorded in 19_VALIDATION_REPORT.md.
+#
+# Scope: SIMULATION ONLY. No real dataset, real-data model, image, prediction,
+# or target is read, trained, regenerated, or modified anywhere in this protocol.
+# =============================================================================
+
+meta:
+  protocol_id: CT2I-SIM-ONLY-S0
+  frozen_at_phase: S0
+  authoritative_specification: CT2I_STUDENT_SIMULATION_ONLY_EXPERIMENT_PLAN.md
+  execution_prompt: CT2I_STUDENT_SIMULATION_EXECUTION_PROMPT.md
+  active_repository: https://github.com/hanmingwu1103/ct2i-benchmark
+  required_baseline_commit: 7f6b62035951df7d032d0a3eab04cb3c9b0328b4
+  working_branch: simulation-only/manuscript-revision
+  historical_repository_read_only: https://github.com/cph354001/cT2I
+  input_hash_manifest: simulation-results-ct2i/S0_INPUT_AND_HASH_MANIFEST.csv
+  implementation_spec: simulation-results-ct2i/S0_IMPLEMENTATION_SPEC.md
+  manuscripts_are_read_only: true
+  real_data_access: forbidden
+
+# -----------------------------------------------------------------------------
+# Theory and numerical conventions
+# -----------------------------------------------------------------------------
+conventions:
+  logarithm: natural            # nats throughout, matching the Stage 2 convention
+  brier: one_coordinate         # (y - p)^2
+  probability_clip_eps: 1.0e-12
+  risk_estimation: rao_blackwellised
+  risk_estimation_note: >
+    eta(x_i) is known exactly for every evaluation record, so the conditional
+    expected loss is used in place of the realised loss:
+    E[logloss|x] = -eta ln p_hat - (1-eta) ln(1-p_hat);
+    E[brier|x]   = eta(1-eta) + (eta - p_hat)^2.
+    This makes the decomposition
+    total excess risk = representation loss + learner shortfall
+    hold exactly on the evaluation sample and sharply reduces Monte Carlo error.
+    Realised labels are still drawn and are used for ROC-AUC and PR-AUC, which
+    require actual outcomes.
+  identities_under_test:
+    logloss: "R_log(Z) - R_log(X) = I(Y;X|Z)"
+    brier: "R_bri(Z) - R_bri(X) = E[Var{eta(X)|Z}]"
+  independent_verification_paths: >
+    The right-hand sides are computed through structurally independent code
+    paths, never by re-using the left-hand side: I(Y;X|Z) as a per-cell
+    Kullback-Leibler sum, E[Var(eta|Z)] as a per-fiber weighted variance sum.
+    A dedicated property test perturbs the fiber assignment to confirm the two
+    paths are not trivially identical.
+
+# -----------------------------------------------------------------------------
+# Shared data-generating mechanism
+# -----------------------------------------------------------------------------
+dgp:
+  coordinates_independent: true
+  marginals:
+    uniform: "p(k) = 1/K"
+    zipf: "p(k) proportional to (k+1)^(-1.2)"
+  linear_predictor: >
+    g(x) = tau * ( sum_{j in A} a_j(x_j) + sum_{(j,l) in P} b_{jl}(x_j, x_l) ),
+    beta0 = 0. a_j are p-centred; b_{jl} are p-double-centred; both drawn
+    standard normal from the scenario seed. P is the first n_int pairs of the
+    lexicographic enumeration of {(j,l): j < l, both in A}.
+  eta_raw: "logistic(g(x))"
+  active_block:
+    simulation_1a: "d = M (every coordinate carries signal; state space fully enumerated)"
+    simulation_1b: "d = min(M, 3) (wide, sparse-signal regime; keeps K^d <= 125000)"
+    simulation_1c: "d = 5 named coordinates for the position-specific target"
+  designed_merge_map: "phi_D: coordinate 0 -> k // 2; all other coordinates identity"
+  delta_eta_construction:
+    formula: "eta(x) = 0.20 + 0.60 * m(f(x)) + (Delta_eta / 2) * s(x)"
+    m: "p-weighted mean of eta_raw over the phi_D fiber f"
+    s: >
+      rank shape in [-1, 1]: cells of a fiber are ordered by (eta_raw, cell)
+      ascending and receive s = -1 + 2i/(r-1); singleton fibers receive s = 0.
+    guarantees:
+      - "eta lies in [0.05, 0.95] always, so clipping never occurs (asserted in code)"
+      - "every phi_D fiber of size >= 2 has max(eta) - min(eta) = Delta_eta EXACTLY"
+      - "Delta_eta = 0 => eta is constant on every phi_D fiber (lossless merge)"
+      - "Delta_eta > 0 => strictly positive representation gap for phi_D"
+      - "injective encoders have zero gap at every Delta_eta"
+    rationale: >
+      Delta_eta is a CONTROLLED construction parameter, not a descriptive
+      statistic. It is defined as the maximum within-fiber posterior range of
+      the designed merge encoder over fibers of positive probability, and the
+      construction realises that value exactly. This is what makes the
+      lossless-versus-lossy contrast a designed comparison rather than an
+      observed one.
+
+# -----------------------------------------------------------------------------
+# Simulation 1A - exact theorem checks (full enumeration)
+# -----------------------------------------------------------------------------
+simulation_1a:
+  method: exact_enumeration
+  factors:
+    M: [3, 5]
+    K: [3, 4]
+    marginal: [uniform, zipf]
+    tau: [0.5, 1.5]
+    interaction_pairs: [0, 2]
+    delta_eta: [0.0, 0.1, 0.3]
+  dgp_conditions: 96
+  replicates_per_condition: 100
+  encoders:
+    injective_controls: [identity, label, onehot]
+    non_injective_theoretical_control: [designed_merge]
+    non_injective: [count_pop]
+    collision_aware: [hash_column]
+    historical_pathological_ablation: [hash_shared]
+  bucket_widths_for_hash: from_bucket_width_rule
+  encoder_configurations: 11      # 5 non-hash + 2 hash x 3 bucket widths
+  exact_cells: 105600             # 96 x 11 x 100
+  outputs_per_cell:
+    - risk_x_logloss
+    - risk_z_logloss
+    - theoretical_gap_logloss        # I(Y;X|Z)
+    - risk_x_brier
+    - risk_z_brier
+    - theoretical_gap_brier          # E[Var(eta|Z)]
+    - identity_error_logloss
+    - identity_error_brier
+    - fiber_count
+    - merged_fiber_count
+    - merged_fiber_mass
+    - max_fiber_posterior_spread
+    - collision_count
+    - occupied_buckets
+  mcse: 0.0                       # exact; no Monte Carlo error
+
+# -----------------------------------------------------------------------------
+# Simulation 1B - finite-sample encoding and learner study
+# -----------------------------------------------------------------------------
+simulation_1b:
+  factors:
+    M: [5, 20]
+    K: [4, 12, 50]
+    marginal: [uniform, zipf]
+    tau: [0.5, 1.5]
+    interaction_pairs: [0, 3]
+    delta_eta: [0.0, 0.1, 0.3]
+    n_train: [500, 5000]
+  n_eval: 50000                  # independent evaluation / integration sample
+  replicates: 50
+  seeds_persisted: "1..50"
+  dgp_scenarios_full: 288
+  encoders:
+    - label
+    - onehot
+    - count
+    - hash_column                # x 3 bucket widths
+    - hash_shared                # x 3 bucket widths
+    - target                     # fold-safe out-of-fold
+    - woe                        # fold-safe out-of-fold
+    - ordered_catboost_sim       # running-prior variant; see note below
+    - homals                     # r = 2; recommended, implementation already stable
+  encoder_configurations: 13
+  ordered_catboost_encoder_identity:
+    frozen_name: ordered_catboost_sim
+    implementation: ct2i_benchmark.simulations.sim1_finite.OrderedCatBoostRunningPrior
+    baseline_name_NOT_used: ordered_catboost
+    reason: >
+      The baseline `ordered_catboost` keeps a row's own label out of its
+      numerator sum but takes the prior to be the mean of y over ALL fitted
+      rows, so the row's own label re-enters its own code through the prior
+      (magnitude about 1/n; measured 7e-5 at n = 400). That violates acceptance
+      criterion A12. Simulation 1B therefore freezes the running-prior variant,
+      whose self-influence is exactly zero. The baseline encoder is NOT
+      modified: it produced the frozen real-data results and this is a
+      simulation-only assignment.
+    raised_by: "Codex S0 review (BLOCKER: freeze/implementation name mismatch)"
+  learners: [bayes_z_oracle, logistic, lightgbm, mlp]
+
+  design_variants:
+    # The advisor selects EXACTLY ONE at S0 approval. The choice is recorded in
+    # 19_VALIDATION_REPORT.md and cannot change afterwards.
+    full_factorial:
+      description: "288 scenarios x 13 encoder configurations x 3 fitted learners x 50 replicates"
+      fitted_learner_cells: 561600
+    fractional_proposed:
+      description: >
+        All 288 DGP scenarios and all 13 encoder configurations are retained
+        and are evaluated with the free Bayes-on-Z oracle and with logistic
+        regression. The two expensive learners (LightGBM, small MLP) are run on
+        a fixed representative encoder subset that still spans every encoder
+        family. Every central contrast named in the plan is preserved at full
+        strength because no DGP factor level is dropped.
+      heavy_learner_encoder_subset:
+        [label, onehot, count, hash_column@B1, hash_shared@B1, target]
+      fitted_learner_cells: 259200
+      preserved_central_contrasts:
+        - "injective versus non-injective"
+        - "Delta_eta = 0 versus positive"
+        - "small versus large training sample"
+        - "low versus high cardinality"
+        - "uniform versus rare-category marginal"
+        - "additive versus interactive target"
+      rule: "proposed BEFORE any full run, as the plan permits; never reduced after seeing outcomes"
+
+  theoretical_gap_identification:
+    coordinate_wise_encoders:
+      status: IDENTIFIED_EXACT
+      applies_to: [label, onehot, count, target, woe, ordered_catboost_sim, homals]
+      method: >
+        eta depends only on the active block and these encoders act coordinate
+        by coordinate, so the fibers of Z restricted to the active block are
+        enumerable (K^d <= 125000) and ebar(z) and Var(eta|z) are exact.
+    hash_encoders:
+      status: NOT_IDENTIFIED
+      applies_to: [hash_column, hash_shared]
+      reason: >
+        A hashed record's bucket-count vector mixes all M coordinates,
+        including the inactive ones, so its fibers do not factorise and the
+        population gap is not identified at this state-space size. The
+        theoretical gap column is NULL with theoretical_gap_status =
+        NOT_IDENTIFIED; the empirical risks, AUCs, collision counts and
+        occupied-bucket counts are still reported.
+    claim_scope_limit: >
+      An earlier draft said "no scientific claim depends on this gap". That was
+      too strong and is corrected here. Simulation 1C supplies an exact
+      population result for the SHARED-VALUE hash only; column-aware hashing
+      remains unidentified in both 1B and 1C. Consequently the prespecified
+      hash contrasts C1 and C2 are EMPIRICAL FINITE-SAMPLE comparisons of
+      estimated representation loss, and must be reported and worded as such.
+      They do not license a population or theorem-level claim about the
+      relative size of the two hash encoders' Bayes-risk gaps. Figure S3 must
+      visibly label which curves are exact and which are empirical, so the
+      panel cannot invite an unsupported population comparison.
+    raised_by: "Codex S0 review (MAJOR: NOT_IDENTIFIED is honest but the claim scope was too strong)"
+    supervised_encoders_conditioning: >
+      target, WoE and ordered CatBoost are sample-fitted, so their population
+      Bayes-on-Z risk is defined CONDITIONAL on the fitted mapping phi_S
+      obtained from the training sample S. Representation loss for these
+      encoders is R_Bayes(phi_S(X)) - R_Bayes(X), evaluated by applying the
+      fixed fitted mapping to the population. This matches the Stage 2 S1C7
+      convention.
+
+# -----------------------------------------------------------------------------
+# Simulation 1C - shared-value hash collapse (exact)
+# -----------------------------------------------------------------------------
+simulation_1c:
+  method: exact_closed_form
+  factors:
+    M: [10, 50, 200, 1000]
+    activation_rate: [0.05, 0.20, 0.50]
+    target_mechanism: [position_specific, hamming_weight]
+    n_train: [500, 5000]
+  n_eval: 50000
+  replicates: 50
+  dgp_scenarios: 48
+  encoders: [label, onehot, count, hash_column, hash_shared]
+  encoder_configurations: 9      # 3 non-hash + 2 hash x 3 bucket widths
+  targets:
+    position_specific: >
+      eta depends on the first S = 5 named coordinates through main effects and
+      2 interactions among them, squashed into [0.05, 0.95].
+    hamming_weight: >
+      eta depends only on w = sum_j X_j through the standardised weight,
+      squashed into [0.05, 0.95].
+  exactness_argument: >
+    For binary records the shared-value hash sees only the bare tokens "0" and
+    "1", so a record with w ones contributes w to bucket("1") and M-w to
+    bucket("0"). Z is therefore a bijection of w when the two buckets differ,
+    and constant when they coincide. The conditional law of the 5 signal
+    coordinates given w is hypergeometric (a | w ~ Hypergeom(M, w, 5), and the
+    active subset is uniform given a), so ebar(w), Var(eta|w), both Bayes
+    risks, I(Y;X|Z) and E[Var(eta|Z)] are all available in closed form. No
+    Monte Carlo integration is needed for the shared-value arm.
+  column_aware_status:
+    theoretical_gap: NOT_IDENTIFIED
+    exactly_established_instead:
+      - reachable_encoding_count
+      - active_block_injectivity
+      - occupied_buckets
+      - collision_count
+  required_diagnostics:
+    - reachable_encodings
+    - occupied_buckets
+    - collision_count
+    - representation_loss
+    - roc_auc
+    - log_loss
+    - brier
+    - gap_versus_M
+    - fraction_of_recoverable_signal_lost
+
+# -----------------------------------------------------------------------------
+# Encoders: frozen implementation constants
+# -----------------------------------------------------------------------------
+encoders:
+  hash:
+    function: "blake2b, keyed with an 8-byte little-endian seed, 8-byte digest, little-endian int, mod B"
+    seed: 20260810
+    signed: false
+    signed_note: >
+      UNSIGNED counting for both hash encoders. Signs are deliberately disabled
+      so that the ONLY difference between column-aware and shared-value hashing
+      is the presence of column identity in the token. This isolates the
+      mechanism the manuscript attributes the collapse to.
+    token_column_aware: 'f"{len(col)}:{col}={val}"'
+    token_shared_value: '"{val}"'
+    token_note: "length-prefixed so separators inside names or values are unambiguous"
+    bucket_width_rule:
+      factors: [0.5, 1.0, 2.0]
+      base: "K_tot = M * K (total category count)"
+      formula: "B = max(2, round(factor * K_tot))"
+      labels: [B0, B1, B2]
+      deviation_from_repo: >
+        The baseline repository fixes B by a cardinality staircase
+        (16/32/64/min(M,1024)) because the real-data benchmark needs one value.
+        The simulation must SWEEP B, so the staircase is overridden by the
+        factor rule above. This is a recorded, intentional deviation; the hash
+        function, seed, token construction and unsigned counting are unchanged.
+    record_always: [collision_count, occupied_buckets, reachable_encodings]
+    collisions_note: "B >= number of tokens does NOT imply zero collisions; collisions are measured, never assumed absent"
+  supervised:
+    target_alpha: 20.0
+    target_prior: "mean of the FITTED labels only"
+    target_unseen_level: prior
+    woe_pseudocount: 0.5
+    woe_class_total_augmentation: "0.5 * K_c, so class-conditional probabilities stay normalised"
+    woe_clip: 5.0
+    woe_unseen_level: 0.0
+    ordered_catboost_permutations: 4
+    ordered_catboost_alpha: 1.0
+    ordered_catboost_unseen_level: prior
+    all_constants_retained_verbatim_from_baseline_commit: true
+  unsupervised:
+    count_unseen_level: 0.0
+    count_denominator: "number of fitted rows"
+    label_unseen_level: "reserved index 0"
+    onehot_unseen_level: "dedicated UNSEEN column per variable"
+    homals_rank: 2
+  out_of_fold:
+    n_folds: 5
+    splitter: KFold
+    shuffle: true
+    stratified: false
+    stratification_note: >
+      Fold assignment is deliberately label-INDEPENDENT. Stratified folds
+      depend on y, which would make the no-training-row-self-influence
+      invariant untestable: flipping a single label would move fold boundaries
+      and legitimately change other rows' codes. With KFold the invariant is
+      exact and is asserted by a property test.
+    ordered_catboost_note: >
+      Ordered CatBoost keeps its own cross-fitting scheme (a row's code uses
+      only strictly preceding rows under seeded permutations), so its fitted
+      codes are used directly rather than re-wrapped in outer folds.
+    test_rows: "transformed with the mapping fitted on the FULL training sample"
+
+# -----------------------------------------------------------------------------
+# Learners: fixed, prespecified, never tuned per scenario
+# -----------------------------------------------------------------------------
+learners:
+  note: "This is not a hyperparameter benchmark. No setting below is searched or adapted."
+  bayes_z_oracle:
+    definition: "predicts ebar(z) = E[eta(X) | Z = z]; no fitting"
+  logistic:
+    preprocessing: StandardScaler
+    penalty: l2_by_default
+    penalty_note: >
+      The `penalty` argument is deprecated in scikit-learn 1.8 and removed in
+      1.10; L2 is already the default, so it is not passed explicitly. The
+      regularisation is pinned by C alone.
+    C: 1.0
+    solver: lbfgs
+    max_iter: 2000
+  lightgbm:
+    n_estimators: 300
+    learning_rate: 0.05
+    num_leaves: 31
+    min_child_samples: 20
+    reg_lambda: 1.0
+    n_jobs: 1
+    deterministic: true
+    force_row_wise: true
+  mlp:
+    preprocessing: StandardScaler
+    hidden_layer_sizes: [64, 32]
+    activation: relu
+    alpha: 1.0e-4
+    learning_rate_init: 1.0e-3
+    max_iter: 300
+    early_stopping: true
+    n_iter_no_change: 15
+    validation_fraction: 0.15
+
+# -----------------------------------------------------------------------------
+# Metrics and decomposition
+# -----------------------------------------------------------------------------
+metrics:
+  primary_risk: [logloss, brier]
+  secondary_predictive: [roc_auc, pr_auc]
+  decomposition:
+    representation_loss: "R_Bayes(Z) - R_Bayes(X)"
+    learner_shortfall: "R_learner(Z) - R_Bayes(Z)"
+    total_excess_risk: "R_learner(Z) - R_Bayes(X)"
+    identity_enforced_in_code: true
+    identity_tolerance: 1.0e-9
+  separation_rule: >
+    Representation loss and learner shortfall are reported as separate columns
+    everywhere and are never summed into a single "performance gap" in any
+    summary, figure, or table.
+
+# -----------------------------------------------------------------------------
+# Seeds
+# -----------------------------------------------------------------------------
+seeds:
+  rule: "deterministic function of (component, scenario_index, replicate); no wall-clock or entropy source"
+  simulation_1a_dgp: "100000 + 1000 * scenario_index + replicate"
+  simulation_1b_dgp: "200000 + 1000 * scenario_index + replicate"
+  simulation_1b_data: "300000 + 1000 * scenario_index + replicate"
+  simulation_1b_oof: "4211 + 17 * replicate"
+  simulation_1b_learner: "500000 + 1000 * scenario_index + replicate"
+  simulation_1c_dgp: "400000 + 1000 * scenario_index + replicate"
+  simulation_1c_data: "600000 + 1000 * scenario_index + replicate"
+  hash_seed: 20260810
+  bootstrap_seed: 90210
+  replicates_1a: 100
+  replicates_1b: 50
+  replicates_1c: 50
+  manifest: "every realised seed is written to 03_SEED_MANIFEST.csv during Phase S1"
+  generator: "numpy.random.default_rng (PCG64)"
+
+# -----------------------------------------------------------------------------
+# Tolerances (read directly by the property tests)
+# -----------------------------------------------------------------------------
+tolerances:
+  exact_identity_abs: 1.0e-10        # plan's suggested exact-enumeration criterion
+  zero_gap_abs: 1.0e-12              # injective and lossless-merge controls
+  positive_gap_min: 1.0e-6           # a positive gap must be clearly above numerical noise
+  decomposition_identity_abs: 1.0e-9
+  monte_carlo_gap_abs: "max(5 * MCSE, 1.0e-4)"
+  sim2_reproduction: "max(3 * MCSE, 1.0e-4)"
+  observed_identity_error_at_s0: 2.2e-15   # measured across the S0 test grid, for reference only
+
+# -----------------------------------------------------------------------------
+# Acceptance criteria
+# -----------------------------------------------------------------------------
+acceptance_criteria:
+  A1:
+    description: "Exact log-loss identity: |R_log(Z) - R_log(X) - I(Y;X|Z)| <= 1e-10 in every 1A and 1C cell"
+    scope: [simulation_1a, simulation_1c]
+    tolerance_ref: exact_identity_abs
+  A2:
+    description: "Exact Brier identity: |R_bri(Z) - R_bri(X) - E[Var(eta|Z)]| <= 1e-10 in every 1A and 1C cell"
+    scope: [simulation_1a, simulation_1c]
+    tolerance_ref: exact_identity_abs
+  A3:
+    description: "Injective encoders (identity, label, one-hot) have zero representation gap at every Delta_eta"
+    scope: [simulation_1a]
+    tolerance_ref: zero_gap_abs
+  A4:
+    description: "Non-injective designed merge with Delta_eta = 0 has zero representation gap"
+    scope: [simulation_1a]
+    tolerance_ref: zero_gap_abs
+  A5:
+    description: "Non-injective designed merge with Delta_eta > 0 has strictly positive representation gap"
+    scope: [simulation_1a]
+    tolerance_ref: positive_gap_min
+  A6:
+    description: "Representation gap is nondecreasing in Delta_eta within each DGP condition, for the designed merge encoder"
+    scope: [simulation_1a]
+    tolerance_ref: positive_gap_min
+    scope_note: >
+      Restricted to Simulation 1A. Delta_eta is engineered on the fibers of the
+      DESIGNED MERGE map, and that encoder is not part of the 1B encoder list.
+      For sample-fitted encoders in 1B, changing Delta_eta also changes the
+      labels, the fitted mappings and the finite-sample variation, so
+      monotonicity is not a theorem there: it could fail for a legitimate
+      reason, or pass by averaging away a real counterexample. The 1B behaviour
+      is reported descriptively under H4 instead of gated here.
+    raised_by: "Codex S0 review (MAJOR: A6/H4 does not follow for all of 1B)"
+  A7:
+    description: "Shared-value hash has at most M+1 reachable encodings for binary records"
+    scope: [simulation_1c]
+    tolerance_ref: exact
+  A8:
+    description: "Shared-value hash representation loss is nondecreasing in M under the position-specific target"
+    scope: [simulation_1c]
+    tolerance_ref: positive_gap_min
+  A9:
+    description: "Shared-value hash has zero representation gap under the Hamming-weight target (overgeneralisation guard)"
+    scope: [simulation_1c]
+    tolerance_ref: zero_gap_abs
+  A10:
+    description: "Column-aware hash shows no deterministic Hamming-weight collapse; its fiber count strictly exceeds the shared-value fiber count at equal B"
+    scope: [simulation_1a, simulation_1c]
+    tolerance_ref: exact
+  A11:
+    description: "RETIRED as an acceptance criterion; see reported_results.R1"
+    scope: []
+    tolerance_ref: not_applicable
+    retirement_note: >
+      Previously "learner shortfall is nonincreasing in n_train". That is an
+      outcome EXPECTATION, not a validity gate: with fixed hyperparameters,
+      early stopping, and the OOF-versus-full-fit representation shift, a
+      perfectly correct run can show a non-monotone stratum, while an average
+      can pass while hiding an adverse one. Gating on it would create pressure
+      to tune the simulation toward a expected result, which the plan forbids.
+      It is therefore reported as a prespecified descriptive and inferential
+      result (H5) with a defined paired contrast, not as pass/fail.
+    raised_by: "Codex S0 review (MAJOR: A11 is an outcome expectation, not a valid acceptance gate)"
+  A12:
+    description: "No training row influences its own supervised-encoder code (bitwise invariance under flipping its own label)"
+    scope: [simulation_1b]
+    tolerance_ref: exact
+  A13:
+    description: "Every reported cell replays bitwise from its recorded seed"
+    scope: [simulation_1a, simulation_1b, simulation_1c]
+    tolerance_ref: exact
+  A14:
+    description: "Every failed cell carries a typed status and NULL metrics; no failure is stored as a valid zero or a chance-level metric"
+    scope: [simulation_1a, simulation_1b, simulation_1c]
+    tolerance_ref: exact
+  A15:
+    description: "Simulation 2 reproduction recovers the frozen Stage 2 validation targets within tolerance"
+    scope: [simulation_2]
+    tolerance_ref: sim2_reproduction
+
+# -----------------------------------------------------------------------------
+# Prespecified hypotheses and multiplicity
+# -----------------------------------------------------------------------------
+hypotheses:
+  H1: "Estimated log-loss gap matches I(Y;X|Z)"
+  H2: "Estimated Brier gap matches E[Var(eta|Z)]"
+  H3: "Injective and lossless-merge controls have zero representation gap"
+  H4: "Representation loss grows with posterior heterogeneity inside merged fibers"
+  H5: "Learner shortfall generally decreases as n_train increases"
+  H6: "Rare categories increase finite-sample instability for supervised encoders"
+multiplicity:
+  family: "the six prespecified hypotheses H1-H6"
+  H1_H2_adjudication: >
+    H1 and H2 are tolerance checks against an exactly known theoretical value,
+    not significance tests. They are adjudicated by the maximum absolute
+    identity error against the frozen tolerance, and receive no multiplicity
+    adjustment. They are settled exactly in Simulation 1A and 1C and are
+    corroborated in the Simulation 1B cells where the theoretical gap is
+    identified.
+  H3_H6_adjudication: "prespecified contrasts, Benjamini-Hochberg FDR control at 0.05 within the family"
+  reporting: "raw and adjusted p-values are both reported; no contrast is added after seeing results"
+  H6_instability_measure: "across-replicate standard deviation of representation loss for target, WoE and ordered CatBoost (sim variant), contrasted between uniform and Zipf marginals at matched K"
+
+  # ---- elementary tests, made explicit (Codex S0 review, MAJOR) -------------
+  elementary_tests_note: >
+    Benjamini-Hochberg cannot be applied to an unspecified collection of tests.
+    The family is therefore enumerated exactly: it is the eleven prespecified
+    contrasts C1-C11, one elementary test each, and nothing else. Each entry
+    below fixes the estimand, the pairing, the test statistic, and the
+    direction, so the family is fully determined before the run.
+  family_members: [C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11]
+  family_size: 11
+  test_statistic: >
+    Paired across replicates within scenario: the contrast is formed inside each
+    (scenario, replicate) so the DGP draw is differenced out, then aggregated
+    over scenarios. Statistic = mean paired difference divided by its
+    across-replicate standard error. Reference distribution = two-sided
+    Student t on (R - 1) degrees of freedom, R = 50, with a paired percentile
+    bootstrap (B = 2000, seed 90210) reported alongside as a distribution-free
+    check.
+  directionality:
+    C1: "two-sided"
+    C2: "two-sided"
+    C3: "two-sided"
+    C4: "two-sided"
+    C5: "one-sided, greater (Delta_eta = 0.3 gap exceeds Delta_eta = 0)"
+    C6: "one-sided, less (shortfall at n=5000 below n=500)"
+    C7: "one-sided, less"
+    C8: "one-sided, less"
+    C9: "one-sided, greater (Zipf SD exceeds uniform SD)"
+    C10: "one-sided, greater"
+    C11: "one-sided, greater"
+  hypothesis_to_contrast_map:
+    H3: [C1, C3]
+    H4: [C5]
+    H5: [C6, C7, C8]
+    H6: [C9, C10, C11]
+    unmapped_but_reported: [C2, C4]
+  unmapped_note: >
+    C2 (column-aware versus shared-value hash) and C4 (target versus one-hot)
+    are prespecified and enter the BH family, but they are descriptive
+    encoder comparisons rather than tests of H3-H6. They are listed here so no
+    contrast is silently outside the family.
+  aggregation_over_scenarios: >
+    Contrasts are averaged over DGP scenarios with equal weight per scenario,
+    and the per-stratum values are ALSO reported, so an aggregate that passes
+    while a stratum moves the other way is visible rather than hidden.
+
+uncertainty:
+  across_replicates: "MCSE = sd / sqrt(R)"
+  within_replicate_integration: "sd of pointwise contributions / sqrt(n_eval)"
+  confidence_intervals: "normal 95 percent, mean +/- 1.96 * MCSE"
+  medians: "nonparametric percentile bootstrap, B = 2000, seed 90210"
+  both_reported: true
+
+# -----------------------------------------------------------------------------
+# Typed failure vocabulary
+# -----------------------------------------------------------------------------
+failures:
+  status_enum: ct2i_benchmark.statuses.Status
+  metric_fields_nulled_on_failure:
+    [risk_x, risk_z, risk_learner, theoretical_gap, estimated_gap,
+     representation_loss, learner_shortfall, total_excess_risk, mcse,
+     roc_auc, pr_auc]
+  rule: "a non-SUCCESS cell may not carry any metric value; a SUCCESS cell must carry metrics"
+  separate_column: theoretical_gap_status
+  theoretical_gap_status_values: [IDENTIFIED_EXACT, IDENTIFIED_CONDITIONAL_MC, NOT_IDENTIFIED]
+  note: "theoretical_gap_status is NOT a run status; a cell may succeed while its population gap is unidentified"
+
+# -----------------------------------------------------------------------------
+# Figures (panel plan frozen before the run)
+# -----------------------------------------------------------------------------
+figures:
+  style:
+    format: [pdf, svg]
+    vector_editable: true
+    engine: matplotlib
+    font_size_pt: 8
+    single_column_in: 3.5
+    double_column_in: 7.2
+    palette: colorblind_safe_frozen
+    palette_hex: ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#000000"]
+    no_panel_selection_by_favourability: true
+  FigS1:
+    placeholder_ids: [SIM1-FIG-01, SIM-FIG-01]
+    caption_topic: "estimated versus theoretical log-loss and Brier gaps"
+    panels:
+      a: "1A exact: estimated vs theoretical log-loss gap, y = x reference, coloured by encoder"
+      b: "1A exact: estimated vs theoretical Brier gap, y = x reference, coloured by encoder"
+      c: "1B: estimated vs theoretical log-loss gap where identified, with MCSE bars"
+      d: "residual (estimated - theoretical) versus theoretical, symmetric log scale"
+    data_source: 08_SIM1_FIGURE_DATA.csv
+  FigS2:
+    placeholder_ids: [SIM1-FIG-02]
+    caption_topic: "representation loss versus within-fiber posterior spread"
+    panels:
+      a: "log-loss representation loss vs Delta_eta in {0, 0.1, 0.3}, one line per encoder, 95 percent CI"
+      b: "Brier representation loss vs Delta_eta, same encoders"
+    facets: "columns = marginal (uniform, Zipf)"
+    data_source: 08_SIM1_FIGURE_DATA.csv
+  FigS3:
+    placeholder_ids: [SIM1-FIG-03]
+    caption_topic: "shared-value versus column-aware hash as binary width M increases"
+    layout: "2 rows x 3 columns"
+    rows: [position_specific, hamming_weight]
+    columns: "activation rate 0.05, 0.20, 0.50"
+    x: "M in {10, 50, 200, 1000}, log scale"
+    y: "representation loss (log loss); secondary y-axis panel row for ROC-AUC"
+    series: [label, onehot, count, hash_column, hash_shared]
+    must_show_both_targets: true
+    data_source: 08_SIM1_FIGURE_DATA.csv
+  FigS4:
+    placeholder_ids: [SIM1-FIG-04]
+    caption_topic: "representation loss and learner shortfall by n_train and learner"
+    panels:
+      a: "grouped dot-whisker: representation loss by encoder, split by n_train"
+      b: "grouped dot-whisker: learner shortfall by learner, split by n_train"
+    facets: "rows = encoder family"
+    stacking_forbidden: "representation loss and learner shortfall are never merged into one bar"
+    data_source: 08_SIM1_FIGURE_DATA.csv
+  Sim2Figure:
+    placeholder_ids: [SIM2-FIG-01, SIM-FIG-02]
+    layout: "three panels, single row"
+    panels:
+      A: "oracle optimism versus K with the sigma*sqrt(2 ln K) bound"
+      B: "validation regret and winner instability versus K"
+      C: "K=72 minus K=8 oracle advantage across sigma and rho"
+    data_source: 15_SIM2_FIGURE_DATA.csv
+    output: 16_SIM2_FIGURE.pdf
+
+# -----------------------------------------------------------------------------
+# Tables (columns frozen before the run)
+# -----------------------------------------------------------------------------
+tables:
+  formats: [csv, tex_booktabs]
+  TabS1:
+    placeholder_ids: [SIM1-TAB-01]
+    topic: "simulation design and factor levels"
+    columns: [component, M, K, marginal, tau, interaction_count, delta_eta,
+              n_train, n_test, encoder, bucket_width, learner, replicate_count]
+    rule: "must reflect the design actually frozen and executed, not the design contemplated"
+  TabS2:
+    placeholder_ids: [SIM1-TAB-02]
+    topic: "theorem-identity and implementation acceptance summary"
+    columns: [criterion_id, criterion_description, maximum_error, tolerance, pass]
+    rows: "one per acceptance criterion A1-A15"
+  TabS3:
+    placeholder_ids: [SIM1-TAB-03]
+    topic: "principal finite-sample contrasts with uncertainty"
+    columns: [contrast_id, encoder_a, encoder_b, learner, metric, estimate,
+              ci_low, ci_high, mcse, p_raw, p_bh]
+    rule: "only the prespecified contrasts listed below"
+    prespecified_contrasts:
+      C1: "onehot vs hash_shared, representation loss, log loss"
+      C2: "hash_column vs hash_shared, representation loss, log loss"
+      C3: "onehot vs count, representation loss, log loss"
+      C4: "target vs onehot, representation loss, log loss"
+      C5: "designed_merge Delta=0.3 vs Delta=0, representation loss, log loss"
+      C6: "learner shortfall n_train=5000 vs 500, LightGBM"
+      C7: "learner shortfall n_train=5000 vs 500, MLP"
+      C8: "learner shortfall n_train=5000 vs 500, logistic"
+      C9: "target encoder across-replicate SD, Zipf vs uniform, K=50"
+      C10: "woe encoder across-replicate SD, Zipf vs uniform, K=50"
+      C11: "ordered_catboost_sim across-replicate SD, Zipf vs uniform, K=50"
+    c11_note: >
+      Added at S0 review: H6 names all three supervised encoders, but the
+      original contrast list covered only target and WoE, leaving part of the
+      hypothesis untested. Raised by Codex S0 review (MAJOR).
+  Sim2Table:
+    placeholder_ids: [SIM2-TAB-01]
+    topic: "criterion, maximum observed value, bound or tolerance, pass/fail"
+    columns: [criterion, maximum_observed_value, theoretical_bound_or_tolerance, pass]
+    output: 17_SIM2_SUMMARY_TABLE.csv
+
+# -----------------------------------------------------------------------------
+# Simulation 2 - frozen by Stage 2; reproduction only
+# -----------------------------------------------------------------------------
+simulation_2:
+  scientific_design: FROZEN_BY_STAGE_2_DO_NOT_CHANGE
+  source_protocol: configs/simulation_protocols.yaml
+  authoritative_raw_output: simulation2_authoritative/21_SIMULATION_RESULTS.csv
+  authoritative_summary: simulation2_authoritative/20_SIMULATION_PROTOCOLS_AND_SUMMARY.md
+  K: [3, 8, 24, 72, 216]
+  sigma: [0.005, 0.01, 0.03]
+  rho: [0.0, 0.5, 0.9]
+  regimes: [all_equal, "best=0.002", "best=0.005", "best=0.02",
+            asymmetric_KA72_vs_KB8, heterogeneous_variance]
+  R: 10000
+  selection_rules: [fixed_candidate, honest_validation, independent_test_nested,
+                    test_oracle, one_standard_error]
+  required_outcomes: [oracle_optimism, validation_regret, p_select_true_best,
+                      winner_instability, independent_test_reporting_bias,
+                      bound_ratio, asymmetric_candidate_set_advantage]
+  validation_targets:
+    max_abs_honest_independent_test_reporting_bias: 6.5e-4
+    max_observed_over_theoretical_oracle_bound_ratio: 0.847
+    k72_minus_k8_oracle_advantage:
+      sigma_0.005: 0.0049
+      sigma_0.010: 0.0097
+      sigma_0.030: 0.0292
+  frozen_criteria_retained: [C1_honest_unbiased, C2_oracle_within_bound,
+                             C3_regret_within_bound, C4_monotone_K,
+                             C5_correlation, C6_asymmetric_ge]
+  discrepancy_rule: >
+    If a reproduction differs beyond Monte Carlo tolerance, the simulation is
+    NOT tuned to match. Seeds, conventions, code versions and formula
+    definitions are investigated and the finding is reported as-is.
+  environment_note: >
+    The authoritative output was produced under numpy 2.4.6 (requirements.lock.txt);
+    the S0 environment has numpy 2.4.1. PCG64 streams are stable across these
+    versions, so a bitwise match is expected. Confirming this is a Phase S1
+    verification step, not an assumption.
+
+# -----------------------------------------------------------------------------
+# Resource ceiling
+# -----------------------------------------------------------------------------
+resources:
+  gpu_hours: 0
+  gpu_use: forbidden
+  cpu_core_hours_max: 80
+  parallel_workers_max: 8
+  new_simulation_disk_gb_max: 20
+  sizing_rule: >
+    The design is never silently reduced to fit the ceiling. If the projection
+    exceeds it, a sizing memo is returned first and the advisor chooses between
+    the full factorial and the prespecified fractional variant.
+  estimate: simulation-results-ct2i/S0_RESOURCE_ESTIMATE.csv
+
+# -----------------------------------------------------------------------------
+# Quality gates carried forward from the plan
+# -----------------------------------------------------------------------------
+quality_gates:
+  - "no real-data model trained or rerun"
+  - "historical repository and real-data result files unchanged"
+  - "every factor and tolerance frozen before the full run"
+  - "all seeds and package versions recorded"
+  - "raw replicate-level outputs stored and frozen before any summary is inspected"
+  - "every summary value reproducible from the raw outputs"
+  - "exact theorem checks meet the frozen tolerance"
+  - "Monte Carlo errors reported"
+  - "failed cells carry typed failures and null metrics"
+  - "no failure represented as a valid zero or chance-level metric"
+  - "no criterion changed after observing results"
+  - "all figure and table scripts run from the frozen raw outputs"
+  - "Simulation 2 reproduces the validated values or explains a principled discrepancy"
+  - "final package includes the exact Git commit"
+  - "validation report lists every deviation from the plan"
+  - "no manuscript prose written by the student"
