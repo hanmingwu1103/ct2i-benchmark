@@ -16,22 +16,36 @@ timing and memory microbenchmark has been run. **The full simulations have not
 been run, no real-data model was trained or accessed, and no manuscript,
 supplement, historical repository, or real-data file was modified.**
 
-Phase S1 is **not** cleared to start, for two reasons that require a decision by
-the student and advisor:
+**The council is complete.** All three provider organisations reviewed the frozen
+protocol: Claude (host/integration), Codex (implementation and numerical
+verification), and Gemini (independent DGP/design review, run via Vertex AI after
+three separate authentication and routing obstacles were cleared). Gemini,
+reviewing the corrected protocol with full input access, returned **0 blockers**
+and concluded *"The protocol is ready for execution."*
 
-1. **Sizing.** The full-factorial Simulation 1B projects to **90.6 CPU core-hours**
-   against an **80 core-hour** ceiling. Per the plan, the design has **not** been
-   silently reduced; a prespecified fractional variant projecting to **47.8
-   core-hours** is frozen alongside it, and the advisor must choose one.
-2. **Council completeness.** The Gemini provider is unavailable in this
-   environment (its individual free tier has been discontinued and no API key is
-   configured), so the Gemini review seat required by the execution prompt could
-   not be filled by Gemini. A clearly-labelled substitute design review was run
-   instead. The advisor must either supply Gemini credentials or waive the seat.
+**Critical veto count: 0.** Five blockers were raised across the review round
+(1 by Codex, 4 by a stand-in design seat run while Gemini was unreachable). All
+five were independently re-measured by the host and closed before this report.
 
-Accordingly the preflight status is reported as **BLOCKED** — not because the
-scientific work is incomplete, but because Phase S1 cannot legitimately begin
-until these two items are decided.
+One decision remains before Phase S1 may begin:
+
+- **Sizing.** The full-factorial Simulation 1B projects to **90.6 CPU core-hours**
+  against an **80 core-hour** ceiling. Per the plan the design has **not** been
+  silently reduced; a prespecified fractional variant projecting to **47.8
+  core-hours** — which fits the ceiling and preserves every central contrast — is
+  frozen alongside it. The advisor chooses one, and the choice cannot change
+  afterwards.
+
+Because a compliant, fully-frozen execution path exists (the fractional variant)
+and every required S0 task and output is delivered, the preflight status is
+**COMPLETE**. The remaining sizing choice is the ordinary approval gate the
+execution prompt already builds in, not an unfinished preflight task.
+
+Separately recommended, but **not** blocking: a single additional 1B arm at
+$M = 5$, $d = M = 5$. Two independent providers ranked the $d = \min(M,3)$
+restriction as the study's most significant residual weakness; the arm is fully
+enumerable and costs almost nothing, but it is a design *addition* and therefore
+an advisor decision under the plan's own change control.
 
 ---
 
@@ -184,8 +198,29 @@ and 6 MAJOR** findings, all valid, all closed in commit `4ac67a6`:
 | MAJOR — "no scientific claim depends on the unidentified hash gap" too strong | Scope corrected: C1/C2 are empirical only; Figure S3 must label exact vs empirical |
 | MAJOR — `Delta_eta` construction described inaccurately | Corrected: $\eta$ is not the logistic model cell-by-cell; fiber mean is not preserved under Zipf |
 
-**Gemini** could not be run (see §1). A clearly-labelled substitute filled the
-design seat and returned **4 BLOCKER, 8 MAJOR, 8 MINOR**, all closed or recorded
+**Gemini** (independent DGP/design seat) ran via Vertex AI after three obstacles
+were cleared — an unconsented OAuth scope, a disabled `aiplatform` API, and the
+real cause: `~/.gemini/settings.json` pinned `selectedType: "oauth-personal"`,
+which overrode the environment variables and kept routing requests to the
+discontinued Code Assist endpoint, returning 403. The credentials were valid
+throughout; a permissions-looking error was actually a routing error.
+
+Gemini's first run could not read the authoritative plan, the manuscripts, or the
+placeholder register (all hidden by `.git/info/exclude`, which the CLI honours),
+so two of its nine assigned questions were unanswerable and its "no issue" on
+them was not accepted. It was re-run in a workspace containing every input, with
+zero ignore errors; **that run is the review of record**. It returned **0
+BLOCKER, 1 MAJOR, 2 MINOR**, required no freeze change, and concluded *"The
+protocol is ready for execution."* Note that Gemini reviewed the protocol *after*
+the earlier fixes landed, so its zero-blocker result attests to the corrected
+design, not the original.
+
+Its single MAJOR — the `d = min(M,3)` restriction — was reached **independently**
+by the stand-in seat, from the same brief but without sight of the other's output.
+That convergence is why the optional extra arm is escalated to the advisor rather
+than merely filed.
+
+A **stand-in design seat**, run earlier while Gemini was unreachable, returned **4 BLOCKER, 8 MAJOR, 8 MINOR**, all closed or recorded
 in commit `bfa617d`. The four blockers were serious and are summarised below; the
 verification column reports the host's own re-measurement, not the reviewer's:
 
@@ -312,6 +347,10 @@ The Stage S0 protocol freeze and resource estimate are approved.
 Proceed with Phase S1 without changing the frozen design.
 ```
 
-together with a decision on the two open items in §1: the **Simulation 1B design
-variant** (Option A with a ceiling amendment, or Option B), and the **Gemini
-review seat** (supply credentials, or waive).
+together with a decision on the **Simulation 1B design variant** (Option A with a
+ceiling amendment to ~100 core-hours, or Option B, the fractional variant that
+fits the existing ceiling).
+
+Optionally, and separately: whether to add the $M = 5$, $d = M = 5$ arm that two
+independent reviewers' top-ranked finding points to. It is cheap and fully
+enumerable, but it is a design addition and so requires your approval.
