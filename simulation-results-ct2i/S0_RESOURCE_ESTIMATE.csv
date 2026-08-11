@@ -1,0 +1,10 @@
+component,variant,cells,mean_cell_s,serial_core_hours,wall_hours_at_8_workers,disk_gb,basis
+1A,exact_enumeration,105600,0.002399,0.07,0.009,0.02,"measured sim1a_exact_cell median over 4 (M,K) x 4 encoders"
+1B,full_factorial,561600,0.541575,84.49,10.56,0.225,"measured cell_s median at every (M,K,n_train,encoder,learner)"
+1B,fractional_proposed,360000,0.417072,41.71,5.21,0.144,"measured cell_s median at every (M,K,n_train,encoder,learner)"
+1C,exact_plus_finite_sample,66000,0.32455,5.84,0.73,0.026,measured sim1c exact closed form + 1B cell-cost proxy for the finite arm
+2,reproduction_from_frozen_protocol,1459,0.35,0.15,0.02,0.01,"Stage 2 authoritative run is 1,459 vectorised scenario rows at R=10,000"
+TOTAL,full_factorial,734659,,90.55,11.32,0.281,ceiling 80.0 core-hours / 20.0 GB; EXCEEDS CPU ceiling; WITHIN disk ceiling
+TOTAL,fractional_proposed,533059,,47.77,5.97,0.2,ceiling 80.0 core-hours / 20.0 GB; WITHIN CPU ceiling; WITHIN disk ceiling
+CEILING,advisor_limit,,,80.0,10.0,20.0,GPU hours 0; parallel workers 8; no silent design reduction
+PEAK_MEMORY,measured,,,,,,"806 MB peak RSS per worker with chunked evaluation (EVAL_CHUNK=10000); 8 workers => about 6.5 GB, within the 16 GB host"
