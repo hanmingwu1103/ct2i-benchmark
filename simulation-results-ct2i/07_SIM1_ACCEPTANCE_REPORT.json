@@ -116,6 +116,26 @@
       "notes": "measured through the generic aggregation, not assigned"
     },
     {
+      "criterion_id": "A14b",
+      "criterion_description": "Rows whose population gap is NOT_IDENTIFIED carry NULL risk_z, representation_loss and learner_shortfall",
+      "scope": "all",
+      "maximum_error": 0.0,
+      "tolerance": 0,
+      "pass": true,
+      "n_cells": 381600,
+      "notes": "both decomposition terms require R_Bayes(Z); neither may be reported where it does not exist"
+    },
+    {
+      "criterion_id": "A14c",
+      "criterion_description": "learner_shortfall is not a relabelled copy of total_excess_risk",
+      "scope": "all",
+      "maximum_error": 0.0,
+      "tolerance": 0,
+      "pass": true,
+      "n_cells": 787200,
+      "notes": "an exact all-row match means representation loss was silently zero, i.e. ebar was never computed"
+    },
+    {
       "criterion_id": "A14",
       "criterion_description": "Failed cells carry a typed status and NULL metrics",
       "scope": "all",
@@ -126,7 +146,7 @@
       "notes": "counts non-null metric values on failed rows"
     }
   ],
-  "n_criteria_evaluated": 11,
-  "n_passed": 11,
+  "n_criteria_evaluated": 13,
+  "n_passed": 13,
   "n_failed": 0
 }

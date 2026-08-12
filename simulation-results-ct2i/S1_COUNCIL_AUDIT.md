@@ -85,6 +85,102 @@ Direct numerical verification is the Codex seat's job, below.
 
 ---
 
-## 3. Codex — numerical reproduction
+## 3. Codex — disposition
 
-See section appended on completion.
+Codex independently recomputed the numerical chain from the frozen parquet
+files. **Everything it checked reproduced**, and it found one MAJOR defect that
+the study's own acceptance criteria could not have caught.
+
+| Check | Verdict |
+|---|---|
+| Identity errors, 1A and 1C exact | reproduced: 2.498e-15 / 9.021e-16 (1A), 2.706e-15 / 9.992e-16 (1C) |
+| Injective and designed-merge controls | reproduced, including the 12,800 positive-gap rows |
+| Shared-value reachable = M+1, Hamming zero, position-specific monotone | reproduced on every row |
+| TabS3 paired contrasts C5-C11, incl. the three different pairing rules | reproduced to machine round-off (< 1e-16) |
+| Simulation 2, all five targets | reproduced exactly |
+
+### MAJOR — accepted and fixed
+
+Codex found `learner_shortfall` populated on all 67,200 `NOT_IDENTIFIED` rows of
+the 1C finite arm, where it must be NULL.
+
+Verification showed the defect was **wider than reported**: it affected all
+91,200 rows of that arm, not only the unidentified ones. Root cause: the 1C
+finite runner called `decompose(eta_ev, eta_ev, p, metric)`, passing `eta` where
+`ebar(z)` belongs. `risk_z` therefore collapsed onto `risk_x` and the column
+named `learner_shortfall` actually held the TOTAL excess risk. An advisor
+reading the column by its name would have concluded that the representation
+contributed no loss in Simulation 1C — the opposite of the study's finding.
+
+Fix applied, without recomputation and without fabricating a value: `risk_z` and
+`learner_shortfall` are NULL across the 1C finite arm with a note pointing to
+`05c_SIM1C_EXACT_RESULTS.parquet` for the exact representation loss.
+`total_excess_risk`, ROC-AUC and PR-AUC are unaffected and retained.
+
+**Why the existing criteria missed it.** A14 tests only that FAILED rows carry
+no metrics. It cannot catch a SUCCESS row carrying a term that was never
+computed. Two criteria were added in response:
+
+* **A14b** — rows whose population gap is `NOT_IDENTIFIED` must carry NULL
+  `risk_z`, `representation_loss` and `learner_shortfall`, since both
+  decomposition terms require R_Bayes(Z).
+* **A14c** — `learner_shortfall` must not be an exact all-row duplicate of
+  `total_excess_risk`, which is the signature of `ebar` never having been
+  computed.
+
+Both now pass. Acceptance moved from 11/11 to **13/13**.
+
+A follow-up defect surfaced while fixing this: the summariser read the working
+CSVs in `raw/` rather than the frozen parquet, so a correction applied to the
+shipped artefact was invisible to the summaries. The summariser now reads the
+frozen parquet, which is the deliverable.
+
+---
+
+## 4. Codex audit — verbatim
+
+> Audit result: one **MAJOR** disagreement; all requested numerical calculations otherwise reproduce from raw outputs.
+>
+> - **Identity errors:** match the reported pooled maxima.
+>   - 1A: log-loss `2.498001805406602e-15`; Brier `9.020562075079397e-16`.
+>   - 1C exact: log-loss `2.706168622523819e-15`; Brier `9.992007221626409e-16`.
+>   - Thus the claimed overall `2.7e-15` and `1.0e-15` are correct and both are below `1e-10`.
+>
+> - **1A encoder controls:** reproduced.
+>   - identity/label/onehot maximum absolute representation gap: `2.220446049250313e-16` (within `1e-12`).
+>   - designed_merge, Δ=0: maximum absolute gap `2.220446049250313e-16`.
+>   - designed_merge, Δ>0: all 12,800 rows positive; minimum `0.0016666666666665`.
+>
+> - **1C shared-value hash:** reproduced.
+>   - Every shared-hash row has `reachable_encodings = M + 1`.
+>   - Hamming-weight gap is zero to floating point (`max |gap| = 1.1102230246251565e-16`).
+>   - Position-specific gap is positive in every row. Mean log-loss gaps by M are `0.092724`, `0.099542`, `0.100764`, `0.101087` for M = 10, 50, 200, 1000—nondecreasing as claimed.
+>
+> - **TabS3 paired contrasts:** independently reproduced, including the specified pairing rules. Stored and recomputed full-precision values agree to machine round-off (< `1e-16`).
+>
+> | Contrast | Pairing / unit | n | Estimate | 95% CI |
+> |---|---|---:|---:|---:|
+> | C5 | seed, Δ=.3 − Δ=0 | 3200 | 0.0416927045106022 | [0.0414171035268201, 0.0419683054943844] |
+> | C6 | seed (averaged across matched encoders), n=5000 − 500 | 2400 | -0.140864422312264 | [-0.142502528807323, -0.139226315817205] |
+> | C9 | matched non-marginal factors; Zipf CV − uniform CV | 48 | -0.0508649050510044 | [-0.0825910448226685, -0.0191387652793403] |
+>
+>   I also reproduced C7, C8, C10, and C11 with the same machine-precision agreement.
+>
+> - **Simulation 2:** all five entries in `17_SIM2_SUMMARY_TABLE.csv` equal recomputation from `12_SIM2_RESULTS.csv` exactly:
+>   - C1 `0.0006454170816911`
+>   - C2 `0.8467733929130778`
+>   - C6 σ=.005 `0.0048631308478983`
+>   - C6 σ=.01 `0.0097262616957967`
+>   - C6 σ=.03 `0.0291787850873901`
+>
+> **MAJOR — NULL-discipline disagreement**
+>
+> The statement “no `NOT_IDENTIFIED` row carries representation_loss or learner_shortfall” is false for `05d_SIM1C_FINITE_RESULTS.parquet`:
+>
+> - 67,200 rows are `NOT_IDENTIFIED`.
+> - `representation_loss` is correctly null on all 67,200.
+> - `learner_shortfall` is non-null on all **67,200**.
+>
+> The narrower claimed A14 check still reproduces: all 115,200 non-`SUCCESS` 1B rows have all metric fields null. But A14 does not test the additional `NOT_IDENTIFIED`-shortfall condition requested here, so the package’s “11/11 pass” does not establish that stronger NULL discipline.
+>
+> No files were modified.

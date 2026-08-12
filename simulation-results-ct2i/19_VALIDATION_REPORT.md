@@ -1,7 +1,7 @@
 # 19 Validation Report
 
-**Generated:** 2026-08-12T11:05:51.066703+00:00  
-**Commit:** `88d1a8d7b08200498eefdcde7f1e71ab2a077ba8`  
+**Generated:** 2026-08-12T11:55:42.928778+00:00  
+**Commit:** `e8ada5b438227df1c06a36ed4b841e142731a024`  
 **Branch:** `simulation-only/manuscript-revision`  
 **Scope:** SIMULATION ONLY. Real-data models run: 0. Real-data files modified: 0. GPU hours: 0.
 
@@ -21,9 +21,11 @@ Every number in this report is read back from the frozen artefacts. No value is 
 | A7 | PASS | 0.000e+00 | 0 | Shared-value hash has at most M+1 reachable encodings |
 | A8 | PASS |  | monotone | Shared-value loss nondecreasing in M under a position-specific target |
 | A9 | PASS | 1.110e-16 | 1e-12 | Shared-value hash has zero gap under a Hamming-weight target |
+| A14b | PASS | 0.000e+00 | 0 | Rows whose population gap is NOT_IDENTIFIED carry NULL risk_z, representation_loss and learner_shortfall |
+| A14c | PASS | 0.000e+00 | 0 | learner_shortfall is not a relabelled copy of total_excess_risk |
 | A14 | PASS | 0.000e+00 | 0 | Failed cells carry a typed status and NULL metrics |
 
-**11 passed, 0 failed.**
+**13 passed, 0 failed.**
 
 No criterion, tolerance, factor or hypothesis was changed after results were observed. A failing criterion is reported as failing.
 

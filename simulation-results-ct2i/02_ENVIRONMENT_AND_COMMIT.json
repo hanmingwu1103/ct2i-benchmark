@@ -1,8 +1,8 @@
 {
-  "generated_utc": "2026-08-12T11:05:51.066703+00:00",
+  "generated_utc": "2026-08-12T11:55:42.928778+00:00",
   "repository": "https://github.com/hanmingwu1103/ct2i-benchmark.git",
   "branch": "simulation-only/manuscript-revision",
-  "full_commit_sha": "88d1a8d7b08200498eefdcde7f1e71ab2a077ba8",
+  "full_commit_sha": "e8ada5b438227df1c06a36ed4b841e142731a024",
   "baseline_commit": "7f6b62035951df7d032d0a3eab04cb3c9b0328b4",
   "release_tag": "(set at packaging)",
   "packages": {

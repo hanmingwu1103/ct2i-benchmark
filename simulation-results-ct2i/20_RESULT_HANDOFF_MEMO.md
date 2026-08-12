@@ -1,7 +1,7 @@
 # 20 Result Handoff Memo
 
-**Commit:** `88d1a8d7b08200498eefdcde7f1e71ab2a077ba8` on `simulation-only/manuscript-revision`  
-**Generated:** 2026-08-12T11:05:51.066703+00:00
+**Commit:** `e8ada5b438227df1c06a36ed4b841e142731a024` on `simulation-only/manuscript-revision`  
+**Generated:** 2026-08-12T11:55:42.928778+00:00
 
 This memo states what was run and what passed. It contains no interpretation of what the results mean for the manuscript: the plan assigns the abstract, Results, Discussion and Conclusions to the advisor.
 
@@ -18,7 +18,7 @@ This memo states what was run and what passed. It contains no interpretation of 
 
 ## Criteria
 
-11 passed, 0 failed. Full detail in `19_VALIDATION_REPORT.md` and `11_SIM1_TABLES/TabS2.csv`.
+13 passed, 0 failed. Full detail in `19_VALIDATION_REPORT.md` and `11_SIM1_TABLES/TabS2.csv`.
 
 ## READ THIS BEFORE USING THE TABLES
 

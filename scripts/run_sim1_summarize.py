@@ -30,7 +30,20 @@ RAW = OUTD / "raw"
 FREEZE = OUTD / "01_PROTOCOL_FREEZE.yaml"
 
 
+# Frozen parquet is the deliverable and therefore the authoritative source.
+# Reading the working CSV in raw/ instead let a correction applied to the
+# parquet go unnoticed by the summariser -- the summaries would then describe
+# something other than what ships. (Codex S1 audit follow-up.)
+FROZEN = {"sim1a_replicates.csv": "05a_SIM1A_REPLICATE_RESULTS.parquet",
+          "sim1b_replicates.csv": "05b_SIM1B_REPLICATE_RESULTS.parquet",
+          "sim1c_exact.csv": "05c_SIM1C_EXACT_RESULTS.parquet",
+          "sim1c_finite.csv": "05d_SIM1C_FINITE_RESULTS.parquet"}
+
+
 def load(name):
+    fp = OUTD / FROZEN.get(name, "")
+    if fp.name and fp.exists():
+        return pd.read_parquet(fp)
     p = RAW / name
     return pd.read_csv(p, low_memory=False) if p.exists() else None
 
@@ -155,6 +168,49 @@ def main() -> int:
                                 "TIMEOUT", "RESOURCE_LIMIT"])]
         if len(fail) and cols:
             bad_null += int(fail[cols].notna().sum().sum())
+    # A14b: the STRONGER null-discipline condition. A14 only checks failed rows;
+    # it would not have caught a SUCCESS row carrying a decomposition term that
+    # was never actually computed. Raised by the Codex S1 audit (MAJOR), which
+    # found learner_shortfall populated on every 1C-finite row although ebar(z)
+    # was never computed there -- the column held total excess risk under the
+    # wrong name.
+    bad_unident = 0
+    n_unident = 0
+    for d, lab in frames:
+        if d is None or "theoretical_gap_status" not in d.columns:
+            continue
+        ni = d[d.theoretical_gap_status == "NOT_IDENTIFIED"]
+        n_unident += len(ni)
+        for c in ("representation_loss", "learner_shortfall", "risk_z"):
+            if c in ni.columns:
+                bad_unident += int(ni[c].notna().sum())
+    add("A14b", "Rows whose population gap is NOT_IDENTIFIED carry NULL risk_z, "
+                "representation_loss and learner_shortfall",
+        "all", float(bad_unident), 0, bad_unident == 0, n_unident,
+        "both decomposition terms require R_Bayes(Z); neither may be reported "
+        "where it does not exist")
+
+    # A14c: no decomposition term may be a silent duplicate of another
+    bad_dup = 0
+    n_dup = 0
+    for d, lab in frames:
+        if d is None:
+            continue
+        g = d[d.status == "SUCCESS"]
+        if {"learner_shortfall", "total_excess_risk"} <= set(g.columns):
+            both = g[g.learner_shortfall.notna() & g.total_excess_risk.notna()]
+            n_dup += len(both)
+            if len(both):
+                same = (pd.to_numeric(both.learner_shortfall, errors="coerce")
+                        - pd.to_numeric(both.total_excess_risk, errors="coerce")
+                        ).abs().max()
+                if same is not None and same == 0.0 and len(both) > 100:
+                    bad_dup += len(both)
+    add("A14c", "learner_shortfall is not a relabelled copy of total_excess_risk",
+        "all", float(bad_dup), 0, bad_dup == 0, n_dup,
+        "an exact all-row match means representation loss was silently zero, "
+        "i.e. ebar was never computed")
+
     add("A14", "Failed cells carry a typed status and NULL metrics",
         "all", float(bad_null), 0, bad_null == 0, n_all,
         "counts non-null metric values on failed rows")
