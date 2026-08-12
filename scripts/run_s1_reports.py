@@ -135,6 +135,14 @@ DEVIATIONS = [
 ]
 
 LIMITATIONS = [
+    "The Simulation 1B design is FRACTIONAL (Option B, deviation D7): LightGBM "
+    "and the small MLP were run on a representative encoder subset at one "
+    "bucket width, not on all 13 encoder configurations. Every DGP factor "
+    "level and all six central contrasts are retained, and the Bayes-on-Z "
+    "oracle and logistic regression cover all 13 configurations -- but "
+    "comparisons INVOLVING THE TWO HEAVY LEARNERS are correspondingly narrower, "
+    "because those learners did not meet every encoding challenge. Raised by "
+    "the Gemini S1 audit as a design limitation recorded only as a deviation.",
     "Simulation 1B varies M as a NOISE dimension only (d = 3 everywhere); it "
     "does not test dense high-cardinality signal. Two independent reviewers "
     "ranked this the study's most significant residual weakness.",

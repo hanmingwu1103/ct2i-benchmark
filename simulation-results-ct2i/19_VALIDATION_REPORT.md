@@ -1,7 +1,7 @@
 # 19 Validation Report
 
-**Generated:** 2026-08-12T11:02:32.043221+00:00  
-**Commit:** `0d32df16861f196efa74183ccbd1c63458d8ab82`  
+**Generated:** 2026-08-12T11:05:51.066703+00:00  
+**Commit:** `88d1a8d7b08200498eefdcde7f1e71ab2a077ba8`  
 **Branch:** `simulation-only/manuscript-revision`  
 **Scope:** SIMULATION ONLY. Real-data models run: 0. Real-data files modified: 0. GPU hours: 0.
 
@@ -109,15 +109,16 @@ No criterion, tolerance, factor or hypothesis was changed after results were obs
 
 ## 3. Stated limitations
 
-1. Simulation 1B varies M as a NOISE dimension only (d = 3 everywhere); it does not test dense high-cardinality signal. Two independent reviewers ranked this the study's most significant residual weakness.
-2. Column-aware hashing has no identified population gap in 1C, and only in the enumerable cells of 1B; contrasts involving it are empirical only.
-3. The designed-merge result is a CONSTRUCTION IDENTITY: its Brier gap is an exact function of (K, marginal, Delta_eta) alone. H4 on that encoder verifies the construction, not the theory; the observed-spread companion analysis is the version that can fail.
-4. Label and one-hot are exact injective controls in 1A only; in 1B they carry an UNSEEN bucket and are not zero-gap.
-5. Marginal prevalence is near 0.5 in every cell; there is no class-imbalance factor, so PR-AUC carries little independent information.
-6. A7 is brute-force verified only for M <= 14; at M in {50, 200, 1000} it evaluates the closed form backed by the Stage 1 proposition.
-7. The count encoder's population behaviour is a knife-edge tie phenomenon (total collapse under an exactly uniform marginal, injective under Zipf).
-8. Coordinate independence is assumed throughout, which is what makes the exact fiber algebra tractable.
-9. H6's direction was disclosed BEFORE the run as possibly reversed, based on an S0 pilot. The instrument was corrected for a scale confound; the hypothesis direction was deliberately not changed.
+1. The Simulation 1B design is FRACTIONAL (Option B, deviation D7): LightGBM and the small MLP were run on a representative encoder subset at one bucket width, not on all 13 encoder configurations. Every DGP factor level and all six central contrasts are retained, and the Bayes-on-Z oracle and logistic regression cover all 13 configurations -- but comparisons INVOLVING THE TWO HEAVY LEARNERS are correspondingly narrower, because those learners did not meet every encoding challenge. Raised by the Gemini S1 audit as a design limitation recorded only as a deviation.
+2. Simulation 1B varies M as a NOISE dimension only (d = 3 everywhere); it does not test dense high-cardinality signal. Two independent reviewers ranked this the study's most significant residual weakness.
+3. Column-aware hashing has no identified population gap in 1C, and only in the enumerable cells of 1B; contrasts involving it are empirical only.
+4. The designed-merge result is a CONSTRUCTION IDENTITY: its Brier gap is an exact function of (K, marginal, Delta_eta) alone. H4 on that encoder verifies the construction, not the theory; the observed-spread companion analysis is the version that can fail.
+5. Label and one-hot are exact injective controls in 1A only; in 1B they carry an UNSEEN bucket and are not zero-gap.
+6. Marginal prevalence is near 0.5 in every cell; there is no class-imbalance factor, so PR-AUC carries little independent information.
+7. A7 is brute-force verified only for M <= 14; at M in {50, 200, 1000} it evaluates the closed form backed by the Stage 1 proposition.
+8. The count encoder's population behaviour is a knife-edge tie phenomenon (total collapse under an exactly uniform marginal, injective under Zipf).
+9. Coordinate independence is assumed throughout, which is what makes the exact fiber algebra tractable.
+10. H6's direction was disclosed BEFORE the run as possibly reversed, based on an S0 pilot. The instrument was corrected for a scale confound; the hypothesis direction was deliberately not changed.
 
 ## 4. Resource use (measured)
 

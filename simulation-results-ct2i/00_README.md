@@ -1,7 +1,7 @@
 # cT2I Simulation-Only Result Package
 
-**Commit:** `1c45a815bad03a8d8c69f9f885ae1b94109a5083` on `simulation-only/manuscript-revision`  
-**Built:** 2026-08-12T08:15:22.590806+00:00  
+**Commit:** `88d1a8d7b08200498eefdcde7f1e71ab2a077ba8` on `simulation-only/manuscript-revision`  
+**Built:** 2026-08-12T11:05:52.950896+00:00  
 **Scope:** SIMULATION ONLY — real-data models run: 0, real-data files modified: 0, GPU hours: 0.
 
 ## Start here
@@ -24,30 +24,30 @@ No manuscript prose. The plan assigns the abstract, Results, Discussion and Conc
 
 | file | present | sha256 (first 16) | note |
 |---|---|---|---|
-| `00_README.md` | yes | 578ab36038654263 |  |
+| `00_README.md` | yes | 4337b759c595777a |  |
 | `01_PROTOCOL_FREEZE.yaml` | yes | f6d64fc0335d7cd3 |  |
-| `02_ENVIRONMENT_AND_COMMIT.json` | yes | 9f0405e65f4b7e33 |  |
-| `03_SEED_MANIFEST.csv` | yes | 36f950b85acc7196 |  |
+| `02_ENVIRONMENT_AND_COMMIT.json` | yes | 95e00e86a3724317 |  |
+| `03_SEED_MANIFEST.csv` | yes | 08a2bcf15fd29850 |  |
 | `04_SIM1_SCENARIO_MANIFEST.csv` | n/a |  | superseded by 11_SIM1_TABLES/TabS1.csv, which reports the design as EXECUTED rather than as planned |
 | `05a_SIM1A_REPLICATE_RESULTS.parquet` | yes | 648b9a5ddb70bfc2 | the plan's single 05_SIM1_REPLICATE_RESULTS.parquet is split by arm (05a/05b/05c/05d) because the arms have different schemas |
-| `05b_SIM1B_REPLICATE_RESULTS.parquet` | MISSING |  |  |
+| `05b_SIM1B_REPLICATE_RESULTS.parquet` | yes | 5b5a191031be52d0 |  |
 | `05c_SIM1C_EXACT_RESULTS.parquet` | yes | 1ebb5f533b0602de |  |
 | `05d_SIM1C_FINITE_RESULTS.parquet` | yes | 9a666f7c7a4f1d58 |  |
-| `06_SIM1_SUMMARY.csv` | yes | e76c6c6318966432 |  |
-| `07_SIM1_ACCEPTANCE_REPORT.json` | yes | 05713b2e2511a903 |  |
-| `08_SIM1_FIGURE_DATA.csv` | yes | 4c4cd8ea4b88ed5d |  |
+| `06_SIM1_SUMMARY.csv` | yes | c81beb7c99ee28fb |  |
+| `07_SIM1_ACCEPTANCE_REPORT.json` | yes | 691d4483ac7c8cc0 |  |
+| `08_SIM1_FIGURE_DATA.csv` | yes | 2d259a971cebcc04 |  |
 | `09_SIM1_TABLE_DATA.csv` | n/a |  | table data is emitted per table in 11_SIM1_TABLES/ |
-| `10_SIM1_FIGURES` | yes | 3684f3f358c37fbd |  |
-| `11_SIM1_TABLES` | yes | 6abb1f334b60f435 |  |
+| `10_SIM1_FIGURES` | yes | eedda847fa48a74b |  |
+| `11_SIM1_TABLES` | yes | 4452687e6ac7b910 |  |
 | `12_SIM2_RESULTS.csv` | yes | cf3ecf180ee28f9e |  |
 | `13_SIM2_SUMMARY.csv` | n/a |  | Simulation 2 summary is carried in 17_SIM2_SUMMARY_TABLE.csv |
 | `14_SIM2_ACCEPTANCE_REPORT.json` | yes | 00b9c12e7644c0d1 |  |
 | `15_SIM2_FIGURE_DATA.csv` | yes | 30b9db19528a3260 |  |
 | `16_SIM2_FIGURE.pdf` | yes | 391b9ae70bbd3e75 |  |
 | `17_SIM2_SUMMARY_TABLE.csv` | yes | 78731ab26aac24f7 |  |
-| `18_RUNTIME_AND_RESOURCE_REPORT.csv` | yes | 819c32363c504568 |  |
-| `19_VALIDATION_REPORT.md` | yes | 661050e2f5e1ee00 |  |
-| `20_RESULT_HANDOFF_MEMO.md` | yes | e58f96cdd203fa35 |  |
+| `18_RUNTIME_AND_RESOURCE_REPORT.csv` | yes | ca16cd4071146a48 |  |
+| `19_VALIDATION_REPORT.md` | yes | 0682bfdf48cf41e3 |  |
+| `20_RESULT_HANDOFF_MEMO.md` | yes | 869f6ee13880712a |  |
 | `S0_PROTOCOL_FREEZE_PROVENANCE` | n/a |  |  |
 | `S0_IMPLEMENTATION_SPEC.md` | yes | af91e1b71597a944 |  |
 | `S0_COUNCIL_REVIEW.md` | yes | 8f27ab1c251814d1 |  |
@@ -57,7 +57,7 @@ No manuscript prose. The plan assigns the abstract, Results, Discussion and Conc
 | `S0_INPUT_AND_HASH_MANIFEST.csv` | yes | b46fd46aa4642ee2 |  |
 | `S0_PLACEHOLDER_OUTPUT_MAP.csv` | yes | f97d5d3f5c55101d |  |
 | `S1_AUTHORIZATION_AND_DECISIONS.md` | yes | b541042e54e21726 |  |
-| `RAW_FREEZE_MANIFEST.json` | yes | 57b9f4283f1fe593 |  |
+| `RAW_FREEZE_MANIFEST.json` | yes | 27aaa920012813f2 |  |
 
 ## Reproducing every number
 
