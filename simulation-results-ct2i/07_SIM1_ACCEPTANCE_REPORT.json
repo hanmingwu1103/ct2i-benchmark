@@ -1,0 +1,132 @@
+{
+  "arms_present": {
+    "1A": true,
+    "1C_exact": true,
+    "1C_finite": true,
+    "1B": false
+  },
+  "tolerances": {
+    "exact_identity_abs": 1e-10,
+    "zero_gap_abs": 1e-12,
+    "positive_gap_min": 1e-06,
+    "decomposition_identity_abs": 1e-09,
+    "monte_carlo_gap_abs": "max(5 * MCSE, 1.0e-4)",
+    "sim2_reproduction": "max(3 * MCSE, 1.0e-4)",
+    "observed_identity_error_at_s0": 2.2e-15
+  },
+  "criteria": [
+    {
+      "criterion_id": "A1",
+      "criterion_description": "Exact logloss identity holds to the frozen tolerance",
+      "scope": "1A,1C",
+      "maximum_error": 2.706168622523819e-15,
+      "tolerance": 1e-10,
+      "pass": true,
+      "n_cells": 109200,
+      "notes": ""
+    },
+    {
+      "criterion_id": "A2",
+      "criterion_description": "Exact brier identity holds to the frozen tolerance",
+      "scope": "1A,1C",
+      "maximum_error": 9.992007221626409e-16,
+      "tolerance": 1e-10,
+      "pass": true,
+      "n_cells": 109200,
+      "notes": ""
+    },
+    {
+      "criterion_id": "A3",
+      "criterion_description": "Injective encoders have zero representation gap at every Delta_eta",
+      "scope": "1A",
+      "maximum_error": 2.220446049250313e-16,
+      "tolerance": 1e-12,
+      "pass": true,
+      "n_cells": 57600,
+      "notes": ""
+    },
+    {
+      "criterion_id": "A4",
+      "criterion_description": "Designed merge with Delta_eta = 0 has zero representation gap",
+      "scope": "1A",
+      "maximum_error": 2.220446049250313e-16,
+      "tolerance": 1e-12,
+      "pass": true,
+      "n_cells": 6400,
+      "notes": ""
+    },
+    {
+      "criterion_id": "A5",
+      "criterion_description": "Designed merge with Delta_eta > 0 has strictly positive gap",
+      "scope": "1A",
+      "maximum_error": 0.0016666666666665,
+      "tolerance": 1e-06,
+      "pass": true,
+      "n_cells": 12800,
+      "notes": "reports the MINIMUM gap"
+    },
+    {
+      "criterion_id": "A6",
+      "criterion_description": "Representation gap nondecreasing in Delta_eta (designed merge)",
+      "scope": "1A",
+      "maximum_error": 0.0,
+      "tolerance": 0,
+      "pass": true,
+      "n_cells": 96,
+      "notes": "counts violating scenario pairs"
+    },
+    {
+      "criterion_id": "A10",
+      "criterion_description": "Column-aware hash fiber count exceeds shared-value at equal B",
+      "scope": "1A",
+      "maximum_error": 0.0,
+      "tolerance": 0,
+      "pass": true,
+      "n_cells": 28800,
+      "notes": "counts violations"
+    },
+    {
+      "criterion_id": "A7",
+      "criterion_description": "Shared-value hash has at most M+1 reachable encodings",
+      "scope": "1C",
+      "maximum_error": 0.0,
+      "tolerance": 0,
+      "pass": true,
+      "n_cells": 7200,
+      "notes": "counts rows where != M+1"
+    },
+    {
+      "criterion_id": "A8",
+      "criterion_description": "Shared-value loss nondecreasing in M under a position-specific target",
+      "scope": "1C",
+      "maximum_error": null,
+      "tolerance": "monotone",
+      "pass": true,
+      "n_cells": 3600,
+      "notes": "means by M: {10: 0.09272, 50: 0.09954, 200: 0.10076, 1000: 0.10109}"
+    },
+    {
+      "criterion_id": "A9",
+      "criterion_description": "Shared-value hash has zero gap under a Hamming-weight target",
+      "scope": "1C",
+      "maximum_error": 1.1102230246251563e-16,
+      "tolerance": 1e-12,
+      "pass": true,
+      "n_cells": 3600,
+      "notes": "measured through the generic aggregation, not assigned"
+    },
+    {
+      "criterion_id": "A14",
+      "criterion_description": "Failed cells carry a typed status and NULL metrics",
+      "scope": "all",
+      "maximum_error": 0.0,
+      "tolerance": 0,
+      "pass": true,
+      "n_cells": 316800,
+      "notes": "counts non-null metric values on failed rows"
+    }
+  ],
+  "n_criteria_evaluated": 11,
+  "n_passed": 11,
+  "n_failed": 0
+}

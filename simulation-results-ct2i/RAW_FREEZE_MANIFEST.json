@@ -1,0 +1,24 @@
+{
+  "05a_SIM1A_REPLICATE_RESULTS.parquet": {
+    "rows": 211200,
+    "csv_mb": 53.8,
+    "parquet_mb": 5.5,
+    "sha256": "648b9a5ddb70bfc2a7130fbaa2160f2789f63f446d1670928c8f392f7362fe09"
+  },
+  "05c_SIM1C_EXACT_RESULTS.parquet": {
+    "rows": 14400,
+    "csv_mb": 2.7,
+    "parquet_mb": 0.1,
+    "sha256": "1ebb5f533b0602de6e609ecafb7f1b1fa1f5a99a8f5727ceca96c9bc195541e8"
+  },
+  "05d_SIM1C_FINITE_RESULTS.parquet": {
+    "rows": 91200,
+    "csv_mb": 20.3,
+    "parquet_mb": 2.7,
+    "sha256": "9a666f7c7a4f1d58d32e30f6570ec3a65ef2003c8fa550a440fe9ed2ef0cec6f"
+  },
+  "12_SIM2_RESULTS.csv": {
+    "rows": 1263,
+    "sha256": "cf3ecf180ee28f9ee0c2ce71a20aeb2ad2ad66a66d17133e50c39c07b12d92e7"
+  }
+}

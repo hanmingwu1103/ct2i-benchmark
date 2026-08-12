@@ -1,0 +1,5 @@
+contrast_id,encoder_a,encoder_b,learner,metric,n_scenarios,estimate,ci_low,ci_high,mcse,p_raw,p_bh,in_bh_family,notes
+C1,onehot,hash_shared,bayes_z_oracle,logloss,96,-0.046565237619694076,-0.05209744735755656,-0.041033027881831594,0.0028225559887053464,,,True,"1A exact. exact arm: deterministic, no p-value"
+C2,hash_column,hash_shared,bayes_z_oracle,logloss,96,-0.0323092724727956,-0.03612532300360759,-0.028493221941983615,0.0019469645565367269,,,True,"1A exact. exact arm: deterministic, no p-value"
+C3,onehot,count_pop,bayes_z_oracle,logloss,96,-0.03151079910900557,-0.039510530944843844,-0.023511067273167287,0.004081495834611367,,,True,"1A exact. exact arm: deterministic, no p-value"
+C5,designed_merge d=0.3,designed_merge d=0,bayes_z_oracle,logloss,3200,0.04169270451060223,0.041417103526820084,0.04196830549438438,0.00014061274682762722,,,False,"1A exact; construction identity, excluded from the BH family. exact arm: deterministic, no p-value"

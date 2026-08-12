@@ -14,3 +14,9 @@ build/
 *.egg-info/
 .coverage
 htmlcov/
+
+# S1 working CSVs: the frozen parquet artefacts and their sha256 manifest are
+# committed instead; part files are per-scenario checkpoints, not deliverables
+simulation-results-ct2i/raw/*.csv
+simulation-results-ct2i/raw/*_parts/
+simulation-results-ct2i/raw/*.log

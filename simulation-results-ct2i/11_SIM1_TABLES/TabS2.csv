@@ -1,0 +1,16 @@
+criterion_id,criterion_description,maximum_error,tolerance,pass,notes
+A1,Exact logloss identity holds to the frozen tolerance,2.706168622523819e-15,1e-10,PASS,
+A10,Column-aware hash fiber count exceeds shared-value at equal B,0.0,0,PASS,counts violations
+A11,RETIRED as an acceptance criterion; see reported_results.R1,,,NOT EVALUATED,requires an arm not yet complete
+A12,No training row influences its own supervised-encoder code (bitwise invariance under flipping its own label),,,NOT EVALUATED,requires an arm not yet complete
+A13,Every reported cell replays bitwise from its recorded seed,,,NOT EVALUATED,requires an arm not yet complete
+A14,Failed cells carry a typed status and NULL metrics,0.0,0,PASS,counts non-null metric values on failed rows
+A15,Simulation 2 reproduction recovers the frozen Stage 2 validation targets within tolerance,,,NOT EVALUATED,requires an arm not yet complete
+A2,Exact brier identity holds to the frozen tolerance,9.992007221626409e-16,1e-10,PASS,
+A3,Injective encoders have zero representation gap at every Delta_eta,2.220446049250313e-16,1e-12,PASS,
+A4,Designed merge with Delta_eta = 0 has zero representation gap,2.220446049250313e-16,1e-12,PASS,
+A5,Designed merge with Delta_eta > 0 has strictly positive gap,0.0016666666666665,1e-06,PASS,reports the MINIMUM gap
+A6,Representation gap nondecreasing in Delta_eta (designed merge),0.0,0,PASS,counts violating scenario pairs
+A7,Shared-value hash has at most M+1 reachable encodings,0.0,0,PASS,"counts rows where != M+1; verified by brute-force enumeration at M <= 14; asserted by the Stage 1 proposition at M in {50, 200, 1000}"
+A8,Shared-value loss nondecreasing in M under a position-specific target,,monotone,PASS,"means by M: {10: 0.09272, 50: 0.09954, 200: 0.10076, 1000: 0.10109}"
+A9,Shared-value hash has zero gap under a Hamming-weight target,1.1102230246251563e-16,1e-12,PASS,"measured through the generic aggregation, not assigned"

@@ -16,6 +16,7 @@ Writes  simulation-results-ct2i/raw/sim1c_exact.csv
 from __future__ import annotations
 
 import csv
+import os
 import sys
 import time
 from pathlib import Path
@@ -25,6 +26,7 @@ import pandas as pd
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
+sys.path.insert(0, str(REPO / "scripts"))
 
 from ct2i_benchmark.simulations import sim1_binary as B        # noqa: E402
 from ct2i_benchmark.simulations import sim1_design as D        # noqa: E402
@@ -119,20 +121,17 @@ def run_exact(scen, writer):
     return n
 
 
-def run_finite(scen, writer, limit=None):
-    n = 0
-    t0 = time.perf_counter()
-    todo = scen[:limit] if limit else scen
-    for si, s in enumerate(todo, 1):
+def finite_worker(s):
+    """All rows for ONE scenario. Runs in its own process; no shared state."""
+    rows = []
+    if True:
         f = s.factors
         M, q, tgt, n_tr = (f["M"], f["activation_rate"],
                            f["target_mechanism"], f["n_train"])
         widths = D.bucket_widths(M, 2)
-        eta_pat = (B.position_specific_eta(q, D.TAU_1C, s.seeds[0])
-                   if tgt == "position_specific" else None)
         for rep, seed in enumerate(s.seeds, 1):
             ep = (B.position_specific_eta(q, D.TAU_1C, seed)
-                  if tgt == "position_specific" else None)
+                  if tgt == "position_specific" else None)  # noqa: F841
             Xtr, ytr, _ = sample_binary(M, q, tgt, D.TAU_1C, n_tr, seed + 1, ep)
             Xev, yev, eta_ev = sample_binary(M, q, tgt, D.TAU_1C,
                                              D.N_EVAL, seed + 2, ep)
@@ -178,7 +177,7 @@ def run_finite(scen, writer, limit=None):
                                 r2["pr_auc"] = float(average_precision_score(yev, p))
                             elif metric == "logloss":
                                 r2["status"] = Status.METRIC_UNDEFINED.value
-                            writer.writerow(r2); n += 1
+                            rows.append(r2)
                 except Exception as e:                         # noqa: BLE001
                     for lrn in lrns:
                         for metric in ("logloss", "brier"):
@@ -186,10 +185,8 @@ def run_finite(scen, writer, limit=None):
                             r2.update(base, learner=lrn, metric=metric,
                                       status=Status.TRAINING_FAILURE.value,
                                       notes=str(e)[:150])
-                            writer.writerow(r2); n += 1
-        print(f"  1C finite scenario {si}/{len(todo)} rows={n:,} "
-              f"elapsed={time.perf_counter()-t0:.0f}s", flush=True)
-    return n
+                            rows.append(r2)
+    return rows
 
 
 def main() -> int:
@@ -206,13 +203,11 @@ def main() -> int:
         print(f"SIM 1C EXACT DONE rows={n:,} elapsed={time.perf_counter()-t0:.0f}s")
 
     if mode in ("finite", "both"):
-        t1 = time.perf_counter()
-        with open(RAW / "sim1c_finite.csv", "w", newline="", encoding="utf-8") as fh:
-            w = csv.DictWriter(fh, fieldnames=FINITE_FIELDS); w.writeheader()
-            n = run_finite(scen, w, limit)
-        el = time.perf_counter() - t1
-        print(f"SIM 1C FINITE DONE rows={n:,} elapsed={el:.0f}s "
-              f"core-hours={el/3600:.3f}")
+        from _s1_parallel import run_parallel
+        todo = scen[:limit] if limit else scen
+        run_parallel(todo, finite_worker, RAW / "sim1c_finite.csv",
+                     FINITE_FIELDS, max_workers=int(os.environ.get("S1_WORKERS", 8)),
+                     heavy_key=lambda s: s.factors["M"] >= 200, label="1C finite")
     return 0
 
 

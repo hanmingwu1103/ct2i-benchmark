@@ -1,0 +1,14 @@
+\begin{table}
+\caption{Prespecified finite-sample contrasts with uncertainty.}
+\label{tab:tabs3}
+\begin{tabular}{lllllrrrrrllrl}
+\toprule
+contrast\_id & encoder\_a & encoder\_b & learner & metric & n\_scenarios & estimate & ci\_low & ci\_high & mcse & p\_raw & p\_bh & in\_bh\_family & notes \\
+\midrule
+C1 & onehot & hash\_shared & bayes\_z\_oracle & logloss & 96 & -0.046565 & -0.052097 & -0.041033 & 0.0028226 & NaN & NaN & True & 1A exact. exact arm: deterministic, no p-value \\
+C2 & hash\_column & hash\_shared & bayes\_z\_oracle & logloss & 96 & -0.032309 & -0.036125 & -0.028493 & 0.001947 & NaN & NaN & True & 1A exact. exact arm: deterministic, no p-value \\
+C3 & onehot & count\_pop & bayes\_z\_oracle & logloss & 96 & -0.031511 & -0.039511 & -0.023511 & 0.0040815 & NaN & NaN & True & 1A exact. exact arm: deterministic, no p-value \\
+C5 & designed\_merge d=0.3 & designed\_merge d=0 & bayes\_z\_oracle & logloss & 3200 & 0.041693 & 0.041417 & 0.041968 & 0.00014061 & NaN & NaN & False & 1A exact; construction identity, excluded from the BH family. exact arm: deterministic, no p-value \\
+\bottomrule
+\end{tabular}
+\end{table}
