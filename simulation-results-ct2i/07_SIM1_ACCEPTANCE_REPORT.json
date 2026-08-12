@@ -3,7 +3,7 @@
     "1A": true,
     "1C_exact": true,
     "1C_finite": true,
-    "1B": false
+    "1B": true
   },
   "tolerances": {
     "exact_identity_abs": 1e-10,
@@ -122,7 +122,7 @@
       "maximum_error": 0.0,
       "tolerance": 0,
       "pass": true,
-      "n_cells": 316800,
+      "n_cells": 1411200,
       "notes": "counts non-null metric values on failed rows"
     }
   ],

@@ -1,7 +1,7 @@
 \begin{table}
 \caption{Prespecified finite-sample contrasts with uncertainty.}
 \label{tab:tabs3}
-\begin{tabular}{lllllrrrrrllrl}
+\begin{tabular}{lllllrrrrrrlrl}
 \toprule
 contrast\_id & encoder\_a & encoder\_b & learner & metric & n\_scenarios & estimate & ci\_low & ci\_high & mcse & p\_raw & p\_bh & in\_bh\_family & notes \\
 \midrule
@@ -9,6 +9,13 @@ C1 & onehot & hash\_shared & bayes\_z\_oracle & logloss & 96 & -0.046565 & -0.05
 C2 & hash\_column & hash\_shared & bayes\_z\_oracle & logloss & 96 & -0.032309 & -0.036125 & -0.028493 & 0.001947 & NaN & NaN & True & 1A exact. exact arm: deterministic, no p-value \\
 C3 & onehot & count\_pop & bayes\_z\_oracle & logloss & 96 & -0.031511 & -0.039511 & -0.023511 & 0.0040815 & NaN & NaN & True & 1A exact. exact arm: deterministic, no p-value \\
 C5 & designed\_merge d=0.3 & designed\_merge d=0 & bayes\_z\_oracle & logloss & 3200 & 0.041693 & 0.041417 & 0.041968 & 0.00014061 & NaN & NaN & False & 1A exact; construction identity, excluded from the BH family. exact arm: deterministic, no p-value \\
+C4 & target & onehot & bayes\_z\_oracle & logloss & 288 & 0.002839 & 0.0019494 & 0.0037287 & 0.00045392 & 1.4429e-09 & 3.3667e-09 & True & 1B. \\
+C6 & n\_train=5000 & n\_train=500 & lightgbm & logloss & 2400 & -0.14086 & -0.1425 & -0.13923 & 0.00083577 & 0 & 0 & True & 1B; H5. \\
+C7 & n\_train=5000 & n\_train=500 & mlp & logloss & 2400 & -0.0019801 & -0.0040359 & 7.5726e-05 & 0.0010489 & 0.029586 & 0.051776 & True & 1B; H5. \\
+C8 & n\_train=5000 & n\_train=500 & logistic & logloss & 2400 & -0.10747 & -0.11108 & -0.10386 & 0.0018409 & 0 & 0 & True & 1B; H5. \\
+C9 & target Zipf CV & uniform CV & bayes\_z\_oracle & logloss & 48 & -0.050865 & -0.082591 & -0.019139 & 0.016187 & 0.99855 & 0.99994 & True & 1B; H6 coefficient of variation. \\
+C10 & woe Zipf CV & uniform CV & bayes\_z\_oracle & logloss & 48 & -0.093753 & -0.13766 & -0.049843 & 0.022403 & 0.99994 & 0.99994 & True & 1B; H6 coefficient of variation. \\
+C11 & ordered\_catboost\_sim Zipf CV & uniform CV & bayes\_z\_oracle & logloss & 48 & -0.05028 & -0.082182 & -0.018377 & 0.016277 & 0.99832 & 0.99994 & True & 1B; H6 coefficient of variation. \\
 \bottomrule
 \end{tabular}
 \end{table}

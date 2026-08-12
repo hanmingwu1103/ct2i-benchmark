@@ -211,13 +211,23 @@ def tab_s3(a1, b):
                 add(cid, f"{enc} Zipf CV", "uniform CV", "bayes_z_oracle",
                     "logloss", None, False, "1B; H6.")
                 continue
-            cv = (ge.groupby(["scenario_id", "marginal"]).representation_loss
+            # H6 compares marginals, and `marginal` is itself part of the
+            # scenario id, so grouping by scenario_id leaves one column empty
+            # and the pivot drops everything (the same trap as C5). The
+            # marginal is the treatment here, so the arms cannot share a seed;
+            # instead they are MATCHED on every other factor and the
+            # across-replicate coefficient of variation is compared within each
+            # matched cell.
+            block = ["M", "K", "tau", "interaction_count", "delta_eta", "n_train"]
+            cv = (ge.groupby(block + ["marginal"]).representation_loss
                   .agg(["mean", "std"]))
             cv["cv"] = cv["std"] / cv["mean"].replace(0, np.nan)
-            w = cv.reset_index().pivot_table(index="scenario_id",
-                                             columns="marginal", values="cv")
-            s = ((w.get("zipf") - w.get("uniform")).dropna()
+            w = cv.reset_index().pivot_table(index=block, columns="marginal",
+                                             values="cv")
+            s = ((w["zipf"] - w["uniform"]).dropna()
                  if {"zipf", "uniform"} <= set(w.columns) else None)
+            if s is not None:
+                s = s.reset_index(drop=True)
             add(cid, f"{enc} Zipf CV", "uniform CV", "bayes_z_oracle", "logloss",
                 s, False, "1B; H6 coefficient of variation.")
 

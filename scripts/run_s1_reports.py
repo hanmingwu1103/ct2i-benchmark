@@ -107,6 +107,23 @@ DEVIATIONS = [
      "This script's mis-specified condition was corrected; the simulation code "
      "was NOT tuned. All five targets then reproduced to four significant "
      "figures."),
+    ("D11", "CPU ceiling exceeded",
+     "Measured total 88.1 core-hours against the advisor's 80 core-hour ceiling "
+     "(1A 0.04 + 1C exact 0.004 + 1C finite 30.1 + 1B 57.97 + Sim2 0.001). "
+     "Simulation 1B came in at 57.97 against a 49.8 projection, the fourth "
+     "consecutive underestimate.",
+     "OVER BY 8.1 CORE-HOURS (10%). Reported, not concealed. No design was "
+     "reduced to fit and no result was discarded. The overrun is entirely "
+     "estimation error, not scope creep: the executed design is exactly the "
+     "Option B design frozen at S0. The advisor may treat this as requiring "
+     "retrospective ratification of the ceiling."),
+    ("D12", "Bayes-on-Z oracle recorded as a typed absence",
+     "The oracle predicts ebar(z), which does not exist where the population "
+     "gap is not identified, so 115,200 rows were initially absent from the 1B "
+     "output with no explanation on the file.",
+     "Those rows are now emitted explicitly with status SKIPPED_INELIGIBLE and "
+     "NULL metrics, so the absence is typed and countable rather than a silent "
+     "hole. Row count now matches the design exactly (1,094,400)."),
     ("D10", "Run restarted after an operator error",
      "A healthy Simulation 1B run was killed on a false diagnosis (a pgrep "
      "pattern that cannot match spawn-based pool workers was read as 'workers "

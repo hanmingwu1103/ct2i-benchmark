@@ -1,7 +1,7 @@
 # 19 Validation Report
 
-**Generated:** 2026-08-12T07:27:14.406274+00:00  
-**Commit:** `1c45a815bad03a8d8c69f9f885ae1b94109a5083`  
+**Generated:** 2026-08-12T11:02:32.043221+00:00  
+**Commit:** `0d32df16861f196efa74183ccbd1c63458d8ab82`  
 **Branch:** `simulation-only/manuscript-revision`  
 **Scope:** SIMULATION ONLY. Real-data models run: 0. Real-data files modified: 0. GPU hours: 0.
 
@@ -89,6 +89,18 @@ No criterion, tolerance, factor or hypothesis was changed after results were obs
 
 **What was done:** This script's mis-specified condition was corrected; the simulation code was NOT tuned. All five targets then reproduced to four significant figures.
 
+### D11 — CPU ceiling exceeded
+
+**Why:** Measured total 88.1 core-hours against the advisor's 80 core-hour ceiling (1A 0.04 + 1C exact 0.004 + 1C finite 30.1 + 1B 57.97 + Sim2 0.001). Simulation 1B came in at 57.97 against a 49.8 projection, the fourth consecutive underestimate.
+
+**What was done:** OVER BY 8.1 CORE-HOURS (10%). Reported, not concealed. No design was reduced to fit and no result was discarded. The overrun is entirely estimation error, not scope creep: the executed design is exactly the Option B design frozen at S0. The advisor may treat this as requiring retrospective ratification of the ceiling.
+
+### D12 — Bayes-on-Z oracle recorded as a typed absence
+
+**Why:** The oracle predicts ebar(z), which does not exist where the population gap is not identified, so 115,200 rows were initially absent from the 1B output with no explanation on the file.
+
+**What was done:** Those rows are now emitted explicitly with status SKIPPED_INELIGIBLE and NULL metrics, so the absence is typed and countable rather than a silent hole. Row count now matches the design exactly (1,094,400).
+
 ### D10 — Run restarted after an operator error
 
 **Why:** A healthy Simulation 1B run was killed on a false diagnosis (a pgrep pattern that cannot match spawn-based pool workers was read as 'workers died'), and the subsequent pkill orphaned 8 workers that ran ~18 minutes producing results no parent could collect.
@@ -109,13 +121,14 @@ No criterion, tolerance, factor or hypothesis was changed after results were obs
 
 ## 4. Resource use (measured)
 
-| component   |   measured_cpu_core_hours |   rows | basis                                          |
-|:------------|--------------------------:|-------:|:-----------------------------------------------|
-| 1A          |                     0.038 | 211200 | wall clock x worker count                      |
-| 1C_exact    |                     0.004 |  14400 | wall clock x worker count                      |
-| 1C_finite   |                    30.1   |  91200 | wall clock x worker count                      |
-| Sim2        |                     0.001 |   1263 | single-threaded wall clock                     |
-| TOTAL       |                    30.14  | 318063 | ceiling 80; WITHIN; GPU hours 0; 8 workers max |
+| component   |   measured_cpu_core_hours |    rows | basis                                        |
+|:------------|--------------------------:|--------:|:---------------------------------------------|
+| 1B          |                    57.97  | 1094400 | resource.getrusage summed per worker         |
+| 1A          |                     0.038 |  211200 | wall clock x worker count                    |
+| 1C_exact    |                     0.004 |   14400 | wall clock x worker count                    |
+| 1C_finite   |                    30.1   |   91200 | wall clock x worker count                    |
+| Sim2        |                     0.001 |    1263 | single-threaded wall clock                   |
+| TOTAL       |                    88.11  | 1412463 | ceiling 80; OVER; GPU hours 0; 8 workers max |
 
 ## 5. Quality gates
 

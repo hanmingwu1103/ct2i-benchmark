@@ -20,5 +20,10 @@
   "12_SIM2_RESULTS.csv": {
     "rows": 1263,
     "sha256": "cf3ecf180ee28f9ee0c2ce71a20aeb2ad2ad66a66d17133e50c39c07b12d92e7"
+  },
+  "05b_SIM1B_REPLICATE_RESULTS.parquet": {
+    "rows": 1094400,
+    "parquet_mb": 26.8,
+    "sha256": "5b5a191031be52d0e53c11fcd3655a5d92e53187b9c625d10693c72c6a3ba5cc"
   }
 }

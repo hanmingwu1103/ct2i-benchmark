@@ -1,19 +1,20 @@
 # 20 Result Handoff Memo
 
-**Commit:** `1c45a815bad03a8d8c69f9f885ae1b94109a5083` on `simulation-only/manuscript-revision`  
-**Generated:** 2026-08-12T07:27:14.406274+00:00
+**Commit:** `0d32df16861f196efa74183ccbd1c63458d8ab82` on `simulation-only/manuscript-revision`  
+**Generated:** 2026-08-12T11:02:32.043221+00:00
 
 This memo states what was run and what passed. It contains no interpretation of what the results mean for the manuscript: the plan assigns the abstract, Results, Discussion and Conclusions to the advisor.
 
 ## What was run
 
-| component   |   measured_cpu_core_hours |   rows | basis                                          |
-|:------------|--------------------------:|-------:|:-----------------------------------------------|
-| 1A          |                     0.038 | 211200 | wall clock x worker count                      |
-| 1C_exact    |                     0.004 |  14400 | wall clock x worker count                      |
-| 1C_finite   |                    30.1   |  91200 | wall clock x worker count                      |
-| Sim2        |                     0.001 |   1263 | single-threaded wall clock                     |
-| TOTAL       |                    30.14  | 318063 | ceiling 80; WITHIN; GPU hours 0; 8 workers max |
+| component   |   measured_cpu_core_hours |    rows | basis                                        |
+|:------------|--------------------------:|--------:|:---------------------------------------------|
+| 1B          |                    57.97  | 1094400 | resource.getrusage summed per worker         |
+| 1A          |                     0.038 |  211200 | wall clock x worker count                    |
+| 1C_exact    |                     0.004 |   14400 | wall clock x worker count                    |
+| 1C_finite   |                    30.1   |   91200 | wall clock x worker count                    |
+| Sim2        |                     0.001 |    1263 | single-threaded wall clock                   |
+| TOTAL       |                    88.11  | 1412463 | ceiling 80; OVER; GPU hours 0; 8 workers max |
 
 ## Criteria
 
