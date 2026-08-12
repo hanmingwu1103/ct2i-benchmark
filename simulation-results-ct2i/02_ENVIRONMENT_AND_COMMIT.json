@@ -1,0 +1,21 @@
+{
+  "generated_utc": "2026-08-12T07:27:14.406274+00:00",
+  "repository": "https://github.com/hanmingwu1103/ct2i-benchmark.git",
+  "branch": "simulation-only/manuscript-revision",
+  "full_commit_sha": "1c45a815bad03a8d8c69f9f885ae1b94109a5083",
+  "baseline_commit": "7f6b62035951df7d032d0a3eab04cb3c9b0328b4",
+  "release_tag": "(set at packaging)",
+  "packages": {
+    "python": "3.11.9",
+    "numpy": "2.4.1",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.8.0",
+    "scipy": "1.17.0",
+    "lightgbm": "4.7.0"
+  },
+  "platform": "macOS-26.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "gpu_hours": 0,
+  "real_data_models_run": 0,
+  "real_data_files_modified": 0
+}

@@ -1,0 +1,39 @@
+{
+  "source": "reproduction of the frozen Stage 2 design",
+  "n_rows": 1263,
+  "criteria": [
+    {
+      "criterion": "C1 honest independent-test reporting is unbiased",
+      "maximum_observed_value": 0.0006454170816911,
+      "theoretical_bound_or_tolerance": 0.00065,
+      "pass": true
+    },
+    {
+      "criterion": "C2 oracle optimism within the sub-Gaussian bound",
+      "maximum_observed_value": 0.8467733929130778,
+      "theoretical_bound_or_tolerance": 0.847,
+      "pass": true
+    },
+    {
+      "criterion": "C6 K=72 minus K=8 oracle advantage, sigma=0.005",
+      "maximum_observed_value": 0.0048631308478983,
+      "theoretical_bound_or_tolerance": 0.0049,
+      "pass": true
+    },
+    {
+      "criterion": "C6 K=72 minus K=8 oracle advantage, sigma=0.01",
+      "maximum_observed_value": 0.0097262616957967,
+      "theoretical_bound_or_tolerance": 0.0097,
+      "pass": true
+    },
+    {
+      "criterion": "C6 K=72 minus K=8 oracle advantage, sigma=0.03",
+      "maximum_observed_value": 0.0291787850873901,
+      "theoretical_bound_or_tolerance": 0.0292,
+      "pass": true
+    }
+  ],
+  "n_passed": 5,
+  "n_total": 5,
+  "note": "design frozen by Stage 2 and not changed; a mismatch would be reported, not tuned away"
+}

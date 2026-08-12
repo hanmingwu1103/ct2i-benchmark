@@ -1,0 +1,6 @@
+criterion,maximum_observed_value,theoretical_bound_or_tolerance,pass
+C1 honest independent-test reporting is unbiased,0.0006454170816911,0.00065,True
+C2 oracle optimism within the sub-Gaussian bound,0.8467733929130778,0.847,True
+"C6 K=72 minus K=8 oracle advantage, sigma=0.005",0.0048631308478983,0.0049,True
+"C6 K=72 minus K=8 oracle advantage, sigma=0.01",0.0097262616957967,0.0097,True
+"C6 K=72 minus K=8 oracle advantage, sigma=0.03",0.0291787850873901,0.0292,True
