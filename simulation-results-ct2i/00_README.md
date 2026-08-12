@@ -1,7 +1,7 @@
 # cT2I Simulation-Only Result Package
 
-**Commit:** `e8ada5b438227df1c06a36ed4b841e142731a024` on `simulation-only/manuscript-revision`  
-**Built:** 2026-08-12T11:55:44.579865+00:00  
+**Commit:** `4dce8fbbb64ac7027222a820aa1160499184f6d5` on `simulation-only/manuscript-revision`  
+**Built:** 2026-08-12T11:56:35.922308+00:00  
 **Scope:** SIMULATION ONLY — real-data models run: 0, real-data files modified: 0, GPU hours: 0.
 
 ## Start here
@@ -24,7 +24,7 @@ No manuscript prose. The plan assigns the abstract, Results, Discussion and Conc
 
 | file | present | sha256 (first 16) | note |
 |---|---|---|---|
-| `00_README.md` | yes | ee2d128764d5498d |  |
+| `00_README.md` | yes | 36e31de3e9bac4ad |  |
 | `01_PROTOCOL_FREEZE.yaml` | yes | f6d64fc0335d7cd3 |  |
 | `02_ENVIRONMENT_AND_COMMIT.json` | yes | cc32d58a5f55a7ad |  |
 | `03_SEED_MANIFEST.csv` | yes | 08a2bcf15fd29850 |  |

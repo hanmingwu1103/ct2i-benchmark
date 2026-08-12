@@ -1,8 +1,8 @@
 {
-  "commit": "e8ada5b438227df1c06a36ed4b841e142731a024",
+  "commit": "4dce8fbbb64ac7027222a820aa1160499184f6d5",
   "branch": "simulation-only/manuscript-revision",
   "files": {
-    "simulation-results-ct2i/00_README.md": "36e31de3e9bac4ad7420fb03c3e725259f1fbf6417a233c667dfc219d8a4c1bb",
+    "simulation-results-ct2i/00_README.md": "a09ca3394636aa331e9bb5857eb38117f46c72d8b64576a1c332376683d1e8e6",
     "simulation-results-ct2i/01_PROTOCOL_FREEZE.yaml": "f6d64fc0335d7cd31a881930294a856a81186bcd306868daf44952ca7d8e9d23",
     "simulation-results-ct2i/02_ENVIRONMENT_AND_COMMIT.json": "cc32d58a5f55a7add2ec0da7af26009945d30d3f0f7d1efd2ef81de935cc80fe",
     "simulation-results-ct2i/03_SEED_MANIFEST.csv": "08a2bcf15fd2985086f6f607cd81828242067de8869494ff9ad9b8195cf538bd",
@@ -38,7 +38,7 @@
     "simulation-results-ct2i/18_RUNTIME_AND_RESOURCE_REPORT.csv": "ca16cd4071146a4844ade6bb2cde6a41b22eefc5d9df7ced4784308d3f92e372",
     "simulation-results-ct2i/19_VALIDATION_REPORT.md": "cc6c5283485d8631a97ec6793fb66a4471bad814051e06278f5bd83c425e29a7",
     "simulation-results-ct2i/20_RESULT_HANDOFF_MEMO.md": "9e0489ea84d7e2f21ed80b116dda44489edfe07c79424278a13a648cedfacab2",
-    "simulation-results-ct2i/PACKAGE_SHA256.json": "38511b49735c7009082577ac68314388823fbe5bc8ad6bef165edf67e44cd06e",
+    "simulation-results-ct2i/PACKAGE_SHA256.json": "9a850b0c29fbdcd474813f8c071a195a6b09a9e341046ee76886f41753b09298",
     "simulation-results-ct2i/RAW_FREEZE_MANIFEST.json": "c63534cede4178932ee175fd7a395d5984eafdd3c30fdcccf43e81f924bdd81a",
     "simulation-results-ct2i/S0_CELL_COST_ROWS.csv": "db36232501de34daa06d323ddb18b164a3e5ec54b48da9d82ba48fc0b1d8f308",
     "simulation-results-ct2i/S0_COUNCIL_REVIEW.md": "8f27ab1c251814d1992c646d7ff4e6314732fe3e3a1ae3a6657c4876e121f137",
@@ -50,6 +50,6 @@
     "simulation-results-ct2i/S0_RESOURCE_ESTIMATE.csv": "3a1062e160059eb093ca288b4a415bbd08f28832d40c7bf77d96c3ecf106cf46",
     "simulation-results-ct2i/S0_TEST_REPORT.md": "b6c1481ff1a9b1051f93302c9303edfd2a224322c64b2660dd220a598009b784",
     "simulation-results-ct2i/S1_AUTHORIZATION_AND_DECISIONS.md": "b541042e54e217269b19f79b01b516521dcf14b677160af57250b83b0bdb16e5",
-    "simulation-results-ct2i/S1_COUNCIL_AUDIT.md": "9598babba0204c5a4e84e07fdc34474bf6e30bfe70139bb67b2cfdd7e96aefdd"
+    "simulation-results-ct2i/S1_COUNCIL_AUDIT.md": "41495ae044082cae92635dc1478d5de1c764ba9cd5964bec2926d69409020159"
   }
 }
