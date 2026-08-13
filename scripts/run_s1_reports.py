@@ -184,7 +184,13 @@ def main() -> int:
     env = dict(generated_utc=now, repository=git("remote", "get-url", "origin"),
                branch=branch, full_commit_sha=commit,
                baseline_commit="7f6b62035951df7d032d0a3eab04cb3c9b0328b4",
-               release_tag="(set at packaging)", packages=pkgs,
+               release_tag=(git("tag", "--points-at", "HEAD")
+                            or git("describe", "--tags", "--abbrev=0")
+                            or "(no tag)"),
+               release_tag_note="the TAG is the stable identifier for this "
+                                "package; the build SHA below moves whenever "
+                                "the reports are regenerated",
+               packages=pkgs,
                platform=platform.platform(), machine=platform.machine(),
                gpu_hours=0, real_data_models_run=0, real_data_files_modified=0)
     (OUTD / "02_ENVIRONMENT_AND_COMMIT.json").write_text(

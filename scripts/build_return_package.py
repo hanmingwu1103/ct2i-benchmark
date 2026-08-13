@@ -89,7 +89,11 @@ def build_readme(present, commit, branch):
     nfail = sum(c["pass"] is False for c in acc["criteria"])
     L = [
         "# cT2I Simulation-Only Result Package", "",
-        f"**Commit:** `{commit}` on `{branch}`  ",
+        f"**Release tag:** `{git('tag', '--points-at', 'HEAD') or git('describe', '--tags', '--abbrev=0') or '(none)'}` "
+        "— quote this when citing the package; it is stable.  ",
+        f"**Built from commit:** `{commit}` on `{branch}`. This SHA advances by "
+        "one whenever the reports are regenerated, so the tag above is the "
+        "identifier to cite, not this.  ",
         f"**Built:** {datetime.now(timezone.utc).isoformat()}  ",
         "**Scope:** SIMULATION ONLY — real-data models run: 0, real-data files "
         "modified: 0, GPU hours: 0.", "",

@@ -1,10 +1,11 @@
 {
-  "generated_utc": "2026-08-12T11:55:42.928778+00:00",
+  "generated_utc": "2026-08-13T04:18:40.454646+00:00",
   "repository": "https://github.com/hanmingwu1103/ct2i-benchmark.git",
   "branch": "simulation-only/manuscript-revision",
-  "full_commit_sha": "e8ada5b438227df1c06a36ed4b841e142731a024",
+  "full_commit_sha": "e638d1fb629d5d43f4c6d75a5ec5889925e5a4ba",
   "baseline_commit": "7f6b62035951df7d032d0a3eab04cb3c9b0328b4",
-  "release_tag": "(set at packaging)",
+  "release_tag": "sim-only-s1-complete",
+  "release_tag_note": "the TAG is the stable identifier for this package; the build SHA below moves whenever the reports are regenerated",
   "packages": {
     "python": "3.11.9",
     "numpy": "2.4.1",

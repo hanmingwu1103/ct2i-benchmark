@@ -1,7 +1,7 @@
 # 20 Result Handoff Memo
 
-**Commit:** `e8ada5b438227df1c06a36ed4b841e142731a024` on `simulation-only/manuscript-revision`  
-**Generated:** 2026-08-12T11:55:42.928778+00:00
+**Commit:** `e638d1fb629d5d43f4c6d75a5ec5889925e5a4ba` on `simulation-only/manuscript-revision`  
+**Generated:** 2026-08-13T04:18:40.454646+00:00
 
 This memo states what was run and what passed. It contains no interpretation of what the results mean for the manuscript: the plan assigns the abstract, Results, Discussion and Conclusions to the advisor.
 
