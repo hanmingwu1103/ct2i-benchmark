@@ -20,3 +20,7 @@ htmlcov/
 simulation-results-ct2i/raw/*.csv
 simulation-results-ct2i/raw/*_parts/
 simulation-results-ct2i/raw/*.log
+
+# return-package ZIPs are build artefacts rebuilt by scripts/build_return_package.py;
+# the contents are tracked under simulation-results-ct2i/ and hashed in PACKAGE_SHA256.json
+simulation-results-ct2i_*.zip
