@@ -1,0 +1,86 @@
+layer,operation,d_active,configuration,repeats,median_elapsed_s,cpu_s,peak_rss_mb,output_bytes,status,notes
+env,host,,macOS-26.2-arm64-arm-64bit py3.11.9 cores=8,0,0,0,172.8,0,SUCCESS,A0 timing probe; not an addendum result
+unit,M1_draw_params_plus_eta_table,3,d3,3,0.00024,0.000752,172.8,0,SUCCESS,eta table cells = K**d = 64
+unit,M2_sample_records,3,d3_n5000,3,0.003291,0.010536,172.8,5000,SUCCESS,
+unit,M2_sample_records,3,d3_n50000,3,0.03243,0.099113,198.2,50000,SUCCESS,
+unit,M5_oof_plus_full_fit,3,d3_label_n500,1,0.004116,0.002049,198.8,0,SUCCESS,
+unit,M5_oof_plus_full_fit,3,d3_label_n5000,1,0.006794,0.006797,198.9,0,SUCCESS,
+unit,M3_ebar_coordinatewise,3,d3_label,3,0.001195,0.003972,199.0,512,SUCCESS,probe rows = d*K = 12
+unit,M5_oof_plus_full_fit,3,d3_onehot_n500,1,0.000874,0.000877,199.1,0,SUCCESS,
+unit,M5_oof_plus_full_fit,3,d3_onehot_n5000,1,0.005278,0.005282,199.2,0,SUCCESS,
+unit,M3_ebar_coordinatewise,3,d3_onehot,3,0.001084,0.003249,199.2,512,SUCCESS,probe rows = d*K = 12
+unit,M5_oof_plus_full_fit,3,d3_count_n500,1,0.002859,0.002169,199.3,0,SUCCESS,
+unit,M5_oof_plus_full_fit,3,d3_count_n5000,1,0.005052,0.005057,199.3,0,SUCCESS,
+unit,M3_ebar_coordinatewise,3,d3_count,3,0.00117,0.00356,199.4,512,SUCCESS,probe rows = d*K = 12
+unit,M5_oof_plus_full_fit,3,d3_target_n500,1,0.017363,0.015681,199.8,0,SUCCESS,
+unit,M5_oof_plus_full_fit,3,d3_target_n5000,1,0.0247,0.024705,201.6,0,SUCCESS,
+unit,M3_ebar_coordinatewise,3,d3_target,3,0.001187,0.003569,201.6,512,SUCCESS,probe rows = d*K = 12
+unit,M5_oof_plus_full_fit,3,d3_woe_n500,1,0.023166,0.02314,201.6,0,SUCCESS,
+unit,M5_oof_plus_full_fit,3,d3_woe_n5000,1,0.032135,0.03214,201.6,0,SUCCESS,
+unit,M3_ebar_coordinatewise,3,d3_woe,3,0.001132,0.003395,201.6,512,SUCCESS,probe rows = d*K = 12
+unit,M5_oof_plus_full_fit,3,d3_ordered_catboost_sim_n500,1,0.017711,0.015284,201.6,0,SUCCESS,
+unit,M5_oof_plus_full_fit,3,d3_ordered_catboost_sim_n5000,1,0.355361,0.14407,201.7,0,SUCCESS,
+unit,M3_ebar_coordinatewise,3,d3_ordered_catboost_sim,3,0.001646,0.004571,201.7,512,SUCCESS,probe rows = d*K = 12
+unit,M5_oof_plus_full_fit,3,d3_homals_n500,1,0.04531,0.043584,201.7,0,SUCCESS,
+unit,M5_oof_plus_full_fit,3,d3_homals_n5000,1,0.445356,0.42781,201.7,0,SUCCESS,
+unit,M3_ebar_coordinatewise,3,d3_homals,3,0.001011,0.003258,201.7,512,SUCCESS,probe rows = d*K = 12
+unit,M4_hash_full_space_fibers,3,d3_B10_col,3,0.001187,0.00362,201.7,1920,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M4_hash_full_space_fibers,3,d3_B10_shared,3,0.001155,0.003538,201.7,448,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M4_hash_full_space_fibers,3,d3_B20_col,3,0.001826,0.005453,201.7,2904,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M4_hash_full_space_fibers,3,d3_B20_shared,3,0.002289,0.006832,201.7,448,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M4_hash_full_space_fibers,3,d3_B40_col,3,0.003773,0.011926,201.7,6144,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M4_hash_full_space_fibers,3,d3_B40_shared,3,0.004068,0.012228,201.7,448,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M6_learner_fit,3,d3_onehot_logistic_n5000,1,0.064326,0.054205,201.7,0,SUCCESS,
+unit,M6_learner_fit,3,d3_onehot_lightgbm_n5000,1,0.134974,0.116754,201.7,0,SUCCESS,
+unit,M6_learner_fit,3,d3_onehot_mlp_n5000,1,0.215026,0.213214,201.7,0,SUCCESS,
+unit,M7_predict_proba_chunked_multi,3,d3_onehot_n_eval50000,1,0.040455,0.040463,201.7,400000,SUCCESS,
+unit,M6_learner_fit,3,d3_hash_column_logistic_n5000,1,0.002983,0.002988,201.7,0,SUCCESS,
+unit,M6_learner_fit,3,d3_hash_column_lightgbm_n5000,1,0.098399,0.098406,201.7,0,SUCCESS,
+unit,M6_learner_fit,3,d3_hash_column_mlp_n5000,1,0.117891,0.117897,201.7,0,SUCCESS,
+unit,M7_predict_proba_chunked_multi,3,d3_hash_column_n_eval50000,1,0.053915,0.053921,201.7,400000,SUCCESS,
+unit,M8_peak_rss_after_block,3,d3,0,0,0,201.7,0,SUCCESS,single-process probe; multiply by 8 workers for the envelope
+unit,M1_draw_params_plus_eta_table,5,d5,3,0.002545,0.007654,201.7,0,SUCCESS,eta table cells = K**d = 1024
+unit,M2_sample_records,5,d5_n5000,3,0.003352,0.010054,201.7,5000,SUCCESS,
+unit,M2_sample_records,5,d5_n50000,3,0.031976,0.09595,201.7,50000,SUCCESS,
+unit,M5_oof_plus_full_fit,5,d5_label_n500,1,0.00119,0.001197,201.7,0,SUCCESS,
+unit,M5_oof_plus_full_fit,5,d5_label_n5000,1,0.006532,0.006537,201.7,0,SUCCESS,
+unit,M3_ebar_coordinatewise,5,d5_label,3,0.002064,0.006295,201.7,8192,SUCCESS,probe rows = d*K = 20
+unit,M5_oof_plus_full_fit,5,d5_onehot_n500,1,0.000827,0.000831,201.7,0,SUCCESS,
+unit,M5_oof_plus_full_fit,5,d5_onehot_n5000,1,0.005174,0.005178,201.7,0,SUCCESS,
+unit,M3_ebar_coordinatewise,5,d5_onehot,3,0.00195,0.005849,201.7,8192,SUCCESS,probe rows = d*K = 20
+unit,M5_oof_plus_full_fit,5,d5_count_n500,1,0.001605,0.001611,201.7,0,SUCCESS,
+unit,M5_oof_plus_full_fit,5,d5_count_n5000,1,0.005025,0.005029,201.7,0,SUCCESS,
+unit,M3_ebar_coordinatewise,5,d5_count,3,0.00214,0.006483,201.7,8192,SUCCESS,probe rows = d*K = 20
+unit,M5_oof_plus_full_fit,5,d5_target_n500,1,0.017199,0.014883,201.7,0,SUCCESS,
+unit,M5_oof_plus_full_fit,5,d5_target_n5000,1,0.041381,0.02921,201.7,0,SUCCESS,
+unit,M3_ebar_coordinatewise,5,d5_target,3,0.002374,0.00768,201.7,8192,SUCCESS,probe rows = d*K = 20
+unit,M5_oof_plus_full_fit,5,d5_woe_n500,1,0.023861,0.023854,201.7,0,SUCCESS,
+unit,M5_oof_plus_full_fit,5,d5_woe_n5000,1,0.04065,0.036955,201.7,0,SUCCESS,
+unit,M3_ebar_coordinatewise,5,d5_woe,3,0.002332,0.00699,201.7,8192,SUCCESS,probe rows = d*K = 20
+unit,M5_oof_plus_full_fit,5,d5_ordered_catboost_sim_n500,1,0.015203,0.015172,201.7,0,SUCCESS,
+unit,M5_oof_plus_full_fit,5,d5_ordered_catboost_sim_n5000,1,0.114488,0.110438,201.7,0,SUCCESS,
+unit,M3_ebar_coordinatewise,5,d5_ordered_catboost_sim,3,0.002114,0.006445,201.7,8192,SUCCESS,probe rows = d*K = 20
+unit,M5_oof_plus_full_fit,5,d5_homals_n500,1,0.043694,0.040961,201.7,0,SUCCESS,
+unit,M5_oof_plus_full_fit,5,d5_homals_n5000,1,0.421958,0.417403,201.7,0,SUCCESS,
+unit,M3_ebar_coordinatewise,5,d5_homals,3,0.001776,0.005625,201.7,8192,SUCCESS,probe rows = d*K = 20
+unit,M4_hash_full_space_fibers,5,d5_B10_col,3,0.001061,0.003207,201.7,1920,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M4_hash_full_space_fibers,5,d5_B10_shared,3,0.001106,0.003332,201.7,448,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M4_hash_full_space_fibers,5,d5_B20_col,3,0.001749,0.005266,201.7,2904,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M4_hash_full_space_fibers,5,d5_B20_shared,3,0.002243,0.006727,201.7,448,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M4_hash_full_space_fibers,5,d5_B40_col,3,0.003683,0.011056,201.7,6144,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M4_hash_full_space_fibers,5,d5_B40_shared,3,0.003967,0.011893,201.7,448,SUCCESS,"full space = K**M = 1024, independent of d"
+unit,M6_learner_fit,5,d5_onehot_logistic_n5000,1,0.002648,0.002757,201.7,0,SUCCESS,
+unit,M6_learner_fit,5,d5_onehot_lightgbm_n5000,1,0.078156,0.078122,201.7,0,SUCCESS,
+unit,M6_learner_fit,5,d5_onehot_mlp_n5000,1,0.203441,0.203437,201.7,0,SUCCESS,
+unit,M7_predict_proba_chunked_multi,5,d5_onehot_n_eval50000,1,0.040336,0.040322,201.7,400000,SUCCESS,
+unit,M6_learner_fit,5,d5_hash_column_logistic_n5000,1,0.002973,0.00298,201.7,0,SUCCESS,
+unit,M6_learner_fit,5,d5_hash_column_lightgbm_n5000,1,0.099675,0.099677,201.7,0,SUCCESS,
+unit,M6_learner_fit,5,d5_hash_column_mlp_n5000,1,0.259662,0.25967,201.7,0,SUCCESS,
+unit,M7_predict_proba_chunked_multi,5,d5_hash_column_n_eval50000,1,0.053701,0.053698,201.7,400000,SUCCESS,
+unit,M8_peak_rss_after_block,5,d5,0,0,0,201.7,0,SUCCESS,single-process probe; multiply by 8 workers for the envelope
+e2e,whole_scenario_probe,3,zipf_tau1.5_nint3_delta0.3_n500_reps10,10,53.404,52.156,242.1,204358,SUCCESS,"rows=760; cpu_s_per_replicate=5.216; cpu_s_per_50rep_scenario=260.8; csv_bytes_per_row=268.9; parquet_bytes_per_row=54.6; TIMING PROBE ONLY - scratch output, not an addendum result"
+e2e,whole_scenario_probe,5,zipf_tau1.5_nint3_delta0.3_n500_reps10,10,54.359,53.52,242.1,205084,SUCCESS,"rows=760; cpu_s_per_replicate=5.352; cpu_s_per_50rep_scenario=267.6; csv_bytes_per_row=269.8; parquet_bytes_per_row=54.6; TIMING PROBE ONLY - scratch output, not an addendum result"
+e2e,whole_scenario_probe,3,zipf_tau1.5_nint3_delta0.3_n5000_reps10,10,73.55,73.255,252.0,206195,SUCCESS,"rows=760; cpu_s_per_replicate=7.325; cpu_s_per_50rep_scenario=366.3; csv_bytes_per_row=271.3; parquet_bytes_per_row=54.6; TIMING PROBE ONLY - scratch output, not an addendum result"
+e2e,whole_scenario_probe,5,zipf_tau1.5_nint3_delta0.3_n5000_reps10,10,75.102,74.493,248.9,206889,SUCCESS,"rows=760; cpu_s_per_replicate=7.449; cpu_s_per_50rep_scenario=372.5; csv_bytes_per_row=272.2; parquet_bytes_per_row=54.6; TIMING PROBE ONLY - scratch output, not an addendum result"
+e2e,whole_scenario_probe,3,uniform_tau0.5_nint0_delta0.0_n5000_reps10,10,65.809,65.313,249.8,223564,SUCCESS,"rows=760; cpu_s_per_replicate=6.531; cpu_s_per_50rep_scenario=326.6; csv_bytes_per_row=294.2; parquet_bytes_per_row=54.6; TIMING PROBE ONLY - scratch output, not an addendum result"
+e2e,whole_scenario_probe,5,uniform_tau0.5_nint0_delta0.0_n5000_reps10,10,68.909,68.579,252.6,223935,SUCCESS,"rows=760; cpu_s_per_replicate=6.858; cpu_s_per_50rep_scenario=342.9; csv_bytes_per_row=294.7; parquet_bytes_per_row=54.8; TIMING PROBE ONLY - scratch output, not an addendum result"

@@ -34,3 +34,6 @@ simulation-results-ct2i-repaired_*.zip
 # and it still ships, checksummed, inside the return package ZIP. Do not re-add
 # it to the repository.
 simulation-results-ct2i/08_SIM1_FIGURE_DATA.csv
+
+# macOS Finder metadata
+.DS_Store

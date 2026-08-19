@@ -1,0 +1,27 @@
+quantity,value,units,basis
+anchor_measured_d3_core_hours,5.9309,core-hours,"df[(df.M==5)&(df.K==4)].cpu_seconds.sum()/3600 on frozen 05b parquet; 48 scenarios, 182,400 rows"
+ratio_d5_over_d3_n500,1.0262,dimensionless,"e2e probe, 10 replicates, zipf/tau1.5/nint3/delta0.3"
+ratio_d5_over_d3_n5000,1.0335,dimensionless,mean of 2 e2e probe pairs at n_train=5000
+ratio_d5_over_d3_weighted,1.0303,dimensionless,weighted by the anchor's n_train CPU split 2.524h/3.406h
+ratio_observed_min,1.0169,dimensionless,3 measured probe pairs
+ratio_observed_max,1.0500,dimensionless,3 measured probe pairs
+raw_projection,6.111,core-hours,5.9309 * 1.0303
+raw_projection_band_low,6.031,core-hours,anchor * min observed ratio
+raw_projection_band_high,6.227,core-hours,anchor * max observed ratio
+calibration_factor,1.4,dimensionless,S0_RESOURCE_ESTIMATE 1B fractional projected 41.71 vs measured 57.97 = 1.39x; run_s1_reports D11 calls it the fourth consecutive underestimate
+calibrated_projection,8.555,core-hours,6.1108 * 1.4 = 8.5551 (raw_projection unrounded 6.11086; the earlier annotation 6.108 * 1.4 was wrong and did not give 8.555)  <-- console-block value
+calibrated_band_low,8.444,core-hours,
+calibrated_band_high,8.718,core-hours,
+ceiling,20,core-hours,execution prompt A0 step 8
+headroom,11.445,core-hours,20 - calibrated_projection
+cap_utilisation,42.8,percent,calibrated_projection / 20
+wall_hours_at_8_workers,0.764,hours,raw_projection / parallel_workers_max=8
+wall_hours_calibrated,1.069,hours,calibrated_projection / 8
+peak_rss_per_worker,253,MB,max observed across probe runs; d=3 and d=5 indistinguishable
+peak_rss_8_workers,1.98,GB,253 MB x 8 against a 16 GB host
+disk_raw_csv,53.8,MB,"182,400 rows x 294.7 B/row measured at d=5"
+disk_parquet,10.0,MB,"182,400 rows x 54.8 B/row measured at d=5"
+disk_total_projected,0.084,GB,raw CSV + parquet + 2x parquet for summary/figure-data/tables
+disk_ceiling,20,GB,01_PROTOCOL_FREEZE resources.new_simulation_disk_gb_max
+a0_probe_cpu_spent,0.1090,core-hours,the microbenchmark itself; charged to A0
+verdict,WITHIN_CAP,,calibrated 8.56 core-hours = 43% of the 20 core-hour cap; worst band point 8.72. Ratios recomputed to full precision from the microbenchmark rows after the A0 council review found three of them rounded from console output (net impact +0.004 core-hours).
