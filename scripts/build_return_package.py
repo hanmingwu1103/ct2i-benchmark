@@ -7,7 +7,18 @@ records a sha256 for each, and writes the ZIP.
 Refuses to build a package that is missing a required file, so an incomplete
 return cannot be handed over by accident.
 
-Usage: build_return_package.py [--allow-partial]
+Phase R changes:
+  * the checksum manifests are written BEFORE the archive is created, so the
+    shipped manifest is never one build stale (that is why the manifest inside
+    simulation-results-ct2i_3a37dd30.zip disagreed with its own payload);
+  * PACKAGE_SHA256.json excludes itself and PACKAGE_SHA256SUMS.txt and records
+    that exclusion explicitly, so no entry hashes the manifest that contains it;
+  * a detached PACKAGE_SHA256SUMS.txt is emitted alongside it;
+  * the ZIP carries the FULL 40-character commit SHA, read from the stamped
+    02_ENVIRONMENT_AND_COMMIT.json rather than truncated from git HEAD.
+
+Usage: build_return_package.py [--allow-partial] [--allow-unstamped]
+                              [--manifest-only]
 """
 from __future__ import annotations
 
@@ -21,6 +32,43 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 OUTD = REPO / "simulation-results-ct2i"
+
+MANIFEST_JSON = "PACKAGE_SHA256.json"
+MANIFEST_SUMS = "PACKAGE_SHA256SUMS.txt"
+# Neither manifest may appear inside either manifest: a hash of the file that
+# carries it can never be satisfied.
+MANIFEST_EXCLUDES = [MANIFEST_JSON, MANIFEST_SUMS]
+SHA_PLACEHOLDER = "PENDING_STAMP_SEE_PACKAGE_PROVENANCE"
+# Must match scripts/run_s1_reports.py AUTHORITATIVE_TAG: every metadata file
+# has to name ONE tag (requirement R12).
+AUTHORITATIVE_TAG = "sim-only-s1-complete-v2"
+
+
+def package_files():
+    """Every file that belongs in the package, in a stable order.
+
+    raw/ and *.log are working inputs, not deliverables, and both manifests are
+    excluded from the hashed set.
+    """
+    out = []
+    for p in sorted(OUTD.rglob("*")):
+        if not p.is_file():
+            continue
+        if "/raw/" in str(p) or p.name.endswith(".log"):
+            continue
+        if p.name in MANIFEST_EXCLUDES and p.parent == OUTD:
+            continue
+        out.append(p)
+    return out
+
+
+def stamped_commit():
+    """The authoritative full SHA, as stamped by scripts/stamp_provenance.py."""
+    p = OUTD / "02_ENVIRONMENT_AND_COMMIT.json"
+    if not p.exists():
+        return SHA_PLACEHOLDER
+    return json.loads(p.read_text(encoding="utf-8")).get(
+        "full_commit_sha", SHA_PLACEHOLDER)
 
 # (filename, required, note when absent/substituted)
 REQUIRED = [
@@ -42,6 +90,8 @@ REQUIRED = [
     ("08_SIM1_FIGURE_DATA.csv", True, ""),
     ("09_SIM1_TABLE_DATA.csv", False, "table data is emitted per table in 11_SIM1_TABLES/"),
     ("10_SIM1_FIGURES", True, ""),
+    ("10_SIM1_FIGURES/FIGURE_CAPTIONS.md", True,
+     "final caption text for every publication figure, added in Phase R"),
     ("11_SIM1_TABLES", True, ""),
     ("12_SIM2_RESULTS.csv", True, ""),
     ("13_SIM2_SUMMARY.csv", False, "Simulation 2 summary is carried in 17_SIM2_SUMMARY_TABLE.csv"),
@@ -89,11 +139,15 @@ def build_readme(present, commit, branch):
     nfail = sum(c["pass"] is False for c in acc["criteria"])
     L = [
         "# cT2I Simulation-Only Result Package", "",
-        f"**Release tag:** `{git('tag', '--points-at', 'HEAD') or git('describe', '--tags', '--abbrev=0') or '(none)'}` "
-        "— quote this when citing the package; it is stable.  ",
-        f"**Built from commit:** `{commit}` on `{branch}`. This SHA advances by "
-        "one whenever the reports are regenerated, so the tag above is the "
-        "identifier to cite, not this.  ",
+        f"**Release tag:** `{AUTHORITATIVE_TAG}` — quote this when citing the "
+        "package; it is the stable identifier.  ",
+        f"**Repository:** {git('remote', 'get-url', 'origin')}  ",
+        f"AUTHORITATIVE COMMIT: `{commit}`  ",
+        f"**Branch:** `{branch}`  ",
+        "The repository, branch and annotated tag above are the authoritative "
+        "identifiers. The commit SHA is stamped by `scripts/stamp_provenance.py` "
+        "after the commit exists, because a file inside a commit cannot carry "
+        "that commit's own SHA at write time.  ",
         f"**Built:** {datetime.now(timezone.utc).isoformat()}  ",
         "**Scope:** SIMULATION ONLY — real-data models run: 0, real-data files "
         "modified: 0, GPU hours: 0.", "",
@@ -121,6 +175,15 @@ def build_readme(present, commit, branch):
     for name, req, note in REQUIRED:
         p = OUTD / name
         ok = p.exists()
+        if name == "00_README.md":
+            # Self-reference: this table is built BEFORE the README it lives in
+            # is written, so any hash printed here is the hash of the PREVIOUS
+            # build and can never be right. Same bug class as R15 in
+            # PACKAGE_SHA256.json (post-review finding 2). The authoritative
+            # hash of this file is in PACKAGE_SHA256SUMS.txt, written after it.
+            L.append(f"| `{name}` | yes | (self \u2014 see "
+                     f"PACKAGE_SHA256SUMS.txt) | {note} |")
+            continue
         L.append(f"| `{name}` | {'yes' if ok else ('MISSING' if req else 'n/a')} | "
                  f"{sha(p)[:16] if ok else ''} | {note} |")
     L += ["", "## Reproducing every number", "",
@@ -142,7 +205,18 @@ def build_readme(present, commit, branch):
 
 def main() -> int:
     allow_partial = "--allow-partial" in sys.argv
-    commit, branch = git("rev-parse", "HEAD"), git("rev-parse", "--abbrev-ref", "HEAD")
+    allow_unstamped = "--allow-unstamped" in sys.argv
+    manifest_only = "--manifest-only" in sys.argv
+    branch = git("rev-parse", "--abbrev-ref", "HEAD")
+    commit = stamped_commit()
+    if len(commit) != 40 or not all(c in "0123456789abcdef" for c in commit):
+        if not allow_unstamped:
+            print(f"provenance not stamped (full_commit_sha = {commit!r}).\n"
+                  "Run scripts/stamp_provenance.py <full-sha> first, or pass "
+                  "--allow-unstamped for a dry run.")
+            return 1
+        print(f"WARNING: building UNSTAMPED (full_commit_sha = {commit!r})")
+
     present = {n: (OUTD / n).exists() for n, _, _ in REQUIRED}
     build_readme(present, commit, branch)
     present["00_README.md"] = True
@@ -157,23 +231,38 @@ def main() -> int:
               "Re-run after the missing steps, or pass --allow-partial.")
         return 1
 
-    zpath = REPO / f"simulation-results-ct2i_{commit[:8]}.zip"
-    manifest = {}
-    with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as z:
-        for p in sorted(OUTD.rglob("*")):
-            if not p.is_file():
-                continue
-            if "/raw/" in str(p) or p.name.endswith(".log"):
-                continue          # working files; frozen artefacts are included
-            rel = p.relative_to(OUTD.parent)
-            z.write(p, rel)
-            manifest[str(rel)] = sha(p)
-    (OUTD / "PACKAGE_SHA256.json").write_text(
-        json.dumps(dict(commit=commit, branch=branch, files=manifest), indent=2),
+    # ---- manifests FIRST, so the archive ships the manifest of its own payload
+    files = package_files()
+    manifest = {str(p.relative_to(OUTD.parent)): sha(p) for p in files}
+    (OUTD / MANIFEST_SUMS).write_text(
+        "".join(f"{h}  {rel}\n" for rel, h in manifest.items()), encoding="utf-8")
+    (OUTD / MANIFEST_JSON).write_text(
+        json.dumps(dict(commit=commit, branch=branch,
+                        generated_utc=datetime.now(timezone.utc).isoformat(),
+                        manifest_excludes=[MANIFEST_JSON],
+                        also_excluded=[MANIFEST_SUMS],
+                        excluded_note="raw/ inputs and *.log working files are "
+                                      "not part of the package; neither "
+                                      "manifest hashes itself or the other "
+                                      "manifest",
+                        n_files=len(manifest), files=manifest), indent=2),
         encoding="utf-8")
+    print(f"wrote {MANIFEST_JSON} and {MANIFEST_SUMS} ({len(manifest)} hashed files)")
+
+    zpath = REPO / f"simulation-results-ct2i-repaired_{commit}.zip"
+    if manifest_only:
+        print(f"--manifest-only: archive NOT built. It would be written to "
+              f"{zpath.name}")
+        print("verify with: python3 scripts/verify_package_checksums.py")
+        return 0
+
+    # ---- then the archive, which carries both manifests
+    with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as z:
+        for p in files + [OUTD / MANIFEST_SUMS, OUTD / MANIFEST_JSON]:
+            z.write(p, p.relative_to(OUTD.parent))
     print(f"\nwrote {zpath.name}  ({zpath.stat().st_size/2**20:.1f} MB, "
-          f"{len(manifest)} files)")
-    print(f"wrote PACKAGE_SHA256.json")
+          f"{len(files) + 2} files: {len(files)} hashed + 2 manifests)")
+    print("verify with: python3 scripts/verify_package_checksums.py")
     return 0
 
 

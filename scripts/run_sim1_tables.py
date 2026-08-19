@@ -6,7 +6,10 @@ SIMULATION ONLY. Columns follow 01_PROTOCOL_FREEZE.yaml exactly.
          EXECUTED (read back from the raw output, not from the plan), with the
          mandated d = 3 disclosure for Simulation 1B.
   TabS2  theorem-identity and implementation acceptance summary, one row per
-         criterion A1-A15, including the criteria that could not be evaluated.
+         EVALUATED criterion, driven by 07_SIM1_ACCEPTANCE_REPORT.json in the
+         mandated order A1-A10, A14, A14b, A14c (13 rows, all PASS). Retired
+         criteria A11, A12, A13, A15 are not shown here; see
+         19_VALIDATION_REPORT.md for where each is still verified.
   TabS3  the prespecified contrasts C1-C11 with uncertainty. Scenario is the
          unit of analysis, contrasts are paired within (block, replicate), and
          deterministic exact contrasts carry no p-value.
@@ -28,6 +31,12 @@ OUTD = REPO / "simulation-results-ct2i"
 RAW = OUTD / "raw"
 TABD = OUTD / "11_SIM1_TABLES"
 FREEZE = OUTD / "01_PROTOCOL_FREEZE.yaml"
+
+# Mandated TabS2 criterion set and order (Phase R / completion plan section 5).
+# Retired ids A11, A12, A13, A15 are deliberately absent here; their disposition
+# is recorded in 19_VALIDATION_REPORT.md instead.
+TAB_S2_ORDER = ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10",
+                "A14", "A14b", "A14c"]
 
 
 def load(n):
@@ -79,30 +88,43 @@ def tab_s1(a1, c_ex, c_fi, b):
 
 
 def tab_s2():
+    """TabS2 from the FINAL acceptance JSON, in the mandated order.
+
+    Phase R fix: the previous implementation iterated ``sorted(freeze
+    ["acceptance_criteria"])``.  That freeze mapping is immutable and predates
+    the Codex audit fix, so it (a) lacked A14b / A14c, which were therefore
+    silently dropped from the table, and (b) still carried the retired ids
+    A11, A12, A13, A15, which were therefore printed as ``NOT EVALUATED``.
+    The acceptance JSON -- not the freeze YAML -- is the authoritative record
+    of what was evaluated, so the table is now driven by the JSON and by one
+    explicit mandated order, and it fails loudly on any mismatch instead of
+    silently dropping or inventing rows.
+    """
     p = OUTD / "07_SIM1_ACCEPTANCE_REPORT.json"
     if not p.exists():
         print("  TabS2 skipped: acceptance report not built yet")
         return
     rep = json.loads(p.read_text(encoding="utf-8"))
-    frz = yaml.safe_load(open(FREEZE, encoding="utf-8"))["acceptance_criteria"]
     got = {c["criterion_id"]: c for c in rep["criteria"]}
+
+    missing = [cid for cid in TAB_S2_ORDER if cid not in got]
+    extra = [cid for cid in got if cid not in TAB_S2_ORDER]
+    if missing or extra:
+        raise SystemExit(
+            "TabS2 / acceptance-JSON criterion mismatch -- refusing to write a "
+            f"table that misrepresents the acceptance record. missing from JSON: "
+            f"{missing}; present in JSON but not in the mandated order: {extra}")
+
     rows = []
-    for cid in sorted(frz):
-        c = got.get(cid)
-        if c is None:
-            rows.append(dict(criterion_id=cid,
-                             criterion_description=frz[cid]["description"],
-                             maximum_error="", tolerance="",
-                             **{"pass": "NOT EVALUATED"},
-                             notes="requires an arm not yet complete"))
-        else:
-            rows.append(dict(criterion_id=cid,
-                             criterion_description=c["criterion_description"],
-                             maximum_error=c["maximum_error"],
-                             tolerance=c["tolerance"],
-                             **{"pass": {True: "PASS", False: "FAIL",
-                                         None: "NOT EVALUATED"}[c["pass"]]},
-                             notes=c.get("notes", "")))
+    for cid in TAB_S2_ORDER:
+        c = got[cid]
+        rows.append(dict(criterion_id=cid,
+                         criterion_description=c["criterion_description"],
+                         maximum_error=c["maximum_error"],
+                         tolerance=c["tolerance"],
+                         **{"pass": {True: "PASS", False: "FAIL",
+                                     None: "NOT EVALUATED"}[c["pass"]]},
+                         notes=c.get("notes", "")))
     # A7 verification-scope disclosure required by the S0 review (m2)
     for r in rows:
         if r["criterion_id"] == "A7":

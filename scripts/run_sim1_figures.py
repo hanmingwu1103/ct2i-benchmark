@@ -42,6 +42,11 @@ plt.rcParams.update({"font.size": STYLE["font_size_pt"], "axes.linewidth": 0.6,
                      "savefig.dpi": 400})
 SINGLE, DOUBLE = STYLE["single_column_in"], STYLE["double_column_in"]
 
+# Frozen zero-gap tolerance: any |representation loss| below this is numerically
+# zero and must not be rendered as a substantive curve (Phase R, requirement R9).
+ZERO_GAP_ABS = float(
+    yaml.safe_load(open(FREEZE, encoding="utf-8"))["tolerances"]["zero_gap_abs"])
+
 
 def load(n):
     p = RAW / n
@@ -130,8 +135,9 @@ def fig_s2(a1, keep):
               title=f"({'ab'[j]}) {marg} marginal — EXACT")
         if j == 1:
             A.legend(frameon=False, ncol=2)
-    fig.text(.5, -.06, "band = min-max across the 96 DGP conditions "
-             "(exact cells have mcse = 0, so this is NOT a confidence interval)",
+    fig.text(.5, -.06, "shaded band = the MINIMUM-TO-MAXIMUM RANGE across the 96 DGP "
+             "conditions. It is NOT a confidence interval and NOT a standard-error "
+             "band: these are exact cells, so mcse = 0.",
              ha="center", fontsize=6, color="grey")
     save(fig, "FigS2")
 
@@ -142,17 +148,54 @@ def fig_s3(c_ex, c_fi, keep):
         return
     rates = sorted(c_ex.activation_rate.unique())
     fig, ax = plt.subplots(2, len(rates), figsize=(DOUBLE, 4.2), sharex=True)
-    for r, tgt in enumerate(("position_specific", "hamming_weight")):
+    targets = ("position_specific", "hamming_weight")
+
+    # Phase R: gather every panel's mean curve first, so that (a) panels whose
+    # entire curve lies inside the frozen zero-gap tolerance are drawn as exact
+    # zero rather than as a 1e-16 "signal" curve, and (b) the two rows of each
+    # column share one y-scale, which removes the 1e-16 axis offset entirely.
+    curves = {}
+    for r, tgt in enumerate(targets):
         for c, q in enumerate(rates):
-            A = ax[r, c]
             g = c_ex[(c_ex.status == "SUCCESS") & (c_ex.encoder == "hash_shared")
                      & (c_ex.metric == "logloss") & (c_ex.target_mechanism == tgt)
                      & (c_ex.activation_rate == q)]
-            t = g.groupby("M").representation_loss.mean()
-            A.plot(t.index, t.values, "o-", ms=3, lw=1, color=col(1),
-                   label="shared-value hash (EXACT)")
-            A.axhline(0, color=col(2), lw=1, ls="-",
-                      label="injective ref: label/onehot/count (EXACT, = 0)")
+            curves[(r, c)] = (g, g.groupby("M").representation_loss.mean())
+
+    for c, q in enumerate(rates):
+        vals = np.concatenate([curves[(r, c)][1].values for r in range(len(targets))])
+        vals = vals[np.abs(vals) > ZERO_GAP_ABS]
+        hi = float(np.max(vals)) if vals.size else 1.0
+        pad = .12 * hi
+        for r in range(len(targets)):
+            ax[r, c].set_ylim(-pad, hi + pad)
+
+    h_curve = h_zero = h_ref = None
+    for r, tgt in enumerate(targets):
+        for c, q in enumerate(rates):
+            A = ax[r, c]
+            g, t = curves[(r, c)]
+            maxabs = float(t.abs().max()) if len(t) else 0.0
+            ref, = A.plot(t.index, np.zeros(len(t)), "-", lw=1, color=col(2),
+                          label="injective ref: label/onehot/count (EXACT, = 0)")
+            if maxabs < ZERO_GAP_ABS:
+                # Every value is numerically zero. Plotting the residuals would
+                # draw floating-point noise as an apparent signal, so the series
+                # is shown as exact zero and the residual is stated in words.
+                hz, = A.plot(t.index, np.zeros(len(t)), "o", ms=3.5, mfc="none",
+                             mew=.9, color=col(1),
+                             label="shared-value hash (EXACT, = 0)")
+                h_zero = h_zero or hz
+                A.annotate(f"exact zero at every M:\nmax |gap| = {maxabs:.1e} "
+                           f"< {ZERO_GAP_ABS:g} frozen tolerance\n"
+                           "(floating-point residual, not signal)",
+                           xy=(.04, .93), xycoords="axes fraction", va="top",
+                           fontsize=5.5, color="grey")
+            else:
+                hc, = A.plot(t.index, t.values, "o-", ms=3, lw=1, color=col(1),
+                             label="shared-value hash (EXACT)")
+                h_curve = h_curve or hc
+            h_ref = h_ref or ref
             A.set_xscale("log")
             A.set_title(f"{tgt.replace('_',' ')}, q = {q}", fontsize=7)
             if c == 0:
@@ -160,11 +203,14 @@ def fig_s3(c_ex, c_fi, keep):
             if r == 1:
                 A.set_xlabel("binary width M")
             keep.append(g.assign(panel=f"FigS3_r{r}c{c}"))
-            if r == 0 and c == 0:
-                A.legend(frameon=False, loc="lower right")
-    fig.text(.5, -.02, "column-aware hash is omitted from this axis: its population "
+
+    hs = [h for h in (h_curve, h_zero, h_ref) if h is not None]
+    fig.legend(hs, [h.get_label() for h in hs], loc="lower center",
+               bbox_to_anchor=(.5, -.055), ncol=len(hs), frameon=False)
+    fig.text(.5, -.105, "column-aware hash is omitted from this axis: its population "
              "representation loss is NOT IDENTIFIED. Its comparison appears on the "
-             "ROC-AUC panel below.", ha="center", fontsize=6, color="grey")
+             "ROC-AUC panel below. Both rows of a column share one y-scale.",
+             ha="center", fontsize=6, color="grey")
     save(fig, "FigS3")
 
     if c_fi is not None:
@@ -209,8 +255,10 @@ def fig_s4(b, keep):
     A.legend(frameon=False)
     n_unid = int((g.theoretical_gap_status == "NOT_IDENTIFIED").sum())
     if n_unid:
-        A.text(.02, .95, f"{n_unid:,} rows omitted:\npopulation gap NOT IDENTIFIED",
-               transform=A.transAxes, fontsize=5.5, va="top", color="grey")
+        A.text(.98, .97, f"{n_unid:,} rows OMITTED, not assigned zero:\n"
+               "population gap NOT IDENTIFIED",
+               transform=A.transAxes, fontsize=5.5, va="top", ha="right",
+               color="grey")
 
     A = ax[1]
     lrn = sorted(x for x in g.learner.unique() if x != "bayes_z_oracle")
@@ -225,9 +273,14 @@ def fig_s4(b, keep):
     A.set(ylabel="learner shortfall (nats)", title="(b) learner shortfall")
     A.legend(frameon=False)
     keep.append(g.assign(panel="FigS4"))
-    fig.text(.5, -.16, "d = 3 signal coordinates in EVERY 1B cell: M varies the number "
-             "of pure-noise columns only. Representation loss and learner shortfall "
-             "are never combined.", ha="center", fontsize=6, color="grey")
+    fig.text(.5, -.16, "The completed 1B arm uses d = 3 signal coordinates in EVERY "
+             "existing cell: M varies the number of pure-noise columns only. Cells whose "
+             "population gap is NOT_IDENTIFIED are OMITTED from panel (a), NOT assigned "
+             "zero; a blank is not a zero. Markers are means over cells; error bars are "
+             "standard errors, smaller than the marker in every cell here so no bar is "
+             "visually separable from its marker (post-review finding 4). Representation "
+             "loss and learner shortfall are never combined.",
+             ha="center", fontsize=6, color="grey")
     save(fig, "FigS4")
 
 

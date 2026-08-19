@@ -19,6 +19,8 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt          # noqa: E402
+from matplotlib.ticker import (FormatStrFormatter,  # noqa: E402
+                               NullFormatter)
 import numpy as np                       # noqa: E402
 import pandas as pd                      # noqa: E402
 import yaml                              # noqa: E402
@@ -52,6 +54,9 @@ def main() -> int:
     asym = d[d.metric == "oracle_advantage_large_minus_small"].copy()
 
     fig, ax = plt.subplots(1, 3, figsize=(STYLE["double_column_in"], 2.4))
+    # Phase R: panel B now carries a right-hand axis, so the panels need more
+    # horizontal room or its label collides with panel C's y-label.
+    fig.subplots_adjust(wspace=.85)
 
     # ---- A: oracle optimism vs K, with the sub-Gaussian bound ----
     A = ax[0]
@@ -66,19 +71,33 @@ def main() -> int:
                lw=.8, color=PAL[i], alpha=.6)
     A.set(xscale="log", xlabel="candidate count K",
           ylabel="oracle optimism", title="(A) optimism vs bound ($\\rho$=0)")
-    A.legend(frameon=False)
-    A.text(.03, .95, "dashed = $\\sigma\\sqrt{2\\ln K}$ bound", transform=A.transAxes,
-           fontsize=5.5, va="top", color="grey")
+    A.legend(frameon=False, loc="upper left")
+    A.text(.97, .03, "dashed = $\\sigma\\sqrt{2\\ln K}$ bound", transform=A.transAxes,
+           fontsize=5.5, va="bottom", ha="right", color="grey")
 
     # ---- B: validation regret and winner instability vs K ----
+    # Phase R: the two series differ by orders of magnitude and previously shared
+    # one unlabelled axis, which made the panel unreadable. Each series now owns
+    # a labelled axis (regret left, instability right) and one combined legend
+    # sits outside the data region.
     B = ax[1]
-    for i, (m, lab) in enumerate((("regret_mean", "validation regret"),
-                                  ("winner_instability", "winner instability"))):
+    B2 = B.twinx()
+    handles = []
+    for i, (m, lab, axis, unit) in enumerate((
+            ("regret_mean", "validation regret (left)", B, "regret"),
+            ("winner_instability", "winner instability (right)", B2,
+             "instability (prob.)"))):
         g = (panel[(panel.metric == m) & (panel.rho == 0.0)]
              .groupby("K").value.mean().sort_index())
-        B.plot(g.index, g.values, "o-", ms=3, lw=1, color=PAL[i + 2], label=lab)
+        style = "o-" if i == 0 else "s--"
+        h, = axis.plot(g.index, g.values, style, ms=3, lw=1, color=PAL[i + 2],
+                       label=lab)
+        axis.set_ylabel(unit, color=PAL[i + 2], fontsize=7)
+        axis.tick_params(axis="y", colors=PAL[i + 2])
+        handles.append(h)
     B.set(xscale="log", xlabel="candidate count K", title="(B) regret and instability")
-    B.legend(frameon=False)
+    B.legend(handles, [h.get_label() for h in handles], loc="upper center",
+             bbox_to_anchor=(.5, -.33), frameon=False, ncol=1)
 
     # ---- C: K=72 minus K=8 oracle advantage ----
     C = ax[2]
@@ -90,6 +109,13 @@ def main() -> int:
     C.plot(g.index, frozen, "x--", ms=5, lw=.8, color="k", label="frozen Stage 2")
     C.set(xscale="log", xlabel="$\\sigma$", ylabel="K=72 minus K=8 advantage",
           title="(C) asymmetric candidate sets")
+    # Phase R: a log x-axis over sigma in {0.005, 0.010, 0.030} produced
+    # matplotlib's default minor-tick labels, i.e. malformed sigma ticks. Pin the
+    # three evaluated sigma values as the only labelled ticks.
+    C.set_xticks(list(g.index))
+    C.xaxis.set_major_formatter(FormatStrFormatter("%.3f"))
+    C.xaxis.set_minor_locator(plt.NullLocator())
+    C.xaxis.set_minor_formatter(NullFormatter())
     C.legend(frameon=False)
 
     for ext in ("pdf", "svg"):

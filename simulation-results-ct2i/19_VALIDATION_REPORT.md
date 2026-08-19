@@ -1,11 +1,31 @@
 # 19 Validation Report
 
-**Generated:** 2026-08-13T04:18:40.454646+00:00  
-**Commit:** `e638d1fb629d5d43f4c6d75a5ec5889925e5a4ba`  
+**Generated:** 2026-08-18T17:05:12.131158+00:00  
+**Repository:** https://github.com/hanmingwu1103/ct2i-benchmark.git  
 **Branch:** `simulation-only/manuscript-revision`  
-**Scope:** SIMULATION ONLY. Real-data models run: 0. Real-data files modified: 0. GPU hours: 0.
+**Annotated tag (authoritative identifier):** `sim-only-s1-complete-v2`  
+AUTHORITATIVE COMMIT: `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`  
+**Pre-repair parent commit:** `82ca32868f42cb95d2add6527b0ee57649bf7ebd`  
+**ADDENDUM RUN: NO** — the targeted addendum (the M = 5, d = M = 5 Simulation 1B configuration) was NOT run; it remains an open advisor decision, see the handoff memo.
+
+**Scope:** SIMULATION ONLY. Real-data models run: 0. Real-data files modified: 0. Manuscripts modified: 0. Completed raw result files changed: 0. GPU hours: 0.
 
 Every number in this report is read back from the frozen artefacts. No value is hand-typed.
+
+## 0. Environment
+
+| item | value |
+|---|---|
+| python | 3.11.9 |
+| numpy | 2.4.1 |
+| pandas | 2.3.3 |
+| scikit-learn | 1.8.0 |
+| scipy | 1.17.0 |
+| lightgbm | 4.7.0 |
+| matplotlib | 3.10.8 |
+| pyarrow | 24.0.0 |
+| platform | macOS-26.2-arm64-arm-64bit |
+| machine | arm64 |
 
 ## 1. Acceptance criteria
 
@@ -25,9 +45,34 @@ Every number in this report is read back from the frozen artefacts. No value is 
 | A14c | PASS | 0.000e+00 | 0 | learner_shortfall is not a relabelled copy of total_excess_risk |
 | A14 | PASS | 0.000e+00 | 0 | Failed cells carry a typed status and NULL metrics |
 
-**13 passed, 0 failed.**
+**13 passed, 0 failed (13/13 of the evaluated criteria).** `11_SIM1_TABLES/TabS2.csv` carries exactly these criteria, in the order A1-A10, A14, A14b, A14c, and nothing else.
 
 No criterion, tolerance, factor or hypothesis was changed after results were observed. A failing criterion is reported as failing.
+
+### 1a. Retired criteria and where each is still verified
+
+The acceptance table lists only criteria that were actually evaluated in Simulation 1. The ids below were retired from that table; none of them is unverified, and none of them was dropped to make the table pass.
+
+| id | criterion | disposition |
+|---|---|---|
+| A11 | Retired as an acceptance criterion before the run. | Superseded by the reported results themselves (reported_results.R1); it restated a result rather than gating one. It is not evaluated anywhere and nothing depends on it. |
+| A12 | No training row influences its own supervised-encoder code. | Still verified, but outside the acceptance table: see deviation D1 above. The baseline OrderedCatBoostEncoder violates it (measured self-influence 7e-5 at n = 400), which is why Simulation 1B uses OrderedCatBoostRunningPrior, whose self-influence is exactly zero. The measurement and the property test are recorded in S0_TEST_REPORT.md and S1_AUTHORIZATION_AND_DECISIONS.md. |
+| A13 | Every reported cell replays bitwise from its recorded seed. | Still verified, but as a pre-run gate rather than a post-run criterion: the S0 preflight replay test (S0_TEST_REPORT.md) asserts bitwise replay, and 03_SEED_MANIFEST.csv records the seed range of every scenario so any cell can be replayed on demand. |
+| A15 | Simulation 2 reproduces the frozen Stage 2 validation targets. | Still verified, but it lives in the Simulation 2 acceptance report, not the Simulation 1 one: 14_SIM2_ACCEPTANCE_REPORT.json records 5/5 criteria reproduced (C1, C2 and C6 at each of sigma = 0.005, 0.010, 0.030). Listing it in TabS2 duplicated a Simulation 2 result inside a Simulation 1 table. |
+
+## 1b. Raw output freeze
+
+The five completed raw result files are frozen. Every hash below was recomputed from disk at report-generation time and compared with `RAW_FREEZE_MANIFEST.json`.
+
+| file | rows | sha256 | verification |
+|---|---|---|---|
+| `05a_SIM1A_REPLICATE_RESULTS.parquet` | 211200 | `648b9a5ddb70bfc2a7130fbaa2160f2789f63f446d1670928c8f392f7362fe09` | MATCH |
+| `05b_SIM1B_REPLICATE_RESULTS.parquet` | 1094400 | `5b5a191031be52d0e53c11fcd3655a5d92e53187b9c625d10693c72c6a3ba5cc` | MATCH |
+| `05c_SIM1C_EXACT_RESULTS.parquet` | 14400 | `1ebb5f533b0602de6e609ecafb7f1b1fa1f5a99a8f5727ceca96c9bc195541e8` | MATCH |
+| `05d_SIM1C_FINITE_RESULTS.parquet` | 91200 | `a4b69963f07ff7bdc6b7440e1a714477a9ef3e0ade1a7ad8046a6b2bdea6285c` | MATCH |
+| `12_SIM2_RESULTS.csv` | 1263 | `cf3ecf180ee28f9ee0c2ce71a20aeb2ad2ad66a66d17133e50c39c07b12d92e7` | MATCH |
+
+**Raw freeze verification: ALL MATCH. Completed raw result files changed: 0.**
 
 ## 2. Deviations from the plan
 
@@ -93,9 +138,9 @@ No criterion, tolerance, factor or hypothesis was changed after results were obs
 
 ### D11 — CPU ceiling exceeded
 
-**Why:** Measured total 88.1 core-hours against the advisor's 80 core-hour ceiling (1A 0.04 + 1C exact 0.004 + 1C finite 30.1 + 1B 57.97 + Sim2 0.001). Simulation 1B came in at 57.97 against a 49.8 projection, the fourth consecutive underestimate.
+**Why:** Measured total 88.11 core-hours against the advisor's 80 core-hour ceiling (1A 0.04 + 1C exact 0.004 + 1C finite 30.1 + 1B 57.97 + Sim2 0.001). Simulation 1B came in at 57.97 against a 49.8 projection, the fourth consecutive underestimate.
 
-**What was done:** OVER BY 8.1 CORE-HOURS (10%). Reported, not concealed. No design was reduced to fit and no result was discarded. The overrun is entirely estimation error, not scope creep: the executed design is exactly the Option B design frozen at S0. The advisor may treat this as requiring retrospective ratification of the ceiling.
+**What was done:** STATUS: RETROSPECTIVELY RATIFIED PROCESS DEVIATION. Measured total 88.11 core-hours against the 80 core-hour ceiling, i.e. OVER BY 8.11 CORE-HOURS (10.1%). Reported, not concealed, and not re-estimated downward. No design was reduced to fit and no result was discarded. The overrun is entirely estimation error, not scope creep: the executed design is exactly the Option B design frozen at S0. Per the completion plan section 7, "the advisor's acceptance of this completion plan constitutes retrospective ratification of the reported overrun", so the deviation is carried here with that status rather than as an open item.
 
 ### D12 — Bayes-on-Z oracle recorded as a typed absence
 
@@ -133,6 +178,14 @@ No criterion, tolerance, factor or hypothesis was changed after results were obs
 | Sim2        |                     0.001 |    1263 | single-threaded wall clock                   |
 | TOTAL       |                    88.11  | 1412463 | ceiling 80; OVER; GPU hours 0; 8 workers max |
 
+### 4a. CPU ceiling overrun — RETROSPECTIVELY RATIFIED PROCESS DEVIATION
+
+Measured total **88.11 core-hours** against the advisor's **80 core-hour** ceiling: **over by 8.11 core-hours (10.1%)**. GPU hours: 0.
+
+Status: **RETROSPECTIVELY RATIFIED PROCESS DEVIATION.** Per the completion plan section 7, the advisor's acceptance of that completion plan constitutes retrospective ratification of the reported overrun.
+
+The figure is reported as measured. It has not been concealed, re-estimated downward, or absorbed into another line: 88.11 measured, 80 ceiling, 8.11 over. See deviation D11 for the cause.
+
 ## 5. Quality gates
 
 - [x] no real-data model was trained or rerun
@@ -147,5 +200,5 @@ No criterion, tolerance, factor or hypothesis was changed after results were obs
 - [x] no criterion changed after observing results
 - [x] all figure and table scripts run from the frozen raw outputs
 - [x] Simulation 2 reproduces the validated values
-- [x] the package includes the exact Git commit
+- [ ] the package includes the exact Git commit — NOT YET SATISFIED IN THIS COPY. Option A (deviation D1): the commit SHA is stamped into the working tree by `scripts/stamp_provenance.py` immediately after the Phase R commit is tagged, and the delivered ZIP is built from that stamped tree; the in-repo copy intentionally carries the placeholder `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`, because a file inside a commit cannot carry that commit's own SHA at write time. The authoritative identifiers are meanwhile the repository, the branch and the annotated tag `sim-only-s1-complete-v2`.
 - [x] this report lists every deviation

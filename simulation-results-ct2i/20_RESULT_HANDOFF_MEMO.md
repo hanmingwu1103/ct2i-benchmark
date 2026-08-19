@@ -1,7 +1,15 @@
 # 20 Result Handoff Memo
 
-**Commit:** `e638d1fb629d5d43f4c6d75a5ec5889925e5a4ba` on `simulation-only/manuscript-revision`  
-**Generated:** 2026-08-13T04:18:40.454646+00:00
+**Repository:** https://github.com/hanmingwu1103/ct2i-benchmark.git  
+**Branch:** `simulation-only/manuscript-revision`  
+**Annotated tag (authoritative identifier):** `sim-only-s1-complete-v2`  
+AUTHORITATIVE COMMIT: `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`  
+**Pre-repair parent commit:** `82ca32868f42cb95d2add6527b0ee57649bf7ebd`  
+**Generated:** 2026-08-18T17:05:12.131158+00:00
+
+**ADDENDUM RUN: NO.** The targeted addendum (one additional Simulation 1B configuration at M = 5, d = M = 5) was NOT executed. It is open decision 1 below and awaits the advisor.
+
+**Acceptance:** 13/13 criteria passed. **Raw freeze:** all five completed raw result files verified byte-identical. **CPU:** measured 88.11 core-hours against an 80 core-hour ceiling, over by 8.11 (10.1%), status RETROSPECTIVELY RATIFIED PROCESS DEVIATION (completion plan section 7).
 
 This memo states what was run and what passed. It contains no interpretation of what the results mean for the manuscript: the plan assigns the abstract, Results, Discussion and Conclusions to the advisor.
 

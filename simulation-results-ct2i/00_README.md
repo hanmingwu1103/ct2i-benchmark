@@ -1,8 +1,11 @@
 # cT2I Simulation-Only Result Package
 
-**Release tag:** `sim-only-s1-complete` — quote this when citing the package; it is stable.  
-**Built from commit:** `3a37dd30e79efa0993cfd26540ec432c5428789a` on `simulation-only/manuscript-revision`. This SHA advances by one whenever the reports are regenerated, so the tag above is the identifier to cite, not this.  
-**Built:** 2026-08-13T04:19:03.270099+00:00  
+**Release tag:** `sim-only-s1-complete-v2` — quote this when citing the package; it is the stable identifier.  
+**Repository:** https://github.com/hanmingwu1103/ct2i-benchmark.git  
+AUTHORITATIVE COMMIT: `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`  
+**Branch:** `simulation-only/manuscript-revision`  
+The repository, branch and annotated tag above are the authoritative identifiers. The commit SHA is stamped by `scripts/stamp_provenance.py` after the commit exists, because a file inside a commit cannot carry that commit's own SHA at write time.  
+**Built:** 2026-08-18T17:05:34.415987+00:00  
 **Scope:** SIMULATION ONLY — real-data models run: 0, real-data files modified: 0, GPU hours: 0.
 
 ## Start here
@@ -25,9 +28,9 @@ No manuscript prose. The plan assigns the abstract, Results, Discussion and Conc
 
 | file | present | sha256 (first 16) | note |
 |---|---|---|---|
-| `00_README.md` | yes | a09ca3394636aa33 |  |
+| `00_README.md` | yes | (self — see PACKAGE_SHA256SUMS.txt) |  |
 | `01_PROTOCOL_FREEZE.yaml` | yes | f6d64fc0335d7cd3 |  |
-| `02_ENVIRONMENT_AND_COMMIT.json` | yes | 3927fa9990164b6c |  |
+| `02_ENVIRONMENT_AND_COMMIT.json` | yes | 87a6f21c607f3218 |  |
 | `03_SEED_MANIFEST.csv` | yes | 08a2bcf15fd29850 |  |
 | `04_SIM1_SCENARIO_MANIFEST.csv` | n/a |  | superseded by 11_SIM1_TABLES/TabS1.csv, which reports the design as EXECUTED rather than as planned |
 | `05a_SIM1A_REPLICATE_RESULTS.parquet` | yes | 648b9a5ddb70bfc2 | the plan's single 05_SIM1_REPLICATE_RESULTS.parquet is split by arm (05a/05b/05c/05d) because the arms have different schemas |
@@ -38,17 +41,18 @@ No manuscript prose. The plan assigns the abstract, Results, Discussion and Conc
 | `07_SIM1_ACCEPTANCE_REPORT.json` | yes | f29f873b8e349dd7 |  |
 | `08_SIM1_FIGURE_DATA.csv` | yes | 8ae41eae0967d45c |  |
 | `09_SIM1_TABLE_DATA.csv` | n/a |  | table data is emitted per table in 11_SIM1_TABLES/ |
-| `10_SIM1_FIGURES` | yes | 274a4bdc95336075 |  |
-| `11_SIM1_TABLES` | yes | 4452687e6ac7b910 |  |
+| `10_SIM1_FIGURES` | yes | b40c096811ad5573 |  |
+| `10_SIM1_FIGURES/FIGURE_CAPTIONS.md` | yes | feefbe380bda33cb | final caption text for every publication figure, added in Phase R |
+| `11_SIM1_TABLES` | yes | 3808824eeb2911ab |  |
 | `12_SIM2_RESULTS.csv` | yes | cf3ecf180ee28f9e |  |
 | `13_SIM2_SUMMARY.csv` | n/a |  | Simulation 2 summary is carried in 17_SIM2_SUMMARY_TABLE.csv |
 | `14_SIM2_ACCEPTANCE_REPORT.json` | yes | 00b9c12e7644c0d1 |  |
 | `15_SIM2_FIGURE_DATA.csv` | yes | 30b9db19528a3260 |  |
-| `16_SIM2_FIGURE.pdf` | yes | d2d8fe27e1267525 |  |
+| `16_SIM2_FIGURE.pdf` | yes | 69d477c41ef7a30e |  |
 | `17_SIM2_SUMMARY_TABLE.csv` | yes | 78731ab26aac24f7 |  |
 | `18_RUNTIME_AND_RESOURCE_REPORT.csv` | yes | ca16cd4071146a48 |  |
-| `19_VALIDATION_REPORT.md` | yes | 6c99400c92417b0a |  |
-| `20_RESULT_HANDOFF_MEMO.md` | yes | d552d95e5f5ff6af |  |
+| `19_VALIDATION_REPORT.md` | yes | 886a5c9388b4c51c |  |
+| `20_RESULT_HANDOFF_MEMO.md` | yes | 9b49c940c1566850 |  |
 | `S0_PROTOCOL_FREEZE_PROVENANCE` | n/a |  |  |
 | `S0_IMPLEMENTATION_SPEC.md` | yes | af91e1b71597a944 |  |
 | `S0_COUNCIL_REVIEW.md` | yes | 8f27ab1c251814d1 |  |

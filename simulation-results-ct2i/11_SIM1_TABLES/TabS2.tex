@@ -1,17 +1,11 @@
 \begin{table}
 \caption{Theorem-identity and implementation acceptance summary.}
 \label{tab:tabs2}
-\begin{tabular}{llllll}
+\begin{tabular}{llrlll}
 \toprule
 criterion\_id & criterion\_description & maximum\_error & tolerance & pass & notes \\
 \midrule
 A1 & Exact logloss identity holds to the frozen tolerance & 2.7062e-15 & 1e-10 & PASS &  \\
-A10 & Column-aware hash fiber count exceeds shared-value at equal B & 0 & 0 & PASS & counts violations \\
-A11 & RETIRED as an acceptance criterion; see reported\_results.R1 &  &  & NOT EVALUATED & requires an arm not yet complete \\
-A12 & No training row influences its own supervised-encoder code (bitwise invariance under flipping its own label) &  &  & NOT EVALUATED & requires an arm not yet complete \\
-A13 & Every reported cell replays bitwise from its recorded seed &  &  & NOT EVALUATED & requires an arm not yet complete \\
-A14 & Failed cells carry a typed status and NULL metrics & 0 & 0 & PASS & counts non-null metric values on failed rows \\
-A15 & Simulation 2 reproduction recovers the frozen Stage 2 validation targets within tolerance &  &  & NOT EVALUATED & requires an arm not yet complete \\
 A2 & Exact brier identity holds to the frozen tolerance & 9.992e-16 & 1e-10 & PASS &  \\
 A3 & Injective encoders have zero representation gap at every Delta\_eta & 2.2204e-16 & 1e-12 & PASS &  \\
 A4 & Designed merge with Delta\_eta = 0 has zero representation gap & 2.2204e-16 & 1e-12 & PASS &  \\
@@ -20,6 +14,10 @@ A6 & Representation gap nondecreasing in Delta\_eta (designed merge) & 0 & 0 & P
 A7 & Shared-value hash has at most M+1 reachable encodings & 0 & 0 & PASS & counts rows where != M+1; verified by brute-force enumeration at M <= 14; asserted by the Stage 1 proposition at M in \{50, 200, 1000\} \\
 A8 & Shared-value loss nondecreasing in M under a position-specific target & NaN & monotone & PASS & means by M: \{10: 0.09272, 50: 0.09954, 200: 0.10076, 1000: 0.10109\} \\
 A9 & Shared-value hash has zero gap under a Hamming-weight target & 1.1102e-16 & 1e-12 & PASS & measured through the generic aggregation, not assigned \\
+A10 & Column-aware hash fiber count exceeds shared-value at equal B & 0 & 0 & PASS & counts violations \\
+A14 & Failed cells carry a typed status and NULL metrics & 0 & 0 & PASS & counts non-null metric values on failed rows \\
+A14b & Rows whose population gap is NOT\_IDENTIFIED carry NULL risk\_z, representation\_loss and learner\_shortfall & 0 & 0 & PASS & both decomposition terms require R\_Bayes(Z); neither may be reported where it does not exist \\
+A14c & learner\_shortfall is not a relabelled copy of total\_excess\_risk & 0 & 0 & PASS & an exact all-row match means representation loss was silently zero, i.e. ebar was never computed \\
 \bottomrule
 \end{tabular}
 \end{table}
