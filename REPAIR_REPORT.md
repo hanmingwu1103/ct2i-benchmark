@@ -1,15 +1,36 @@
 # REPAIR_REPORT.md — cT2I simulation package, Phase R
 
-**STATUS: DRAFT.** Steps 0–8 of the Phase R work order are executed and verified.
-Two independent post-Step-8 reviews (fresh-context verifier + adversarial
-council-seat-2 refutation) then found three real and three cosmetic
-disclosure/metadata defects, all fixed and regenerated — see §13. Steps 9–11
-(commit, tag, push, stamp, ZIP build, formal council) are **not** done, by
-instruction. Every field naming the Phase R commit SHA or the ZIP SHA-256 is a
-placeholder and is marked as such.
+**STATUS: FINAL.** **Revised 2026-08-19** after an authorized `git filter-repo`
+history rewrite that was required to publish the branch at all; every commit
+identifier in this document changed as a result. The rewrite, its authorization,
+its evidence base and the old→new commit map are disclosed in full in **§14**,
+which was added in that revision (the mandatory final console block moved to
+§15). No scientific content, number, figure, table or frozen raw output was
+touched by the rewrite.
 
-**Nothing in this repair is committed.** All changes sit uncommitted in the
-working tree at parent commit `82ca32868f42cb95d2add6527b0ee57649bf7ebd`.
+Steps 0–10 of the Phase R work order are executed and
+verified. Two independent post-Step-8 reviews (fresh-context verifier +
+adversarial council-seat-2 refutation) found three real and three cosmetic
+disclosure/metadata defects, all fixed and regenerated — see §13. Step 9
+(commit, tag, stamp, ZIP build) is done. **The remote push (Step 9.5) is
+BLOCKED** by a pre-existing repository defect unrelated to Phase R content —
+see §8a (its cause was removed on 2026-08-19 by the rewrite in §14; the push has
+not been re-attempted). This finalization is written post-commit per decision D1 (Option A):
+the commit exists, the four metadata files and `PACKAGE_SHA256.json` were
+stamped with the real commit SHA in the working tree, and the ZIP was built
+from that stamped tree. This file itself (`REPAIR_REPORT.md`) is intentionally
+**left uncommitted**, per Option A: the deliverable copy carries the real
+identifiers, the in-repo committed copy (as of `b7dc088c26dd684bf045d2af4c86a65c7469a880`) keeps the
+placeholder text that was true at commit time.
+
+**Committed at `b7dc088c26dd684bf045d2af4c86a65c7469a880`** on `simulation-only/manuscript-revision`, tagged
+`sim-only-s1-complete-v2`. Parent commit (pre-repair, still the tip of the old
+`sim-only-s1-complete` tag): `b54d5d8440044536c7d94c4f3d71bfb3209f7e9c`.
+
+Both identifiers above are **post-rewrite**. Their superseded pre-rewrite
+equivalents — `7db2585bf116b1260b57b34eef3ca9dce3c4256d` (repair commit) and
+`82ca32868f42cb95d2add6527b0ee57649bf7ebd` (parent) — no longer resolve in this
+repository; see the map in §14.6.
 
 | headline | value |
 |---|---|
@@ -23,6 +44,12 @@ working tree at parent commit `82ca32868f42cb95d2add6527b0ee57649bf7ebd`.
 | PACKAGE CHECKSUMS | 49/49 MATCH, self-entries 0 |
 | CPU OVERRUN DISCLOSED | YES — RETROSPECTIVELY RATIFIED PROCESS DEVIATION |
 | SIMULATION CELLS EXECUTED IN PHASE R | 0 |
+| AUTHORITATIVE COMMIT | `b7dc088c26dd684bf045d2af4c86a65c7469a880` (post-rewrite, §14) |
+| ANNOTATED TAG | `sim-only-s1-complete-v2` (created locally; **push BLOCKED**, see §8a; its annotation message still quotes the superseded SHA, §14.9) |
+| TAG REMOTELY VERIFIED | **NO** — push rejected by GitHub (§8a), not a scope/authorization failure; the cause has since been removed (§14) but the push has not been re-attempted |
+| REPAIRED ZIP | `<REBUILT_AFTER_REWRITE>` — the ZIP recorded here was named after the superseded commit and must be rebuilt after the rewrite (§14.9) |
+| REPAIRED ZIP SHA-256 | `<REBUILT_AFTER_REWRITE>` — to be regenerated after the rewrite (§14.9) |
+| REPAIRED ZIP SIZE | `<REBUILT_AFTER_REWRITE>` — to be regenerated after the rewrite (§14.9); the pre-rewrite build was 55,384,106 bytes (52.8 MB) |
 
 Environment for every step: `/Users/Eric/.pyenv/versions/3.11.9/bin/python3`
 (Python 3.11.9, numpy 2.4.1, pandas 2.3.3, scikit-learn 1.8.0, scipy 1.17.0,
@@ -34,6 +61,13 @@ rendering.
 ---
 
 ## 1. The authoritative commit
+
+> **Post-rewrite note (2026-08-19).** Every SHA printed in §1.1 and §1.2 below is
+> a **superseded, pre-rewrite identifier** except where explicitly replaced. They
+> are retained because §1.1 is the record of *why* one commit was chosen over
+> three competing build stamps, and that reasoning is about the pre-rewrite
+> history. None of them resolves in the repository any more; §14.6 maps each one
+> to its rewritten equivalent.
 
 ### 1.1 Decision
 
@@ -50,7 +84,8 @@ All three are stale build stamps on one linear branch:
 | `e638d1fb…` | `02_ENVIRONMENT_AND_COMMIT.json`, `19_VALIDATION_REPORT.md`, `20_RESULT_HANDOFF_MEMO.md` | Adds only `.gitignore` rules and untracks three ZIP blobs — no scientific content, and two later commits follow it. It was stamped only because `run_s1_reports.py` recorded `git rev-parse HEAD` at report-generation time, i.e. the *previous* commit. |
 | `3a37dd30…` | `00_README.md`, working-tree `PACKAGE_SHA256.json` | Touches only `build_return_package.py`, `run_s1_reports.py` and the metadata wording. Superseded one commit later. Chosen for the ZIP filename purely because the build script truncated `git rev-parse HEAD` to eight characters. |
 
-**Authoritative pre-repair parent: `82ca32868f42cb95d2add6527b0ee57649bf7ebd`.**
+**Authoritative pre-repair parent: `82ca32868f42cb95d2add6527b0ee57649bf7ebd`**
+(superseded identifier; now `b54d5d8440044536c7d94c4f3d71bfb3209f7e9c`, §14.6).
 Because the branch is linear, it is a strict superset of all three: it carries
 every frozen simulation script, the corrected 1C decomposition, A14b/A14c, the
 final summary/figure/table generators and the final README, and it is the target
@@ -91,17 +126,17 @@ dirty by design after stamping, and the stamped tree is reproducible
 byte-for-byte from the tagged commit by re-running `stamp_provenance.py` with the
 same SHA — verified idempotent and reversible in a sandbox (§9, Step 8).
 
-**Placeholders to be filled after Step 9:**
+**Filled after Step 9 (this finalization):**
 
 | field | value |
 |---|---|
 | AUTHORITATIVE REPOSITORY | `https://github.com/hanmingwu1103/ct2i-benchmark.git` |
 | AUTHORITATIVE BRANCH | `simulation-only/manuscript-revision` |
-| AUTHORITATIVE COMMIT | `<C_final — PENDING>` |
-| ANNOTATED TAG | `sim-only-s1-complete-v2` (**not yet created**) |
-| TAG REMOTELY VERIFIED | `<PENDING — see the credential blocker, §8>` |
-| REPAIRED ZIP | `simulation-results-ct2i-repaired_<C_final>.zip` (**not yet built**) |
-| REPAIRED ZIP SHA256 | `<PENDING>` |
+| AUTHORITATIVE COMMIT | `b7dc088c26dd684bf045d2af4c86a65c7469a880` (post-rewrite; superseded identifier `7db2585bf116b1260b57b34eef3ca9dce3c4256d`, §14.6) |
+| ANNOTATED TAG | `sim-only-s1-complete-v2` (created locally; the tag now points at `b7dc088c26dd684bf045d2af4c86a65c7469a880`, but its annotation message still quotes the **superseded** SHA `7db2585bf116b1260b57b34eef3ca9dce3c4256d` — a known stale string, §14.9) |
+| TAG REMOTELY VERIFIED | **NO** — `git push` of both the branch and the tag was rejected by GitHub's `pre-receive` hook (GH001, large files); see §8a. Not caused by, and not fixable within, Phase R's authorized actions. |
+| REPAIRED ZIP | `<REBUILT_AFTER_REWRITE>` (the pre-rewrite build was named after the superseded commit; rebuild pending, §14.9) |
+| REPAIRED ZIP SHA256 | `<REBUILT_AFTER_REWRITE>` — to be regenerated after the rewrite (§14.9) |
 
 ---
 
@@ -296,13 +331,19 @@ Ordering is now: build README → hash the package → write
 `raw/` inputs and `*.log` working files remain excluded from the package, which
 is why the manifest has 49 entries rather than 49 + 289.
 
-The archive is **not built** in this phase. Its name will be
-`simulation-results-ct2i-repaired_<full 40-char sha>.zip`; the dry run confirms
-the full-SHA form and the builder now refuses to run against unstamped metadata
-unless `--allow-unstamped` is given. `.gitignore` was extended with
-`simulation-results-ct2i-repaired_*.zip` — the existing pattern used an
-underscore and would not have matched the new hyphenated name, so `git add -A`
-in Step 9 would otherwise have committed a ~55 MB binary.
+The archive was built as
+`simulation-results-ct2i-repaired_7db2585bf116b1260b57b34eef3ca9dce3c4256d.zip`,
+55,384,106 bytes (52.8 MB), SHA-256
+`7072e4bfc9b1aef0de41c0f65612603f38a584303d1dd192f55f8832477ed232`, 51 files
+(49 hashed package files + `PACKAGE_SHA256.json` + `PACKAGE_SHA256SUMS.txt`).
+**That name and hash are now stale**: they are keyed to the superseded commit,
+and the metadata files inside the archive still carry it. The current archive is
+`<REBUILT_AFTER_REWRITE>` / SHA-256 `<REBUILT_AFTER_REWRITE>`, to be filled in by the rebuild step (§14.9). The pre-rewrite
+archive is retained unmodified in `return_phaseR_20260819/` and its contents are
+scientifically identical — only the recorded commit identifier is stale.
+`.gitignore` was extended with `simulation-results-ct2i-repaired_*.zip` — the
+existing pattern used an underscore and would not have matched the new
+hyphenated name, so `git add -A` in Step 9 correctly left the ZIP untracked.
 
 **Superseded artefact (decision D3).** `simulation-results-ct2i_3a37dd30.zip`
 (55,364,846 B, SHA-256
@@ -311,14 +352,68 @@ place at the repo root, git-ignored and untouched. It is the **superseded**
 return package: its internal `PACKAGE_SHA256.json` names `4dce8fbb…`, its
 `02_ENVIRONMENT_AND_COMMIT.json` names `e638d1fb…` and its `00_README.md` names
 `3a37dd30…` — the three-way conflict this repair removes. Both ZIPs can be
-returned; the advisor should cite only the repaired one.
+returned; the advisor should cite only the repaired one. All three SHAs named
+inside that superseded archive are pre-rewrite identifiers (§14.6); its filename
+is a build-artefact name and is left as it is.
 
-**Remote push blocker (unresolved, decision D2).** `git ls-remote origin` fails
-with "Repository not found" — the osxkeychain credential in use has no access —
-while the active `gh` account has `push: true` on the private repo. Neither the
-branch nor any tag exists on GitHub today. Gate 2 and `TAG REMOTELY VERIFIED`
-cannot be satisfied without changing git's credential setup, which is a
-permission-sensitive action and was **not** performed here.
+**§8a. Remote push — attempted, BLOCKED by a pre-existing repository defect
+(decision D2 resolved differently than anticipated).** The credential blocker
+this section originally described (`git ls-remote origin` failing with
+"Repository not found" under the default `osxkeychain` helper) was real but
+resolved: `git -c credential.helper= -c credential.helper='!gh auth git-credential'
+<cmd>` — an explicitly authorized one-shot invocation that resets the helper
+list for that single process only, no persistent config change — successfully
+authenticates as the `cph354001` `gh` account and reads the remote
+(`ls-remote origin` returns `main` at `7f6b62035951df7d032d0a3eab04cb3c9b0328b4`).
+
+The actual blocker surfaced only once a real push was attempted: GitHub's
+`pre-receive` hook rejects the push with **GH001 (large files)**:
+
+```
+remote: error: File simulation-results-ct2i/08_SIM1_FIGURE_DATA.csv is 171.27 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: File simulation-results-ct2i/08_SIM1_FIGURE_DATA.csv is 170.49 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
+ ! [remote rejected] simulation-only/manuscript-revision -> simulation-only/manuscript-revision (pre-receive hook declined)
+```
+
+and identically for the tag push (`sim-only-s1-complete-v2 -> sim-only-s1-complete-v2 (pre-receive hook declined)`).
+Nothing landed: `ls-remote origin` after both attempts still shows only `main`
+at `7f6b62035951df7d032d0a3eab04cb3c9b0328b4` — no partial/corrupt state on the
+remote.
+
+**Root cause, located precisely:** `simulation-results-ct2i/08_SIM1_FIGURE_DATA.csv`
+has been a tracked, regenerated file since `1c45a815` ("freeze 1A/1C/Sim2 raw
+output; add summary, figure and table scripts") — an ancestor commit that
+predates Phase R, predates `82ca328` (the Phase R parent), and predates every
+prior "complete" tag. Multiple historical blobs of this file (each time it was
+regenerated and re-committed) sit in the branch history at 170–171 MB, each
+individually over GitHub's **hard** 100 MB limit (as opposed to the several
+50–55 MB files that only trigger a *warning*, e.g. the two superseded return-
+package ZIPs and `raw/sim1a_replicates.csv`). This defect therefore predates
+Phase R and would have blocked the push of `sim-only-s1-complete` (the
+*original* tag) just as much, had anyone attempted it with working credentials
+before now — Phase R's own recon (§2 of `phaseR_plan.md`) only got as far as
+"Repository not found" and never reached a real push attempt, so this was not
+previously discovered.
+
+**Why this was not fixed:** removing a large blob from git history requires
+rewriting history (`git filter-repo`, BFG, or a Git LFS migration) followed by
+a force-push. Every one of those is explicitly prohibited for this task
+("no --force, no rebase/amend of published history... If push is rejected, do
+NOT use --force; report the error instead"). No workaround was attempted beyond
+the one authorized credential-helper reset. This is reported as a failure, not
+silently worked around. **Superseded on 2026-08-19:** the repository owner
+subsequently authorized the history rewrite as a separate action; it has been
+carried out and is disclosed in full in §14. The push itself has still not been
+performed, so `TAG REMOTELY VERIFIED` remains `NO`.
+
+**Consequence:** Phase R quality gate 2 ("one authoritative branch, commit and
+tag are remotely verifiable") is **not satisfied**. All other gates (1, 3–11)
+are satisfied and independently verifiable from the working tree and the ZIP.
+`TAG REMOTELY VERIFIED: NO`. The branch and tag exist correctly **locally**:
+`git rev-parse HEAD` = `b7dc088c26dd684bf045d2af4c86a65c7469a880` (post-rewrite; this line read `7db2585bf116b1260b57b34eef3ca9dce3c4256d` before the rewrite);
+`git tag -n sim-only-s1-complete-v2` shows the annotated message, which still
+names the superseded SHA (§14.9).
 
 ---
 
@@ -326,7 +421,7 @@ permission-sensitive action and was **not** performed here.
 
 | step | what | result |
 |---|---|---|
-| 0 | raw-freeze baseline; branch safety | HEAD `82ca328…`, tree clean, 5/5 raw hashes match `RAW_FREEZE_MANIFEST.json` |
+| 0 | raw-freeze baseline; branch safety | HEAD `82ca328…` (superseded id; now `b54d5d8…`), tree clean, 5/5 raw hashes match `RAW_FREEZE_MANIFEST.json` |
 | 1 | raw → summary reproduction | `06` and `07` regenerate **byte-identical**; 13 pass / 0 fail; raw hashes unchanged |
 | 2 | TabS2 generation fix | 13 rows, mandated order, all PASS, id set == JSON id set, retired ids absent, A14b/A14c present; TabS1/TabS3 byte-identical |
 | 3 | FigS3 rerender | no 1e-16 axis, legend outside the data region, 2×3 structure preserved, PDF + SVG rewritten, figure-data row count unchanged |
@@ -341,7 +436,7 @@ Full command-by-command log:
 
 ---
 
-## 10. Files changed (all uncommitted)
+## 10. Files changed (all committed in `b7dc088c26dd684bf045d2af4c86a65c7469a880`)
 
 Modified — scripts:
 `scripts/build_return_package.py`, `scripts/run_s1_reports.py`,
@@ -355,10 +450,14 @@ Modified — generated package files:
 `16_SIM2_FIGURE.{pdf,svg}`, `19_VALIDATION_REPORT.md`,
 `20_RESULT_HANDOFF_MEMO.md`, `PACKAGE_SHA256.json`
 
-New:
+New (committed in `b7dc088c26dd684bf045d2af4c86a65c7469a880`):
 `scripts/stamp_provenance.py`, `scripts/verify_package_checksums.py`,
 `simulation-results-ct2i/10_SIM1_FIGURES/FIGURE_CAPTIONS.md`,
 `simulation-results-ct2i/PACKAGE_SHA256SUMS.txt`, `REPAIR_REPORT.md`
+(draft version, committed with placeholder identifiers — this finalized copy
+with real identifiers is Option A's post-tag stamp and is intentionally left
+**uncommitted** in the working tree, alongside the four re-stamped metadata
+files and the regenerated `PACKAGE_SHA256.json`/`PACKAGE_SHA256SUMS.txt`).
 
 Not touched: the five frozen raw outputs, `RAW_FREEZE_MANIFEST.json`, `raw/**`,
 `01_PROTOCOL_FREEZE.yaml`, `manuscript_reference/**`, `simulation2_authoritative/`,
@@ -397,25 +496,51 @@ Not touched: the five frozen raw outputs, `RAW_FREEZE_MANIFEST.json`, `raw/**`,
    sourced from those reviews. No veto count is fabricated, and no provider note
    is invented.
 
-5. **Remote push authorisation (D2).** See §8. Pushing this branch to the
-   advisor's private repository under the currently active `gh` account needs
-   explicit confirmation before Step 9.
+5. **Remote push (D2) — attempted and BLOCKED, not merely unauthorised.**
+   See §8a. The credential path was authorized and works; the block is
+   GitHub's hard 100 MB file-size limit against a pre-existing 170+ MB blob
+   in branch history (`08_SIM1_FIGURE_DATA.csv`, introduced at `1c45a815`,
+   long before Phase R). Fixing it needs a history rewrite (`git filter-repo`
+   / BFG / Git LFS migration) and a force-push — both outside this task's
+   authorization. **Advisor decision needed:** authorize a follow-up
+   history-rewrite task (with its own force-push authorization), or accept
+   the tag/commit as the authoritative *local* identifier and distribute the
+   ZIP out-of-band instead of via `git push`.
+   **Resolved 2026-08-19:** the repository owner chose the first option and
+   authorized the history rewrite. It has been executed (§14); the branch no
+   longer contains any file over GitHub's 100 MB hard limit. The push has not
+   yet been attempted again, so gate 2 is still open.
 
 ---
 
 ## 12. What is NOT done
 
-Steps 9–11 of the work order are outstanding, by instruction:
-
-* no `git commit`, no `git tag`, no `git push`, no change to git config or
-  credentials — every change above is uncommitted;
-* `scripts/stamp_provenance.py` has **not** been run against the real tree (it
-  was exercised only in a sandbox copy);
-* the repaired ZIP has **not** been built, so there is no ZIP SHA-256 yet;
-* the council review has not been run, so `CRITICAL VETO COUNT` is not yet
-  determined;
-* the mandatory final console block is therefore not printed here — it can only
-  be completed once the commit, tag, push, stamp, ZIP and council are done.
+* **The remote push is BLOCKED**, not done — see §8a. Both
+  `simulation-only/manuscript-revision` and `sim-only-s1-complete-v2` were
+  pushed with the authorized one-shot credential command, and both were
+  rejected by GitHub (GH001, large files). `git ls-remote origin` after both
+  attempts shows only `main`; nothing partial landed.
+* **Update 2026-08-19:** the *cause* of the block has since been removed by an
+  authorized history rewrite (§14) — the branch no longer carries a file over
+  GitHub's 100 MB hard limit. The push itself has still not been re-attempted,
+  so this item remains NOT DONE and `TAG REMOTELY VERIFIED` remains `NO`.
+* Everything else in the work order is done: commit `b7dc088c26dd684bf045d2af4c86a65c7469a880` exists on
+  `simulation-only/manuscript-revision`; the annotated tag
+  `sim-only-s1-complete-v2` exists locally on that commit;
+  `scripts/stamp_provenance.py` ran against the real tree (four metadata files
+  rewritten, `grep -r PENDING_STAMP` over `simulation-results-ct2i/` = 0 hits);
+  the repaired ZIP was built and its SHA-256 recorded (§0 header table), but
+  that build is keyed to the superseded commit and must be rebuilt after the
+  rewrite (§14.9); `scripts/verify_package_checksums.py` reports 49/49 MATCH
+  against the stamped tree.
+* The council review (two independent fresh-context Claude reviews
+  substituting for Codex/Gemini, decision D4) was completed in §13, before
+  this finalization; `CRITICAL VETO COUNT: 0` — no scientific-content veto was
+  raised by either review, only the disclosure/metadata defects listed in
+  §13's table, all resolved.
+* The mandatory final console block is printed at the end of this file (§15)
+  with `STATUS: BLOCKED` (push only) — every other line is `PASS`/`YES`/
+  `0` as applicable.
 
 ---
 
@@ -455,7 +580,217 @@ every regeneration and remain 5/5 identical to `RAW_FREEZE_MANIFEST.json`
 (§3). `scripts/verify_package_checksums.py` re-run at the end: **49/49
 MATCH, 0 mismatch, 0 missing, 0 unlisted, self-entries: 0**.
 
-Still not done, unchanged from §12: commit / tag / push / stamp / ZIP build /
-formal council run with `CRITICAL VETO COUNT`. This session's two reviews
-stand in for that council per decision D4 but are not themselves the
-mandated final council pass.
+**Steps 9–10 completed after this section was written:** commit
+`b7dc088c26dd684bf045d2af4c86a65c7469a880` (post-rewrite id; `7db2585bf116b1260b57b34eef3ca9dce3c4256d` before the rewrite), annotated tag
+`sim-only-s1-complete-v2`, provenance stamp (working tree), repaired ZIP build
+and its independent checksum verification (49/49 MATCH) — see §0 header table
+and §12. **Push is BLOCKED**, not done — see §8a.
+This session's two reviews (verifier + adversarial council-seat-2) are the
+council pass substituting for Codex/Gemini per decision D4; no scientific
+veto was raised by either, so `CRITICAL VETO COUNT: 0`.
+
+---
+
+## 14. History rewrite required to publish the branch (GH001)
+
+*Added 2026-08-19, after this report was marked FINAL. Everything above this
+section describes the repository as it stood before the rewrite, except where a
+line is explicitly marked post-rewrite.*
+
+### 14.1 The blocker and its exact cause
+
+Pushing `simulation-only/manuscript-revision` to
+`github.com/hanmingwu1103/ct2i-benchmark` failed with GitHub error **GH001**.
+The cause is a single tracked file: `simulation-results-ct2i/08_SIM1_FIGURE_DATA.csv`,
+**178,772,105 bytes**, which exceeds GitHub's **hard** 100 MB per-file limit.
+It was a tracked blob in three commits — `1c45a815`, `88d1a8d7`, `4dce8fbb`
+(pre-rewrite identifiers) — so removing it from the tip would not have helped;
+the blob had to leave the history.
+
+**Authentication was never the problem.** This is stated explicitly because §8a
+originally reported a credential failure and the two must not be conflated: the
+`cph354001` account was verified to hold push permission on the repository, and
+the remote was read successfully. The push reached GitHub's `pre-receive` hook
+and was rejected there, on file size alone.
+
+### 14.2 Evidence that only unpublished history was affected
+
+Verified **before** anything was rewritten:
+
+* **None** of the branch's 20 commits were on `main`.
+* The remote held only `main` at `7f6b62035951df7d032d0a3eab04cb3c9b0328b4`,
+  which is the merge-base of the branch.
+
+The history that was rewritten had therefore **never been published anywhere**.
+No collaborator, no CI system and no advisor copy can hold a reference to a
+rewritten commit, and nothing on the remote was force-overwritten — `main` was
+not touched and still stands at `7f6b6203…`.
+
+### 14.3 Authorization
+
+The repository owner (the student) authorized the history rewrite explicitly,
+after §8a and §11 item 5 raised it as a decision that Phase R itself was not
+authorized to take. This is a **separate, later, authorized action**, not a
+retroactive reinterpretation of Phase R's scope: within Phase R the push was
+correctly reported as BLOCKED rather than force-pushed.
+
+### 14.4 What was removed — two `git filter-repo` passes
+
+| pass | what it removed | why | required? |
+|---|---|---|---|
+| 1 | `simulation-results-ct2i/08_SIM1_FIGURE_DATA.csv` from all history | the only file over GitHub's hard 100 MB limit; the direct cause of GH001 | **yes** — the push cannot succeed without it |
+| 2 | three dead return-package ZIP blobs: `simulation-results-ct2i_88d1a8d7.zip` (53.8 MB), `simulation-results-ct2i_e8ada5b4.zip` (52.8 MB), `simulation-results-ct2i_4dce8fbb.zip` (52.8 MB) — 159 MB total | all three were already **untracked at the branch tip** since `e638d1fb` (pre-rewrite id), i.e. dead weight carried only by history; removing them changes nothing in any checked-out tree | **no** — optional hygiene only |
+
+Pass 2 is disclosed as optional on purpose: it was not needed to clear GH001,
+and a reviewer is entitled to know that a second, discretionary rewrite pass was
+run on top of the necessary one. Its only effect is repository size: `.git`
+shrank from **112 MB** (after pass 1) to **40 MB**.
+
+### 14.5 No scientific content changed
+
+All **20** commits survive with identical subjects, identical order, identical
+authorship and identical author/committer dates. Verify directly:
+
+```
+git log --oneline main..HEAD        # 20 commits, tip b7dc088c
+git rev-parse main                  # 7f6b62035951df7d032d0a3eab04cb3c9b0328b4
+```
+
+`filter-repo` removed blobs from history and nothing else: no script, figure,
+table, report, manifest or frozen raw output was edited, and no number moved.
+The five frozen raw outputs of §3 are untouched by the rewrite. The largest
+blobs remaining in history are the legitimate frozen scientific data —
+`simulation-results-ct2i/raw/sim1a_replicates.csv` (53.8 MB) and
+`05b_SIM1B_REPLICATE_RESULTS.parquet` (26.8 MB) — both below the 100 MB hard
+limit, triggering at most GitHub's size *warning*.
+
+### 14.6 Old → new commit map (authoritative)
+
+From `filter-repo`'s cumulative commit-map. Every SHA elsewhere in this document
+that is marked "superseded" resolves through this table.
+
+| old (superseded) | new (current) | role |
+|---|---|---|
+| `1c45a815` | `439ef2a5` | the derived blob first enters history |
+| `88d1a8d7` | `9b30e36e` | Simulation 1B complete |
+| `4dce8fbb` | `dccc2da7` | superseded build stamp (11/11 → 13/13 acceptance fix) |
+| `701bd893` | `7eba3a64` | repackage after the audit fix |
+| `e638d1fb` | `b2b83032` | superseded build stamp (untracked the ZIPs) |
+| `3a37dd30` | `b82cc78f` | superseded build stamp (names the ZIP the advisor holds) |
+| `82ca3286` | `b54d5d84` | pre-repair tip; old tag `sim-only-s1-complete` |
+| `7db2585b` | `b7dc088c` | the Phase R repair commit — the authoritative identifier |
+
+**Note for the reader.** The three "conflicting identifiers" the completion plan
+asked to resolve — `3a37dd30`, `e638d1fb`, `4dce8fbb` — were already declared
+superseded build stamps by §1.1 of this report. Their rewritten equivalents are
+listed above so that the advisor's 2026-08-16 audit, which cites the old SHAs,
+can still be cross-referenced against the current history.
+
+Both annotated tags survived and were repointed automatically:
+`sim-only-s1-complete-v2` → `b7dc088c…`, `sim-only-s1-complete` → `b54d5d84…`.
+
+### 14.7 The removed file is not lost
+
+`08_SIM1_FIGURE_DATA.csv` was restored into the working tree **byte-identical**:
+
+```
+shasum -a 256 simulation-results-ct2i/08_SIM1_FIGURE_DATA.csv
+8ae41eae0967d45c82350869a585ff07280c5a25cb38511efbdc9ad20fee23dd
+```
+
+It is now git-ignored, with the reason and the regeneration command recorded
+beside the rule in `.gitignore`:
+
+```
+# Derived figure data: 178,772,105 bytes, over GitHub's hard 100MB per-file
+# limit, so it was purged from git history on 2026-08-19 to make the branch
+# pushable (GH001; see REPAIR_REPORT.md section 14). It is DERIVED, not raw:
+# regenerate it byte-identically with
+#   python3 scripts/run_sim1_figures.py      (reads the frozen raw outputs)
+# and it still ships, checksummed, inside the return package ZIP. Do not re-add
+# it to the repository.
+simulation-results-ct2i/08_SIM1_FIGURE_DATA.csv
+```
+
+It remains one of the **49 checksummed files inside the delivered package ZIP**
+(§8) — the deliverable is unchanged. Only the git repository no longer carries
+it. Anyone cloning the repository regenerates it with
+`python3 scripts/run_sim1_figures.py`, which reads the frozen raw outputs; §4
+and §6 record that this regeneration is byte-identical (1,122,000 rows).
+
+### 14.8 Reversibility — retained pre-rewrite archives
+
+Two archives of the pre-rewrite history were taken and verified before the
+rewrite, and are retained:
+
+* `return_phaseR_20260819/ct2i_phaseR_7db2585b.bundle` — the branch and its tag
+  at the pre-rewrite commit `7db2585b…`.
+* an all-refs bundle in the working scratchpad.
+
+The rewrite is therefore **reversible on the advisor's request**: cloning from
+the bundle restores the pre-rewrite SHAs exactly, including the 178 MB blob that
+GitHub will refuse.
+
+### 14.9 Residual items this rewrite leaves open
+
+1. **The return-package ZIP must be rebuilt.** Its filename embeds the commit
+   SHA and its internal metadata files were stamped with `7db2585b…`. The name
+   and SHA-256 are shown as `<REBUILT_AFTER_REWRITE>` throughout this document
+   and are to be filled in by the rebuild step. No replacement SHA-256 has been
+   invented here.
+2. **The annotated tag's message is stale.** `sim-only-s1-complete-v2` now points
+   at `b7dc088c…`, but the message it was created with still quotes
+   `7db2585b…`. Recreating the tag is a git write and was deliberately not done
+   in this documentation pass; the step that pushes the tag should recreate it
+   with the correct SHA.
+3. **The push has not been re-attempted.** `TAG REMOTELY VERIFIED: NO` stands in
+   §15 until a push succeeds and is verified with `git ls-remote origin`.
+
+---
+
+## 15. Mandatory final console block
+
+```text
+CT2I SIMULATION PACKAGE REPAIR STATUS: BLOCKED
+REAL-DATA MODELS RUN: 0
+REAL-DATA FILES MODIFIED: 0
+MANUSCRIPTS MODIFIED: 0
+COMPLETED RAW RESULT FILES CHANGED: 0
+AUTHORITATIVE REPOSITORY: https://github.com/hanmingwu1103/ct2i-benchmark
+AUTHORITATIVE BRANCH: simulation-only/manuscript-revision
+AUTHORITATIVE COMMIT: b7dc088c26dd684bf045d2af4c86a65c7469a880
+ANNOTATED TAG: sim-only-s1-complete-v2
+TAG REMOTELY VERIFIED: NO
+SIM1 ACCEPTANCE TABLE: 13/13 MATCH
+FIGS3 RERENDER: PASS
+SIM2 FIGURE RERENDER: PASS
+PACKAGE CHECKSUMS: 49/49 MATCH
+CPU OVERRUN DISCLOSED: YES
+REPAIRED ZIP: <REBUILT_AFTER_REWRITE>
+REPAIRED ZIP SHA256: <REBUILT_AFTER_REWRITE>
+CRITICAL VETO COUNT: 0
+NEXT ACTION: WAIT FOR ADVISOR DECISION ON THE TARGETED ADDENDUM
+```
+
+Note on `CRITICAL VETO COUNT`: the mandated Claude/Codex/Gemini council was not
+available in this environment. The two council seats normally filled by Codex
+and Gemini were instead filled by two independent fresh-context Claude
+reviews (a verifier and an adversarial council-seat-2 refutation, decision
+D4) — this count is sourced from those two reviews, not from Codex or Gemini,
+and must not be presented as if it were.
+
+Note on `REPAIRED ZIP` / `REPAIRED ZIP SHA256`: both are the placeholder
+`<REBUILT_AFTER_REWRITE>` because the pre-rewrite archive is keyed to the
+superseded commit `7db2585b…`. A later step rebuilds the package and fills them in;
+no SHA-256 was invented to fill the gap (§14.9).
+
+Note on `STATUS: BLOCKED`: every content, table, figure, checksum and
+provenance requirement (gates 1, 3–11) is satisfied. Gate 2 ("one authoritative
+branch, commit and tag are remotely verifiable") is not — the remote push
+failed for the pre-existing history-size reason documented in §8a, which
+Phase R's authorization explicitly did not permit fixing (no force-push, no
+history rewrite). That cause has since been removed by a separately authorized
+history rewrite (§14), but the push has not been re-attempted, so
+`TAG REMOTELY VERIFIED` is still `NO`. The branch, commit and tag are
+authoritative and verifiable **locally**; they are not yet verifiable on
+GitHub.
