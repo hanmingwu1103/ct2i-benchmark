@@ -37,3 +37,7 @@ simulation-results-ct2i/08_SIM1_FIGURE_DATA.csv
 
 # macOS Finder metadata
 .DS_Store
+
+# Phase R return package: contains a 129 MB bundle and a 55 MB archive.
+# Delivery artefacts, not source. Never commit (GH001 rejects >100 MB files).
+return_phaseR_20260819/

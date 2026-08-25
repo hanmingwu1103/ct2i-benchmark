@@ -32,11 +32,30 @@ def workers_for(max_workers: int, heavy: bool) -> int:
 
 
 def run_parallel(scenarios, worker_fn, out_path, fields, max_workers=8,
-                 heavy_key=None, label="run", checkpoint=True):
+                 heavy_key=None, label="run", checkpoint=True,
+                 failure_rows=None):
     """Execute worker_fn(scenario) -> list[dict] across processes.
 
     heavy_key(scenario) -> bool marks memory-heavy scenarios, which are run in a
     second pass with a reduced worker count rather than mixed with light ones.
+
+    WORKER / POOL FAILURE (reconciliation C2). `fu.result()` raises when a
+    worker dies: a spawn or import error, an OOM kill, `BrokenProcessPool`. The
+    parent used to record `results[scenario_id] = []` and write a header-only
+    part file, so every attempted cell of that scenario disappeared with no
+    typed row anywhere, the run still exited 0, and a restart SKIPPED the
+    scenario because its part file existed.
+
+      failure_rows(scenario, exc) -> list[dict]
+          OPT-IN, and the only behaviour change. When supplied, a dead worker's
+          cells are materialised by the caller as typed failure rows and those
+          rows -- never an empty list -- are what is checkpointed. If the
+          provider itself raises, or returns nothing, the run FAILS LOUDLY
+          instead of silently retaining a gap.
+
+    `failure_rows=None` keeps the inherited behaviour byte for byte, so the two
+    existing callers (`run_sim1b_finite.py`, `run_sim1c_hash.py`, whose frozen
+    output is already on disk) are unaffected.
 
     CHECKPOINTING. Each scenario's rows are written to their own part file the
     moment that scenario finishes, and scenarios whose part file already exists
@@ -77,10 +96,35 @@ def run_parallel(scenarios, worker_fn, out_path, fields, max_workers=8,
                 s = futs[fu]
                 try:
                     results[s.scenario_id] = fu.result()
-                except Exception as e:                       # noqa: BLE001
+                except BaseException as e:                   # noqa: BLE001
                     print(f"  !! {s.scenario_id} FAILED: {type(e).__name__}: "
                           f"{str(e)[:120]}", flush=True)
-                    results[s.scenario_id] = []
+                    if failure_rows is None:
+                        if not isinstance(e, Exception):
+                            raise
+                        results[s.scenario_id] = []          # inherited path
+                    else:
+                        try:
+                            made = list(failure_rows(s, e))
+                        except BaseException as inner:       # noqa: BLE001
+                            raise RuntimeError(
+                                f"{s.scenario_id}: the worker failed with "
+                                f"{type(e).__name__}: {str(e)[:120]} and the "
+                                f"typed-failure-row provider itself raised "
+                                f"{type(inner).__name__}: {str(inner)[:120]}; "
+                                f"attempted cells cannot be accounted for and "
+                                f"this run is not retainable") from inner
+                        if not made:
+                            raise RuntimeError(
+                                f"{s.scenario_id}: the worker failed with "
+                                f"{type(e).__name__}: {str(e)[:120]} and the "
+                                f"typed-failure-row provider returned NO rows; "
+                                f"an empty checkpoint would silently delete "
+                                f"every attempted cell of this scenario")
+                        print(f"     -> {len(made):,} typed failure rows "
+                              f"materialised for its attempted cells",
+                              flush=True)
+                        results[s.scenario_id] = made
                 if checkpoint:                       # persist immediately
                     with open(part_of(s), "w", newline="", encoding="utf-8") as pf:
                         pw = csv.DictWriter(pf, fieldnames=fields)

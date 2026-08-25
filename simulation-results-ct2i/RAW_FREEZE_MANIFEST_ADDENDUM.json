@@ -1,0 +1,119 @@
+{
+  "manifest_id": "RAW_FREEZE_MANIFEST_ADDENDUM",
+  "ruling": "D15 (01B_ADDENDUM_ADVISOR_RULINGS.yaml)",
+  "purpose": "Closes the AD10 hole: RAW_FREEZE_MANIFEST.json has no entry for anything under raw/, so a line-count check on raw/sim1b_replicates.csv could pass on altered content with an unchanged row count. This manifest adds SHA-256 coverage for every top-level raw/*.csv file, carries forward (as a strict superset) every entry already protected by RAW_FREEZE_MANIFEST.json, and declares -- without inventing hashes -- the new addendum raw outputs Phase A1 must hash on creation.",
+  "generated_at_utc": "2026-08-24T13:34:03.271866+00:00",
+  "generated_with": "python3.11.9 (pyenv), hashlib.sha256, stdlib only",
+  "generator_script": "ad hoc, not committed to the repo (scratchpad only); re-derivable in full from scripts/verify_raw_freeze_manifest_addendum.py",
+  "self_reference_guard": {
+    "own_filename": "RAW_FREEZE_MANIFEST_ADDENDUM.json",
+    "asserted_absent_from_own_entries": true,
+    "note": "This manifest must never contain an entry for itself. Same bug class that previously hit 00_README.md, PACKAGE_SHA256.json, and SHA256SUMS.txt. Enforced programmatically by the verifier."
+  },
+  "superset_of": "RAW_FREEZE_MANIFEST.json",
+  "categories": {
+    "raw_csv_top_level": {
+      "sim1a_replicates.csv": {
+        "relative_path": "raw/sim1a_replicates.csv",
+        "sha256": "15830ed3274d1e6ad5e8d55c95a3e973c723bbb94f438eec94245e65e39bb3b0",
+        "size_bytes": 56388521,
+        "line_count_incl_header": 211201,
+        "row_count_excl_header": 211200
+      },
+      "sim1b_replicates.csv": {
+        "relative_path": "raw/sim1b_replicates.csv",
+        "sha256": "54002b256525ab8bf038379b7972294fb2f67c03832b51e30adb9ec583a5e187",
+        "size_bytes": 307539238,
+        "line_count_incl_header": 1094401,
+        "row_count_excl_header": 1094400
+      },
+      "sim1c_exact.csv": {
+        "relative_path": "raw/sim1c_exact.csv",
+        "sha256": "3165e05fce222a090c9c4d4d73f919dab3689efabfe4744cb227972be0592e81",
+        "size_bytes": 2811469,
+        "line_count_incl_header": 14401,
+        "row_count_excl_header": 14400
+      },
+      "sim1c_finite.csv": {
+        "relative_path": "raw/sim1c_finite.csv",
+        "sha256": "c418ec1b49366201c5dd8b968160ce5abf6ac29fa3eaa62d8317ad00c4be912d",
+        "size_bytes": 17658027,
+        "line_count_incl_header": 91201,
+        "row_count_excl_header": 91200
+      },
+      "sim2_results.csv": {
+        "relative_path": "raw/sim2_results.csv",
+        "sha256": "cf3ecf180ee28f9ee0c2ce71a20aeb2ad2ad66a66d17133e50c39c07b12d92e7",
+        "size_bytes": 309239,
+        "line_count_incl_header": 1264,
+        "row_count_excl_header": 1263
+      }
+    },
+    "frozen_result_outputs_carried_forward": {
+      "05a_SIM1A_REPLICATE_RESULTS.parquet": {
+        "relative_path": "05a_SIM1A_REPLICATE_RESULTS.parquet",
+        "sha256": "648b9a5ddb70bfc2a7130fbaa2160f2789f63f446d1670928c8f392f7362fe09",
+        "size_bytes": 5817488,
+        "row_count": 211200,
+        "source_manifest": "RAW_FREEZE_MANIFEST.json",
+        "matches_source_manifest_hash": true
+      },
+      "05c_SIM1C_EXACT_RESULTS.parquet": {
+        "relative_path": "05c_SIM1C_EXACT_RESULTS.parquet",
+        "sha256": "1ebb5f533b0602de6e609ecafb7f1b1fa1f5a99a8f5727ceca96c9bc195541e8",
+        "size_bytes": 88286,
+        "row_count": 14400,
+        "source_manifest": "RAW_FREEZE_MANIFEST.json",
+        "matches_source_manifest_hash": true
+      },
+      "05d_SIM1C_FINITE_RESULTS.parquet": {
+        "relative_path": "05d_SIM1C_FINITE_RESULTS.parquet",
+        "sha256": "a4b69963f07ff7bdc6b7440e1a714477a9ef3e0ade1a7ad8046a6b2bdea6285c",
+        "size_bytes": 2115111,
+        "row_count": 91200,
+        "source_manifest": "RAW_FREEZE_MANIFEST.json",
+        "matches_source_manifest_hash": true
+      },
+      "12_SIM2_RESULTS.csv": {
+        "relative_path": "12_SIM2_RESULTS.csv",
+        "sha256": "cf3ecf180ee28f9ee0c2ce71a20aeb2ad2ad66a66d17133e50c39c07b12d92e7",
+        "size_bytes": 309239,
+        "row_count": 1263,
+        "source_manifest": "RAW_FREEZE_MANIFEST.json",
+        "matches_source_manifest_hash": true
+      },
+      "05b_SIM1B_REPLICATE_RESULTS.parquet": {
+        "relative_path": "05b_SIM1B_REPLICATE_RESULTS.parquet",
+        "sha256": "5b5a191031be52d0e53c11fcd3655a5d92e53187b9c625d10693c72c6a3ba5cc",
+        "size_bytes": 28068758,
+        "row_count": 1094400,
+        "source_manifest": "RAW_FREEZE_MANIFEST.json",
+        "matches_source_manifest_hash": true
+      }
+    },
+    "pending_a1_addendum_outputs": {
+      "03A_ADDENDUM_SEED_MANIFEST.csv": {
+        "expected_relative_path": "03A_ADDENDUM_SEED_MANIFEST.csv",
+        "status": "PENDING_A1",
+        "note": "Realised addendum seed manifest; analogue of 03_SEED_MANIFEST.csv. Hash to be filled in by A1 on creation, before any addendum cell is inspected."
+      },
+      "05e_SIM1B_DENSE_ADDENDUM_RESULTS.parquet": {
+        "expected_relative_path": "05e_SIM1B_DENSE_ADDENDUM_RESULTS.parquet",
+        "status": "PENDING_A1",
+        "note": "Primary frozen addendum replicate results, per protocol freeze comment 'frozen before any summary is inspected'. Analogue of 05a-05d."
+      },
+      "06A_SIM1B_DENSE_ADDENDUM_SUMMARY.csv": {
+        "expected_relative_path": "06A_SIM1B_DENSE_ADDENDUM_SUMMARY.csv",
+        "status": "PENDING_A1",
+        "note": "Aggregated addendum summary table derived from 05e; declared for coverage because it is tabular and downstream-citable like 12_SIM2_RESULTS.csv."
+      }
+    }
+  },
+  "excluded_from_coverage": {
+    "raw/sim1b_replicates_parts/*.csv": "288 files, ~260MB. Not matched by the literal D15 scope 'every raw/*.csv' (non-recursive glob); these are intermediate parts artifacts, not one of the raw/*.csv files AD10 originally named. Flagged as ambiguous -- see report.",
+    "raw/sim1b.log": "log file, not a raw CSV; excluded like the old package verifier excludes *.log.",
+    "raw/sim1c_finite.log": "log file, not a raw CSV; excluded like the old package verifier excludes *.log.",
+    "08A_SIM1B_DENSE_ADDENDUM_FIGURE_DATA.csv": "declared gitignored per D9 in the protocol freeze outputs list; not a stable freeze target, so intentionally not declared PENDING_A1.",
+    "07A_SIM1B_DENSE_ADDENDUM_ACCEPTANCE_REPORT.json": "derived analysis/report output, not a raw evidentiary file; out of D15 scope."
+  }
+}

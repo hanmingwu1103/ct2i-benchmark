@@ -1,0 +1,2724 @@
+# =============================================================================
+# cT2I Dense-Signal Simulation 1B Addendum — ADVISOR RULINGS (Phase A0.1)
+#
+# FROZEN AT PHASE A0.1, BEFORE ANY ADDENDUM CELL IS RUN.
+# Zero addendum cells were executed to produce this file.
+#
+# This file AMENDS but does NOT SUPERSEDE 01A_ADDENDUM_PROTOCOL_FREEZE.yaml.
+#   01A is authoritative for the DESIGN (factors, levels, seeds, encoders,
+#       learners, row counts, tolerances, criteria AD1-AD14).
+#   01B is authoritative for INFERENCE, ESTIMANDS, REPORTING and GATES.
+# On any conflict inside the 01B scope, 01B governs; everywhere else 01A governs.
+#
+# 01_PROTOCOL_FREEZE.yaml (parent) remains IMMUTABLE. Acceptance criteria
+# A1-A15 are not touched, not extended and not renumbered. The completed arm's
+# 13/13 statement stands unchanged and is never restated as "13/13 + n".
+#
+# No file under simulation-results-ct2i/ was modified to create this file.
+# =============================================================================
+
+provenance:
+  file_id: 01B_ADDENDUM_ADVISOR_RULINGS
+  phase: A0.1
+  ruling_received: 2026-08-21
+  ruling_source_document: ADVISOR_RULING_20260821 (embedded verbatim below)
+  amends: simulation-results-ct2i/01A_ADDENDUM_PROTOCOL_FREEZE.yaml
+  supersedes: NONE
+  relationship_to_01A: AMENDMENT_NOT_SUPERSESSION
+  authority_split:
+    design_authority: 01A_ADDENDUM_PROTOCOL_FREEZE.yaml
+    inference_authority: 01B_ADDENDUM_ADVISOR_RULINGS.yaml
+    estimand_authority: 01B_ADDENDUM_ADVISOR_RULINGS.yaml
+    reporting_authority: 01B_ADDENDUM_ADVISOR_RULINGS.yaml
+    gate_authority: 01B_ADDENDUM_ADVISOR_RULINGS.yaml
+    parent_authority: 01_PROTOCOL_FREEZE.yaml (IMMUTABLE, untouched)
+  binding_on_the_A1_runner: >
+    scripts/run_sim1b_dense_addendum.py MUST reference BOTH
+    01A_ADDENDUM_PROTOCOL_FREEZE.yaml AND 01B_ADDENDUM_ADVISOR_RULINGS.yaml.
+    Both files bind it. A runner that cites only one of the two is
+    non-conforming and its rows must not be retained.
+  a0_1_produced_zero_addendum_result_rows: true
+  real_data_access: forbidden
+  gpu_use: forbidden
+  manuscripts_are_read_only: true
+  working_branch: simulation-only/manuscript-revision
+  parent_commit_at_A0_1: "02855025"
+  immutability: >
+    Frozen at A0.1. No entry below may change after the Phase A1 run begins. If
+    a gate fails, the failure is reported; the gate is not retuned.
+  document_version: 5
+  document_version_history:
+    v1: "2026-08-21 — original A0.1 authoring, immediately after the advisor ruling."
+    v2: "2026-08-24 — AMENDMENT-1 (D17 gating correction) and AMENDMENT-2 (governance promotion); see the `amendments` section."
+    v3: "2026-08-24 — AMENDMENT-3: D13's factual premise is REFUTED BY MEASUREMENT (DGP parameters are drawn afresh per replicate, not once per block). D13 moves out of ACCEPTED status, Q6 is opened, and a new top-level `retractions` section partially retracts a Phase A0 CONFIRMED finding."
+    v4: "2026-08-24 — AMENDMENT-4: the D17 two-gate rule is defeated by a fiber-ASSIGNMENT defect (measured). Gates G3 (stored representation loss, MCSE-scaled) and G4 (canonical partition fingerprint, exact) are added; Q7 is opened. Also completes AMENDMENT-3's verification-log annotation."
+    v5: "2026-08-25 — AMENDMENT-5 (consistency pass): the raw-versus-normalized SIGN REVERSAL is measured to be AGGREGATION-DEPENDENT and Q8 is opened (count 7 -> 8); the '82%' variance-share figure is RE-CLASSIFIED from UNREPRODUCED to reproduced-but-superseded (corrected figure 55.1%); V12's reproduction command is corrected to a published driver that actually prints its recorded G4 numbers; this file is declared the SINGLE AUTHORITY for advisor question numbering."
+  amendment_policy: >
+    Amendments are permitted ONLY before the Phase A1 run begins, only for a
+    defect discovered by measurement, and only with a dated entry in the
+    `amendments` section below stating the trigger and the change. The embedded
+    `advisor_ruling_verbatim.text` is NEVER edited under any circumstance: an
+    amendment that corrects a ruling records the correction beside the ruling
+    and raises it for the advisor's ratification. Once A1 begins this file is
+    closed.
+
+# -----------------------------------------------------------------------------
+# AMENDMENT LOG — a reader must be able to see that this file changed, and why.
+# -----------------------------------------------------------------------------
+amendments:
+  - id: AMENDMENT-1
+    date: 2026-08-24
+    phase: A0.1
+    scope: rulings.D17
+    kind: SCIENTIFIC_CORRECTION_OF_A_RULING_AS_WRITTEN
+    requires_advisor_ratification: true
+    ratification_question: advisor_confirmation_requested.Q5
+    trigger: >
+      A sibling A0.1 work item BUILT the D17 harness
+      (scripts/s0b_reference_gap_check.py) and STRESS-TESTED it by injecting
+      three defects in-process. Two defects that made the production result
+      wrong by 5.5e-07 and 1.1e-02 left BOTH columns the advisor named —
+      log_identity_error and brier_identity_error — unchanged at 5.4e-15. A
+      third defect (fiber merging) moved neither the identity errors NOR the
+      production-versus-reference difference. D17 as written therefore does not
+      gate. Evidence: S0B_REFERENCE_IMPLEMENTATION_TEST_REPORT.md sections 5-6.
+    changed:
+      - "rulings.D17.persisted_columns — log_identity_error and brier_identity_error RETAINED as mandatory persisted columns (the advisor named them) but RECLASSIFIED as DESCRIPTIVE_NOT_GATING."
+      - "rulings.D17.persisted_columns — THREE new mandatory columns added for the fiber-construction cross-check: recomputed_fiber_count, stored_fiber_count, fiber_count_match."
+      - "rulings.D17.evaluation_rule — REPLACED. AD1/AD2 now gate CONJUNCTIVELY on (i) |production - reference| for both risk scales and (ii) the recomputed-versus-stored fiber_count cross-check."
+      - "rulings.D17.measured_sensitivity_at_A0_1 — ADDED. The measured defect-injection table is recorded so no future reader re-litigates the reclassification."
+      - "rulings.D17.corrects_the_advisor_ruling_as_written — ADDED, with the ratification request."
+      - "rulings.D17.representation_loss_is_monte_carlo — ADDED. The on-disk 05b representation_loss column is an MC plug-in, so D17's `also satisfy exact_identity_abs` is not satisfiable against it; the rule is implemented against the exact fast path instead."
+    not_changed:
+      - "the advisor's D17 sampling rule (48 x 13 x 1 = 624 cells, replicate = int(scenario_id[-4:])) — untouched"
+      - "the tolerance exact_identity_abs = 1.0e-10 — untouched"
+      - "advisor_ruling_verbatim.text — byte-identical to the received ruling"
+  - id: AMENDMENT-2
+    date: 2026-08-24
+    phase: A0.1
+    scope: advisor_confirmation_requested
+    kind: GOVERNANCE_SURFACING
+    requires_advisor_ratification: true
+    trigger: >
+      Three items frozen by the original author with written justification do
+      not merely FILL A BLANK in the advisor's ruling — they EXTEND decision
+      rules the advisor wrote himself. Burying a material extension inside a
+      54 KB file is not a way to obtain consent. They are promoted to the
+      questions section, each keeping its frozen value as the operative default.
+    changed:
+      - "advisor_confirmation_requested.count 1 -> 5"
+      - "Q2 ADDED — effective_blocks_min = 4 (the advisor wrote 'if too few independent blocks remain' with no number)."
+      - "Q3 ADDED — the FOURTH outcome class INCONCLUSIVE_REPORTED_IN_FULL (the advisor specified exactly three classes)."
+      - "Q4 ADDED — 'materially directionally inconsistent' quantified as opposite signs AND both |estimates| > 1e-6."
+      - "Q5 ADDED — AMENDMENT-1: the advisor's named D17 columns do not gate."
+      - "advisor_confirmation_requested.nothing_else_is_open — REPLACED; it previously asserted Q1 was the only open item."
+      - "rulings.D16 — three cross-reference pointers added to the promoted questions; no D16 rule text changed."
+      - "deferred_semantic_questions — NEW section, recording one inherited-semantics question for the advisor (not decided here)."
+    operative_defaults_unchanged: >
+      Every promoted item KEEPS its frozen value and remains operative. Promotion
+      changes nothing about what the A1 runner does unless the advisor rules
+      otherwise; it only makes the decision visible to the person entitled to
+      make it.
+  - id: AMENDMENT-3
+    date: 2026-08-24
+    phase: A0.1
+    scope: [rulings.D13, rulings.D16.common_statistic, rulings.D16.clauses.E1c, advisor_confirmation_requested, retractions, a0_1_verification]
+    kind: FACTUAL_PREMISE_OF_A_BINDING_RULING_REFUTED_BY_MEASUREMENT
+    requires_advisor_ratification: true
+    ratification_question: advisor_confirmation_requested.Q6
+    severity: HIGHEST_OPEN_ITEM_IN_THIS_FILE
+    trigger: >
+      D13 rules that inference runs on "8 independent parameter-draw blocks with
+      7 degrees of freedom". Its factual premise — that the DGP parameters are
+      drawn ONCE PER BLOCK and reused across the 50 replicates — was tested
+      directly by regenerating parameters from the production seed rule. The
+      premise is FALSE. The parameters `a` and `b` are drawn AFRESH FOR EVERY
+      REPLICATE. There are 400 independent parameter draws per arm (8 blocks x
+      50 replicates), not 8. The repository's own frozen property test
+      `tests/test_a0_dense_addendum_properties.py::TestAddendumBlockPairingPreserved::test_replicate_still_varies_the_draw`
+      already asserted this, one file away from the docstring that stated the
+      opposite.
+    changed:
+      - "rulings.D13.status ACCEPTED_ADVISOR_RULING -> PREMISE_REFUTED_ADVISOR_RULING_REQUIRED. D13 must no longer read as simply accepted: implementing it as written would knowingly apply a 10-20x inflated SE to ONE-SIDED tests."
+      - "rulings.D13.premise_refuted_at_A0_1 — ADDED. The premise as the advisor received it, the code path that refutes it (file, function and line), the measured numbers, what survives and what does not."
+      - "rulings.D13.corrected_inferential_unit_proposed — ADDED. The parameter draw (block, replicate); n = 400 per arm; cluster size 6; block as a FIXED effect; df ~ 392 per arm."
+      - "rulings.D13.what_the_block_key_DOES_buy — ADDED. The delta_eta and n_train exclusions are CORRECT and load-bearing, measured max|da| = max|db| = exactly 0.0."
+      - "rulings.D13.replaces_in_01A — TWO entries added naming 01A:362-366 and 01A:411-417, corrected BY REFERENCE because 01A is immutable."
+      - "rulings.D13.consequences_if_D13_is_implemented_as_written — ADDED, including the one-sidedness argument and the E1c incoherence."
+      - "advisor_confirmation_requested.count 5 -> 6; Q6 ADDED and marked the highest-priority open question."
+      - "advisor_confirmation_requested.nothing_else_is_open — REPLACED to admit Q6 and to state that D13 is no longer closed."
+      - "rulings.D16.common_statistic.amendment_3_ref — ADDED as a pointer. NO D16 rule text changed."
+      - "rulings.D16.clauses.E1c.amendment_3_ref — ADDED as a pointer, recording that the fiber_count restriction is a per-replicate event that cannot be applied coherently to 8 collapsed block means. NO E1c rule text changed."
+      - "retractions — NEW top-level section. The Phase A0 finding delivered to the advisor as CONFIRMED is PARTIALLY RETRACTED, by reference, at the named S0A/S0B sites."
+      - "a0_1_verification.checks.V11 — ADDED. The verification-log entry for the refutation itself: what was regenerated, by what command, and the numbers that came back. Annotated with a runnable command by AMENDMENT-4 so the advisor can re-execute it without reading any code."
+      - "a0_1_verification.checks.V2.amendment_3_correction — ADDED. V2's MEASUREMENT (seed.nunique() == 400) stands; the `=> 8 blocks` INFERENCE written beside it is withdrawn, because 400 distinct seeds are 400 distinct parameter draws. V2 is annotated, never rewritten."
+    not_changed:
+      - "advisor_ruling_verbatim.text — byte-identical to the received ruling; sha256 b8743a27d18a76e5b5b1baf1fa7c4802cfe064ebd17978b436b70d5e82203053"
+      - "the operative_rule, aggregation_order, bootstrap and prohibited_procedures TEXT of D13 — left standing verbatim so the advisor sees exactly what he ruled; they are annotated, not rewritten"
+      - "every D16 rule, every D16 clause, the BH family, the outcome classifications — untouched"
+      - "01A_ADDENDUM_PROTOCOL_FREEZE.yaml, 01_PROTOCOL_FREEZE.yaml, every S0A_* record, every frozen raw output, both raw-freeze manifests — NOT EDITED (prohibitions PR2, PR3, PR4)"
+    no_result_is_affected: >
+      This is an inference-scheme defect only. No frozen raw output changes, no
+      addendum cell needs re-running, no manifest entry changes, and zero
+      addendum cells were executed to produce this amendment. Only parameter
+      DRAWS were regenerated, which touches no data and produces no result row.
+
+  - id: AMENDMENT-4
+    date: 2026-08-24
+    phase: A0.1
+    scope: [rulings.D17.evaluation_rule, rulings.D17.persisted_columns, rulings.D17.measured_sensitivity_at_A0_1, rulings.D17.representation_loss_is_monte_carlo, advisor_confirmation_requested, a0_1_verification]
+    kind: SCIENTIFIC_CORRECTION_OF_A_RULING_AS_AMENDED
+    requires_advisor_ratification: true
+    ratification_question: advisor_confirmation_requested.Q7
+    is_the_third_correction_to_D17: >
+      D17 as the advisor WROTE it did not gate (AMENDMENT-1). D17 as AMENDMENT-1
+      amended it still does not gate against one defect class (this amendment).
+      That sequence is itself information for the advisor and is why Q7 is
+      raised rather than the change being made silently.
+    trigger: >
+      A Phase A0.1 review council attacked the amended two-gate rule from two
+      independent seats and both found the SAME evasion. council-Claude
+      (adversarial implementation) executed a fiber-assignment PERMUTATION in
+      the runner (`fid = fiber_cache[key]` -> `np.roll(fiber_cache[key], 1)`):
+      the full 1,027-test suite passed, `relative_log_gap` on hash_column/B0
+      moved 0.1564 -> 0.4715 (3.01x), and BOTH surviving gates read clean —
+      `abs_production_minus_reference_log` unchanged at ~1e-16 and `fiber_count`
+      byte-identical. The Codex seat independently derived the same class
+      (C4): a wrong SAME-CARDINALITY partition. The cause is structural: G1 is
+      blind because both implementations are handed the same `fid`, and G2 is
+      blind because a permutation, or a swap of one cell between two fibers,
+      preserves the fiber count AND the entire multiset of fiber sizes.
+    changed:
+      - "rulings.D17.evaluation_rule.ad1_ad2_gating_rule — gate_G3_stored_representation_loss ADDED. The stored `representation_loss` is the runner's Monte-Carlo risk under the partition the runner ACTUALLY used, so it is the one persisted quantity that crosses the fiber-construction boundary."
+      - "rulings.D17.evaluation_rule.ad1_ad2_gating_rule — gate_G4_partition_fingerprint ADDED, exact and tolerance-free, because G3's tolerance is the Monte-Carlo noise floor and an assignment defect smaller than 6 mcse survives it."
+      - "rulings.D17.evaluation_rule.ad1_ad2_gating_rule.tolerance_classes — ADDED. `tolerance_ref: exact_identity_abs` does NOT cover G3; a SECOND tolerance class, MCSE-scaled, is introduced by this amendment and named."
+      - "rulings.D17.evaluation_rule.ad1_ad2_gating_rule.verdict — REPLACED: four gates, conjunctive."
+      - "rulings.D17.persisted_columns — FIVE new mandatory columns: stored_mcse_brier, stored_mc_tolerance_log, stored_mc_tolerance_brier, stored_mc_within_tolerance (G3) and fiber_fingerprint / its recomputed counterpart and match flag (G4)."
+      - "rulings.D17.measured_sensitivity_at_A0_1 — TWO further injected defects recorded (fiber_permute, fiber_swap) with the per-gate outcome of each."
+      - "rulings.D17.representation_loss_is_monte_carlo.the_stored_column_is_still_reported — CORRECTED. It previously read that the stored column carries no verdict and no tolerance. Under G3 it carries both. The reason it cannot carry the EXACT tolerance is unchanged and is why G3's tolerance is MCSE-scaled."
+      - "advisor_confirmation_requested.count 6 -> 7; Q7 ADDED."
+      - "advisor_confirmation_requested.nothing_else_is_open — REPLACED to admit Q7."
+      - "a0_1_verification.checks.V12 — ADDED, recording the measurement that forced this amendment and the command that reproduces it."
+      - "a0_1_verification.checks.V11 — ANNOTATED with a runnable command (completing AMENDMENT-3's verification log)."
+    not_changed:
+      - "advisor_ruling_verbatim.text — byte-identical to the received ruling; sha256 b8743a27d18a76e5b5b1baf1fa7c4802cfe064ebd17978b436b70d5e82203053"
+      - "the advisor's D17 sampling rule (48 x 13 x 1 = 624 cells, replicate = int(scenario_id[-4:])) — untouched"
+      - "exact_identity_abs = 1.0e-10 — untouched; it remains the tolerance of G1 and of nothing else that this amendment adds"
+      - "gates G1 and G2, exactly as AMENDMENT-1 wrote them — untouched and still conjunctive"
+      - "01A_ADDENDUM_PROTOCOL_FREEZE.yaml, 01_PROTOCOL_FREEZE.yaml, every S0A_* record, every frozen raw output, both raw-freeze manifests — NOT EDITED (prohibitions PR2, PR3, PR4)"
+    files_changed_outside_this_one:
+      - "scripts/s0b_reference_gap_check.py — G3 and G4 implemented in the pass criterion and in the summary line; `fiber_permute` and `fiber_swap` added as injectable defects"
+      - "scripts/run_sim1b_dense_addendum.py — persists the new `fiber_fingerprint` column on every SUCCESS row"
+      - "src/ct2i_benchmark/simulations/sim1_core.py — `partition_fingerprint` ADDED (pure, additive; no existing behaviour changed)"
+      - "tests/test_a0_2_defect_closure.py — 16 tests, including the permutation attack as a regression test"
+    no_result_is_affected: >
+      Zero addendum cells were executed to produce this amendment. The bite
+      testing used the EXISTING frozen d = 3 arm and in-process monkeypatches,
+      with every perturbed CSV written outside the package and deleted. No
+      frozen raw output changed and no manifest entry changed.
+
+  - id: AMENDMENT-5
+    date: 2026-08-25
+    phase: A0.1
+    scope: [rulings.D13.consequences_if_D13_is_implemented_as_written.c2_between_block_variance_share, advisor_confirmation_requested, retractions, a0_1_verification]
+    kind: CONSISTENCY_PASS_AND_ONE_NEW_OPEN_QUESTION
+    requires_advisor_ratification: true
+    ratification_question: advisor_confirmation_requested.Q8
+    trigger: >
+      A whole-package consistency pass before delivery found three defects that
+      would each have produced a false alarm in an audit of this package.
+      (i) The "82%" between-block variance share was recorded as UNREPRODUCED.
+      It reproduces exactly, at 81.7%; the earlier "could not reproduce" verdict
+      compared a method-A figure against a method-B measurement. The real defect
+      is a shared-draw error in its draw-variance formula, and the corrected
+      figure on the same data and the same estimand is 55.1%.
+      (ii) The raw-versus-normalized SIGN REVERSAL that D16's E1a rests on was
+      measured across eleven aggregation choices and survives all of them — but
+      it REVERSES under both common-denominator readings of "the normalized
+      contrast", which D14's per-arm formula excludes and D16's wording never
+      forbids. D16 does not say which reading is primary. Q8.
+      (iii) V12's recorded reproduction commands print
+      G4_partition_fingerprint:NOT_EVALUATED, not the recorded 297/624 and
+      295/624. A recorded command must reproduce its recorded number.
+    changed:
+      - "rulings.D13.consequences_if_D13_is_implemented_as_written.c2_between_block_variance_share.disputed_number_82_percent — status UNREPRODUCED -> REPRODUCED_BUT_SUPERSEDED_BY_A_CORRECTED_FORMULA; the three quantities are separated and each is given its own estimand, value and command."
+      - "rulings.D13.consequences_if_D13_is_implemented_as_written.c2_between_block_variance_share.corrected_fixed_factor_share — ADDED: 55.1%, method A collapse-first, with the command that prints it."
+      - "advisor_confirmation_requested.count 7 -> 8; Q8 ADDED (aggregation of the normalized contrast)."
+      - "advisor_confirmation_requested.index — Q8 added."
+      - "advisor_confirmation_requested.this_file_is_the_single_authority_for_question_numbering — ADDED, because S0B_ADVISOR_RULING_IMPLEMENTATION_REPORT.md previously numbered its own open items Q1-Q8 and collided with this list on the label Q6."
+      - "advisor_confirmation_requested.Q8.the_unreproduced_acceptance_check_figure — ADDED: the acceptance check's -0.0028 / t = -0.58 / 3-of-8 figure is not produced by any enumerated route and must not be quoted beside -0.0182 until its route is published."
+      - "retractions.numbers_that_must_be_re_derived_before_reuse — the 82% entry REPLACED; it is no longer an unreproduced number."
+      - "a0_1_verification.checks.V12.command_to_reproduce — CORRECTED. The plain --arm d3_frozen --stored commands cannot print a G4 count on an arm whose parquet predates the fiber_fingerprint column; the driver that produces 297 and 295 is now published as scripts/s0b_g4_fingerprint_bite.py and cited."
+      - "a0_1_verification.checks.V12.result — RESTATED with the exact condition under which each number arises, separating what the plain commands print from what the driver prints."
+      - "a0_1_verification.checks.V13 — ADDED, recording the aggregation-sensitivity measurement behind Q8."
+    not_changed:
+      - "advisor_ruling_verbatim.text — byte-identical to the received ruling; sha256 b8743a27d18a76e5b5b1baf1fa7c4802cfe064ebd17978b436b70d5e82203053"
+      - "every ruling's operative content: D13 status, D14 estimands, D15, D16 clauses and decision rules, D17 gates G1-G4, D18/AD15 — untouched. AMENDMENT-5 corrects RECORDS, not rules; Q8 asks a question that D16 left open rather than answering it."
+      - "Q1-Q7 keep their numbers, their text and their operative defaults."
+      - "01A_ADDENDUM_PROTOCOL_FREEZE.yaml, 01_PROTOCOL_FREEZE.yaml, every S0A_* record, S0B_COUNCIL_REVIEW.md, every frozen raw output, both raw-freeze manifests — NOT EDITED (prohibitions PR2, PR3, PR4)."
+    files_changed_outside_this_one:
+      - "scripts/s0b_g4_fingerprint_bite.py — CREATED. The previously scratchpad-only G4 driver, published so V12's numbers have a runnable provenance. Refuses any --out-dir inside the package."
+      - "scripts/run_sim1b_dense_addendum.py — the --dry-run banner and the addendum_block docstring no longer ASSERT the refuted 8-block premise; they state the block structure factually and point to Q6."
+      - "simulation-results-ct2i/S0B_FINAL_GATE_REPORT.md, S0B_ADVISOR_RULING_IMPLEMENTATION_REPORT.md, S0B_REFERENCE_IMPLEMENTATION_TEST_REPORT.md, S0B_RESOURCE_CONFIRMATION.csv — staleness corrections; see the gate report's contradiction table."
+    no_result_is_affected: >
+      Zero addendum cells were executed to produce this amendment. Every number
+      in it is a function of the exact 1024-state cell law or of the existing
+      frozen d = 3 arm read read-only. No frozen raw output changed, no manifest
+      entry changed, and no acceptance criterion A1-A15 or AD1-AD15 changed.
+
+# -----------------------------------------------------------------------------
+# The advisor ruling, embedded VERBATIM so the repository carries the source of
+# every rule below. Reproduced without edit, elision or reordering.
+# -----------------------------------------------------------------------------
+advisor_ruling_verbatim:
+  received: 2026-08-21
+  transcription: EXACT_NO_EDITS
+  text: |
+    The advisor has reviewed the Phase A0 council findings.
+
+    Do not execute the full dense-signal addendum yet.
+
+    Create and execute a new Phase A0.1:
+    ADVISOR-RULING AMENDMENT AND A1 RUNNER GATE.
+
+    The advisor rulings are binding:
+
+    D13 — ACCEPT.
+    Use block-clustered inference on the 8 independent parameter-draw blocks
+    with 7 degrees of freedom. Use block-resampling bootstrap. Never treat the
+    48 scenarios or 2,400 replicates as independent inferential units. State the
+    effective number of blocks and duplicated conditions for every reported
+    quantity.
+
+    D14 — ACCEPT OPTION 1 WITH NARROWED INTERPRETATION.
+    Keep the inherited d=5 DGP unchanged. Do not divide tau by sqrt(d) and do
+    not add a third signal-matched arm.
+
+    The addendum is a DENSE-SIGNAL STRESS TEST, not a pure dimensionality-effect
+    experiment.
+
+    Report both:
+    1. raw absolute risk gaps; and
+    2. signal-normalized gaps.
+
+    Use the prespecified normalized quantities:
+
+      relative_log_gap =
+        (R_log^*(Z) - R_log^*(X)) /
+        (H(Y) - R_log^*(X))
+
+      relative_brier_gap =
+        (R_Brier^*(Z) - R_Brier^*(X)) /
+        Var{eta(X)}
+
+    When a denominator is below a frozen numerical tolerance, record
+    NOT_IDENTIFIED, never zero.
+
+    Report interaction_pairs=0 and interaction_pairs=3 separately. Retain and
+    prominently disclose the total-signal-strength, interaction-saturation, and
+    interaction-placement confounds. No d=5 minus d=3 result may be called a
+    pure dimensionality effect. The normalized analysis is a sensitivity analysis
+    and must not be described as fully removing confounding.
+
+    D15 — ACCEPT.
+    Extend the addendum raw-freeze manifest to contain SHA-256 values for every
+    protected raw CSV and every new raw addendum output. Rewrite AD10 to name
+    its exact coverage. A line-count check is insufficient.
+
+    D16 — ACCEPT WITH THE FOLLOWING FROZEN DECISION RULES.
+    Split E1 into three clauses:
+
+    E1a hash_shared:
+    - collapse B0/B1/B2 to one piece of evidence because their partitions are
+      identical;
+    - primary statistic: block-clustered d=5 minus d=3 relative log-loss gap;
+    - relative Brier gap is the parallel supporting statistic.
+
+    E1b hash_column:
+    - primary narrow-width statistic averages B0 and B1 within scenario/block;
+    - report B0, B1, and B2 separately as secondary results.
+
+    E1c count:
+    - record fiber_count in every cell;
+    - primary analysis includes only matched conditions in which both d=3 and
+      d=5 mappings are non-injective, fiber_count < 1024;
+    - report all other cells separately;
+    - if too few independent blocks remain, report descriptively without a
+      significance claim.
+
+    For each E1 clause:
+    CONFIRMED means a positive primary normalized log-loss contrast with
+    one-sided BH-adjusted q < 0.05 and a Brier contrast in the same direction.
+    PARTIALLY SUPPORTED means the primary estimate is positive but q >= 0.05
+    while raw log-loss and normalized Brier contrasts have the same positive
+    direction.
+    NOT SUPPORTED means the primary normalized estimate is non-positive or the
+    principal risk measures are materially directionally inconsistent.
+
+    These classifications are outcome summaries, not validity gates. Null or
+    reversed findings must be retained.
+
+    D17 — ACCEPT.
+    Evaluate AD1 and AD2 using the independent
+    sim1_core.reference_gap_report implementation. Use a deterministic sample
+    covering all 48 scenarios and all 13 encoder configurations at one frozen
+    replicate per scenario, at minimum 624 reference cells. Persist production
+    and reference log-loss/Brier gaps and their identity errors.
+
+    D18 — ACCEPT.
+    Before any full addendum cell is retained:
+    - create scripts/run_sim1b_dense_addendum.py;
+    - make the runner the single source of truth for the seed rule;
+    - make the tests import that rule;
+    - rerun AT1-AT16 against the real runner;
+    - cover n_train=500 and n_train=5000;
+    - emit a typed row for every attempted cell;
+    - prohibit silent continue on setup exceptions;
+    - require NULL metrics on non-success rows;
+    - label exact population quantities as exact rather than mc;
+    - record fiber_count, collision_count, and occupied_buckets where applicable.
+
+    Create a separate immutable ruling file:
+
+      simulation-results-ct2i/
+      01B_ADDENDUM_ADVISOR_RULINGS.yaml
+
+    Do not overwrite or erase the A0 freeze or council record. The A1 runner
+    must reference both 01A_ADDENDUM_PROTOCOL_FREEZE.yaml and
+    01B_ADDENDUM_ADVISOR_RULINGS.yaml.
+
+    Also correct the minor verified issues:
+    - make the n=500 nesting test exercise the real runner;
+    - prevent setup exceptions from disappearing;
+    - correct exact_or_mc labels;
+    - correct the small resource-ratio rounding discrepancies;
+    - clearly distinguish executed rows from successful rows.
+
+    Use Claude Octopus with Claude as host, Codex for implementation/numerical
+    verification, and Gemini for independent scientific review.
+
+    Phase A0.1 may write the amendment, runner, tests, and validation reports,
+    but it must run ZERO full addendum cells.
+
+    Required A0.1 outputs:
+
+      01B_ADDENDUM_ADVISOR_RULINGS.yaml
+      scripts/run_sim1b_dense_addendum.py
+      tests updated to import the runner seed rule
+      S0B_ADVISOR_RULING_IMPLEMENTATION_REPORT.md
+      S0B_RUNNER_TEST_REPORT.md
+      S0B_REFERENCE_IMPLEMENTATION_TEST_REPORT.md
+      S0B_COUNCIL_REVIEW.md
+      S0B_RESOURCE_CONFIRMATION.csv
+      S0B_FINAL_GATE_REPORT.md
+
+    Print exactly:
+
+    CT2I ADDENDUM A0.1 STATUS: <COMPLETE|BLOCKED>
+    FULL ADDENDUM CELLS RUN: 0
+    REAL-DATA MODELS RUN: 0
+    GPU HOURS USED: 0
+    D13 BLOCK-CLUSTERED INFERENCE: <PASS|FAIL>
+    D14 DENSE-SIGNAL INTERPRETATION FROZEN: <PASS|FAIL>
+    RAW AND SIGNAL-NORMALIZED ESTIMANDS FROZEN: <PASS|FAIL>
+    D15 RAW MANIFEST COVERAGE: <PASS|FAIL>
+    D16 E1 CLAUSES AND DECISION RULES: <PASS|FAIL>
+    D17 INDEPENDENT REFERENCE CHECK: <passed/required>
+    D18 REAL A1 RUNNER GATE: <PASS|FAIL>
+    TYPED FAILURE TESTS: <passed/collected>
+    N500 AND N5000 RUNNER TESTS: <PASS|FAIL>
+    EXACT_OR_MC LABEL TEST: <PASS|FAIL>
+    FULL TEST SUITE: <passed/collected>
+    PROJECTED A1 CPU CORE-HOURS: <value>
+    CRITICAL VETO COUNT: <n>
+    NEXT ACTION: WAIT FOR ADVISOR APPROVAL BEFORE FULL A1 EXECUTION
+
+    Stop after this block. Do not run Phase A1.
+
+# -----------------------------------------------------------------------------
+# Structured rulings D13-D18
+# -----------------------------------------------------------------------------
+rulings:
+
+  D13:
+    title: "Inference unit for AC-D and every addendum contrast"
+    status: PREMISE_REFUTED_ADVISOR_RULING_REQUIRED
+    status_history:
+      - "2026-08-21 — ACCEPTED_ADVISOR_RULING (as ruled)."
+      - "2026-08-24 — PREMISE_REFUTED_ADVISOR_RULING_REQUIRED (AMENDMENT-3). The factual premise on which the ruling rests was tested and is false. The ruling TEXT below is preserved unedited; it is annotated, not rewritten. See premise_refuted_at_A0_1 and advisor_confirmation_requested.Q6."
+    status_meaning: >
+      D13 is NOT withdrawn, NOT relaxed and NOT silently overridden. It is
+      flagged as resting on a false factual premise and is returned to the
+      advisor. Until he rules, no A1 inference may be run under EITHER scheme:
+      the ruling as written is known to be wrong in premise, and the corrected
+      scheme is not yet ruled. This is the only open item in this file that
+      blocks A1 inference outright.
+    replaces_in_01A:
+      - "seeds.pairing_consequence.uncertainty_instruction_superseded.withdrawn_text (sd/sqrt(48), n=48) — already WITHDRAWN in 01A, now PROHIBITED by ruling"
+      - "contrast.uncertainty.corrected_at_A0_council_review — 01A adopted this as a correction the advisor MAY override; the advisor ACCEPTED it, so it is no longer overridable"
+      - "decisions.D13.status ADOPTED_AS_A_CORRECTION_ADVISOR_MAY_OVERRIDE -> ACCEPTED_ADVISOR_RULING (further amended 2026-08-24 to PREMISE_REFUTED_ADVISOR_RULING_REQUIRED by AMENDMENT-3)"
+      - correction_by_reference:
+          added_by: AMENDMENT-3
+          date: 2026-08-24
+          why_by_reference: "01A_ADDENDUM_PROTOCOL_FREEZE.yaml is IMMUTABLE (prohibition PR2). It is NOT edited. The correction is recorded here and 01B governs the inference scope by the authority split in provenance."
+          sites:
+            - site: "01A_ADDENDUM_PROTOCOL_FREEZE.yaml:362-366"
+              key: "seeds.pairing_consequence.uncertainty_instruction_superseded.why_withdrawn"
+              text_as_frozen: >
+                "The 48 scenario pairs are NOT 48 independent parameter draws:
+                the block key excludes delta_eta and n_train, so they cluster
+                into 8 blocks of 6."
+              what_is_wrong: >
+                The first clause is TRUE. The second clause does not follow and
+                is FALSE as a statement about parameter draws. Excluding
+                delta_eta and n_train makes the 6 scenarios at a fixed (block,
+                replicate) share ONE draw; it does not make the 50 replicates
+                share one. There are 8 x 50 = 400 draws, in 400 clusters of 6.
+              corrected_text: >
+                "The 48 scenario pairs are NOT 48 independent parameter draws:
+                the block key excludes delta_eta and n_train, so the 6 scenarios
+                sharing a given (block, replicate) share ONE parameter draw.
+                There are 8 x 50 = 400 independent parameter draws per arm,
+                clustered as 400 groups of 6."
+            - site: "01A_ADDENDUM_PROTOCOL_FREEZE.yaml:411-417"
+              key: "contrast.uncertainty (the WITHDRAWN BY D13 paragraph)"
+              text_as_frozen: >
+                "The 48 scenarios are NOT 48 independent parameter draws: the
+                block key excludes delta_eta and n_train, so they cluster into
+                2 marginals x 2 tau x 2 interaction_pairs = 8 blocks of 6
+                scenarios each. Verified at A0 on the frozen twin:
+                df[(df.M==5)&(df.K==4)].seed.nunique() == 400 == 8 blocks x 50
+                replicates."
+              what_is_wrong: >
+                The cited evidence is offered in support of "only 8 draws" and
+                in fact REFUTES it. `seed.nunique() == 400` counts 400 DISTINCT
+                DGP SEEDS, and a distinct seed is a distinct parameter draw
+                (sim1_core.draw_params reseeds `np.random.default_rng(seed)` on
+                every call). It is a measurement of 400 draws, read backwards.
+              corrected_text: >
+                "Verified at A0.1 by regenerating parameters: seed.nunique() ==
+                400 counts 400 DISTINCT PARAMETER DRAWS, one per (block,
+                replicate). The 8 blocks are a complete 2 x 2 x 2 enumeration of
+                FIXED design factors, not a sample of 8 random draws."
+              what_still_stands: >
+                The paragraph's narrow conclusion — that sd/sqrt(48) understates
+                the standard error because the 48 scenario means are clustered —
+                STANDS. Only the size and identity of the cluster change.
+              also_needing_re_derivation: >
+                The same paragraph's "one seat measured a 2.4x understatement on
+                an exact population probe" is a number derived under the refuted
+                premise and must be re-derived under the corrected unit before
+                it is quoted again.
+    operative_rule: >
+      The inferential unit for every addendum quantity is the independent
+      parameter-draw BLOCK. There are exactly 8 blocks. Every standard error,
+      confidence interval, p-value and q-value is computed over the 8 block
+      means with 7 degrees of freedom, cluster-robust at the block level. Every
+      bootstrap resamples BLOCKS.
+    inference_unit: parameter_draw_block
+    n_blocks: 8
+    degrees_of_freedom: 7
+    block_key: "(M, K, marginal, tau, interaction_pairs)"
+    block_key_source: "01A seeds.block_key (line 293) and tests/test_a0_dense_addendum_properties.py:77-83 addendum_block()"
+    factors_excluded_from_the_block_key: [delta_eta, n_train]
+    block_count_derivation: >
+      M and K are fixed at 5 and 4 in the whole addendum, so the block key
+      varies over marginal (2) x tau (2) x interaction_pairs (2) = 8. The 48
+      scenarios are 8 blocks x 6 scenarios (3 delta_eta x 2 n_train).
+    block_count_verified_at_A0_1:
+      method: >
+        Enumerated addendum_block() over the full frozen factor grid with the
+        pyenv interpreter /Users/Eric/.pyenv/versions/3.11.9/bin/python3;
+        no addendum cell was executed.
+      scenarios_enumerated: 48
+      distinct_blocks: 8
+      distinct_addendum_seeds_over_8_blocks_x_50_replicates: 400
+      corroborating_frozen_twin: >
+        05b_SIM1B_REPLICATE_RESULTS.parquet at M=5, K=4 carries
+        seed.nunique() == 400 and replicate values 1..50, i.e.
+        400 = 8 blocks x 50 replicates. Read-only check.
+      corroborating_frozen_twin_MISREAD_CORRECTED_BY_AMENDMENT_3: >
+        WITHDRAWN AS SUPPORT FOR "8 DRAWS" (2026-08-24). The sentence above is
+        factually true and its inference is backwards. `seed.nunique() == 400`
+        is the count of DISTINCT DGP SEEDS; `sim1_core.draw_params` reseeds
+        `np.random.default_rng(seed)` on every call, so 400 distinct seeds are
+        400 distinct parameter draws. Re-measured at A0.1: the 400 addendum
+        seeds produce 400 DISTINCT (a, b) byte signatures, zero collisions.
+        This line is evidence FOR 400 draws and AGAINST 8, and it may not be
+        cited in support of the 8-block inferential unit.
+
+    # ---------------------------------------------------------------------
+    # AMENDMENT-3 (2026-08-24) — the factual premise of D13, tested.
+    # ---------------------------------------------------------------------
+    premise_refuted_at_A0_1:
+      added_by: AMENDMENT-3
+      date: 2026-08-24
+      addendum_cells_executed_by_this_check: 0
+      interpreter: /Users/Eric/.pyenv/versions/3.11.9/bin/python3
+      method: >
+        Regenerated DGP parameters only, through the PRODUCTION seed rule
+        imported from scripts/run_sim1b_dense_addendum.py (addendum_block,
+        addendum_seed) and the production draw
+        (sim1_core.draw_params(..., d_active=5)). No simulation was run, no
+        result row was produced, no file in the repository was read for data.
+      the_premise_as_the_advisor_received_it: >
+        That the DGP parameter arrays `a` (main effects) and `b` (interactions)
+        are drawn ONCE PER BLOCK and REUSED across that block's 50 replicates,
+        so that the 48 scenarios rest on only 8 independent parameter draws and
+        the block mean is the smallest independent unit. This premise is stated
+        in the runner docstring, in 01A:362-366 and 01A:411-417, in the S0A
+        council record, and it is what "8 independent parameter-draw blocks"
+        in the ruling refers to.
+      verdict: FALSE
+      the_fact: >
+        Parameters are drawn AFRESH FOR EVERY REPLICATE. The replicate index is
+        folded into the DGP seed and the draw happens inside the replicate loop.
+        There are 400 independent parameter draws per arm (8 blocks x 50
+        replicates). The cluster is (block, replicate) — 400 clusters of size 6
+        — not block.
+      code_path:
+        note: >
+          Line numbers are as of 2026-08-24 and a sibling A0.1 work item is
+          concurrently editing the runner and the tests; the FUNCTION and TEST
+          NAMES are the authoritative references.
+        loci:
+        - locus: "scripts/run_sim1b_dense_addendum.py:316-327 — addendum_seed(block, replicate)"
+          establishes: "seed = SEED_BASE_1BD + 1000*(blake2b(repr(block)) % 1e6) + int(replicate). The REPLICATE IS ADDED INTO THE SEED. One distinct seed per (block, replicate)."
+        - locus: "scripts/run_sim1b_dense_addendum.py:394 — addendum_scenarios()"
+          establishes: "each scenario carries seeds=[addendum_seed(blk, r) for r in 1..50], i.e. 50 DISTINCT seeds per scenario, not one."
+        - locus: "scripts/run_sim1b_dense_addendum.py:998 — `for rep, seed in enumerate(seeds, 1):`"
+          establishes: "the replicate loop."
+        - locus: "scripts/run_sim1b_dense_addendum.py:1002 — `prm = CORE.draw_params(M, K, ..., seed, d_active=D_ADD)`"
+          establishes: "DECISIVE. draw_params is called INSIDE the replicate loop with the replicate-varying seed. The parameter draw is per replicate, by construction."
+        - locus: "src/ct2i_benchmark/simulations/sim1_core.py:132-153 — draw_params()"
+          establishes: "`rng = np.random.default_rng(seed)`; `a = rng.standard_normal((d,K))`; one `rng.standard_normal((K,K))` per interaction pair. A different seed therefore gives a different a and b. There is no caching and no per-block memoisation anywhere in the path."
+        - locus: "src/ct2i_benchmark/simulations/sim1_core.py:471-482 — dgp_block_seed()"
+          establishes: "the FROZEN d=3 partner arm uses the identical construction, SEED_BASE[c] + 1000*(h % 1e6) + int(replicate). The same conclusion holds for the arm already on disk."
+        - locus: "tests/test_a0_dense_addendum_properties.py — TestAddendumBlockPairingPreserved::test_replicate_still_varies_the_draw"
+          establishes: "the repository's OWN frozen property test asserts `not np.array_equal(p1.a, p2.a)` for replicates 1 and 2 of the same block. The codebase already encoded the refutation of D13's premise, in the same test class as the pairing invariant D13 correctly relies on."
+      measured_at_A0_1:
+        q1_within_block_across_replicate:
+          question: "are a and b identical across replicates within a block?"
+          answer: "NO. Never."
+          coverage: "56 within-block replicate pairs = ALL 8 blocks x 7 pairs {(1,2),(1,3),(2,3),(1,50),(25,26),(7,8),(49,50)}"
+          min_max_abs_delta_a: 1.5211429810022610
+          max_max_abs_delta_a: 4.5610643088552312
+          pairs_with_max_abs_delta_a_exactly_zero: "0 / 56"
+          note_on_b: >
+            max|db| is 0.000000 in the interaction_pairs = 0 blocks because no
+            interaction array exists there. Wherever b exists it differs too
+            (measured range over the four n_int = 3 blocks: 2.076159 to
+            5.397464).
+        q2_distinct_draws:
+          distinct_blocks: 8
+          distinct_addendum_seeds: 400
+          distinct_a_b_byte_signatures: 400
+          scenarios: 48
+          reading: "400 seeds -> 400 distinct parameter sets, zero collisions, zero reuse."
+      what_survives:
+        - claim: "sd/sqrt(48), and any per-scenario denominator, UNDERSTATES the standard error."
+          status: STANDS
+          why: >
+            The 48 scenario means ARE clustered — 6 scenarios share every
+            parameter draw — so a denominator of 48 counts each draw six times.
+            The direction of the A0 council's C2 finding is correct.
+        - claim: "prohibited_procedures P13a, P13b and P13e."
+          status: STANDS
+          why: "None of them depends on the number of draws being 8."
+        - claim: "the block key's EXCLUSION of delta_eta and n_train is correct and load-bearing."
+          status: STANDS_AND_IS_CONFIRMED_BY_MEASUREMENT
+          why: "see what_the_block_key_DOES_buy below"
+        - claim: "the mandatory per-quantity disclosure of effective n and duplicated conditions."
+          status: STANDS
+          why: >
+            Independent of the unit; only the FIELD NAMES change if the unit
+            changes (effective_n_draws alongside effective_n_blocks).
+      what_does_NOT_survive:
+        - "the premise that there are 8 independent parameter draws — there are 400"
+        - "inference_unit: parameter_draw_block, n_blocks: 8, degrees_of_freedom: 7 — as a statement of FACT about the draws. As a deliberate GENERALIZATION CHOICE it remains available to the advisor, but it must be re-stated as such (see Q6)."
+        - "block_count_verified_at_A0_1.corroborating_frozen_twin as SUPPORT for the 8-draw premise — it is evidence of 400 draws"
+        - "aggregation_order step 1 as written (`average replicates WITHIN a scenario`) — under the corrected unit this destroys the 400 independent units before they can be used; the 6 scenarios within a draw must be collapsed first"
+        - "bootstrap.resampled_unit: block — 8 units admit at most 8^8 distinguishable resamples and give a percentile interval no usable tail resolution; B = 2000 over 8 units is false precision"
+        - "prohibited_procedures P13c and P13d AS READ. P13c ('the 2,400 replicates are not independent units') is CORRECT AS LITERALLY WORDED, because 2400 != 400 — six scenarios share each draw. It is being READ as 'replicates are not independent', which is false: replicates ARE independent draws. P13d must be narrowed: a bootstrap over draw-level collapsed values, stratified within block, is valid."
+    what_the_block_key_DOES_buy:
+      added_by: AMENDMENT-3
+      statement: >
+        The block key's exclusion of delta_eta and n_train is CORRECT, is the
+        pairing that criterion A8 depends on, and is confirmed exactly. It buys
+        one thing and only one thing: at a fixed (block, replicate), the 3
+        delta_eta levels and the 2 n_train levels share ONE parameter draw, bit
+        for bit.
+      measured_at_A0_1:
+        delta_eta:
+          cells: "40 = 8 blocks x replicates {1, 2, 3, 17, 50}, comparing all 3 levels (0.0, 0.1, 0.3)"
+          max_abs_delta_a: 0.0
+          max_abs_delta_b: 0.0
+          exactly_zero: true
+        n_train:
+          finding: "n_train does not enter the block key or the seed AT ALL"
+          check: "over all 8 x 3 = 24 (block, delta_eta) groups, the number of groups whose 50-seed vector DIFFERS between n_train = 500 and n_train = 5000 is 0"
+          max_abs_delta_a: 0.0
+          max_abs_delta_b: 0.0
+          exactly_zero: true
+      consequence: >
+        This is a statement about the CLUSTER (6 scenarios share a draw). It is
+        not, and never was, a statement about the NUMBER of draws. D13 inferred
+        the second from the first.
+    corrected_inferential_unit_proposed:
+      added_by: AMENDMENT-3
+      status: PROPOSED_NOT_OPERATIVE_PENDING_ADVISOR_RULING_Q6
+      unit: "the parameter draw, indexed by (block, replicate)"
+      n_per_arm: 400
+      cluster_size: 6
+      cluster_content: "the 6 scenarios sharing that draw = 3 delta_eta x 2 n_train"
+      block_status: FIXED_EFFECT
+      why_block_is_fixed: >
+        MARGINALS x TAUS x N_INTS is a COMPLETE, exhaustively enumerated 2 x 2 x 2
+        factorial (scripts/run_sim1b_dense_addendum.py:277-279). It is not a
+        random sample from a population of blocks. Between-block spread is
+        DESIGNED HETEROGENEITY, not sampling error. This is the A0 council's own
+        argument: S0A_ADDENDUM_COUNCIL_REVIEW.md:229 states that "sd across a
+        fixed, exhaustively enumerated factorial grid is designed heterogeneity,
+        not Monte Carlo error; calling it MCSE mislabels it." That sentence is
+        correct, and it applies verbatim one level up, to the 8 block means.
+      degrees_of_freedom: "~392 per arm (400 draws minus 8 fixed block effects)"
+      arm_independence: >
+        The two arms use disjoint seed bases (01A seeds.disjointness,
+        pairing_level condition_not_replicate), so the arms are independent at
+        replicate level and the difference of arm means has df of order several
+        hundred (Welch), not 7.
+      proposed_aggregation_order: >
+        1. within each (block, replicate), average the 6 scenario values (or the
+           matched subset being combined) — THIS is the cluster collapse, and it
+           removes the only real dependence;
+        2. form the matched d=5 minus d=3 difference at draw level;
+        3. treat marginal, tau, interaction_pairs, delta_eta and n_train as
+           FIXED effects; the replicate draw is the only random component;
+        4. SE and interval from the 400 draw-level values with block as a fixed
+           effect, df ~ 392.
+      proposed_bootstrap: "resample DRAWS WITHIN BLOCK (stratified), not blocks; B and seed unchanged."
+    consequences_if_D13_is_implemented_as_written:
+      added_by: AMENDMENT-3
+      c1_magnitude:
+        statement: "SE over 8 block means runs 10-20x larger than SE over 400 draws, and ~385 df of real information are discarded."
+        variance_identity: "SE_D13^2 = (sigma^2_fixed + sigma^2_noise) / 8 >= sigma^2_noise / 8"
+      c2_between_block_variance_share:
+        amended_by: AMENDMENT-5
+        the_three_numbers_are_three_different_quantities: >
+          THREE figures for "the between-block variance share" are on the
+          record. All three were re-measured at A0.1 and ALL THREE REPRODUCE
+          EXACTLY. They are not competing measurements of one quantity and must
+          never be presented as though they were. One command prints all of
+          them: `PYTHONPATH=src /Users/Eric/.pyenv/versions/3.11.9/bin/python3
+          scripts/s0b_d13_premise_probe.py --section variance --reps 50`
+          (about 5 s; fits no learner; executes zero addendum cells).
+        corrected_fixed_factor_share:
+          value: "55.1%"
+          this_is_the_number_to_QUOTE: true
+          estimand: >
+            METHOD A, collapse-first. Unit: the 8 block-mean d=5 minus d=3
+            contrasts in relative_log_gap (hash_shared, B0), computed EXACTLY
+            from the 1024-state cell law. Var over the 8 block means is split
+            into a draw-noise component, estimated from the within-block
+            replicate variance of each arm, and a fixed-factor remainder. The
+            three delta_eta levels are COLLAPSED WITHIN A DRAW FIRST, then the
+            draw is varied.
+          components: "SD of the 8 block-mean contrasts 0.028494; mean within-block draw SE of a block mean 0.019098; implied fixed-factor SD 0.021147"
+          block_means: "[0.0249, -0.01195, -0.01636, -0.01835, -0.00501, -0.01289, -0.07718, -0.02834]"
+          command: "scripts/s0b_d13_premise_probe.py --section variance --reps 50"
+          provenance_document: S0B_D13_PREMISE_INVESTIGATION.md
+          answers: >
+            The question D13 actually turns on — how much of the between-block
+            spread is designed heterogeneity rather than sampling error? Roughly
+            half.
+        method_b_frozen_twin_range:
+          measured_range: "14.9% to 56.8%"
+          estimand: >
+            A DIFFERENT quantity from the 55.1% above: the 48 scenario-level
+            means of a Monte-Carlo OUTCOME COLUMN on the frozen d=3 twin,
+            between-block variance divided by total variance about the grand
+            mean, with NO draw-noise subtraction. It is an upper bound on
+            between-block spread of a different quantity.
+          measured_on: "the FROZEN d=3 twin (05b_SIM1B_REPLICATE_RESULTS.parquet), read-only, varying by encoder/learner/quantity"
+          examples:
+            - "target/logistic, representation_loss: 17.6% between-block; SE(8 blk)/SE(48 scen) = 1.09"
+            - "target/logistic, total_excess_risk: 56.8%; ratio 1.95"
+            - "label/logistic, total_excess_risk: 44.8%; ratio 1.73"
+            - "hash_shared/lightgbm, representation_loss: 52.9%; ratio 1.89"
+            - "onehot/mlp, total_excess_risk: 14.9%; ratio 1.00"
+          do_not_quote: >
+            The two representation_loss rows at ~1e-19 (label, one-hot) are
+            numerical dust — both encoders are injective, so the representation
+            loss is identically zero — and their shares are meaningless.
+        disputed_number_82_percent:
+          claim_as_reported: "an earlier council seat (statistical validity, MAJOR-1) reported that 82% of the clustered variance is fixed-factor heterogeneity."
+          status: REPRODUCED_BUT_SUPERSEDED_BY_A_CORRECTED_FORMULA
+          status_before_AMENDMENT_5: UNREPRODUCED
+          why_the_earlier_status_was_wrong: >
+            The UNREPRODUCED verdict was reached with METHOD B, against a figure
+            produced by METHOD A. It was a method mismatch, not a numerical
+            disagreement. The figure was neither fabricated nor measured on a
+            different quantity than claimed.
+          reproduced_value: "81.7%, exactly, under the seat's own formula (method A, delta-independent variant)"
+          the_actual_defect: >
+            The as-published draw-variance formula DIVIDES the within-block draw
+            variance by the 3 delta_eta levels, i.e. it treats those three levels
+            as three independent replicates. They SHARE ONE PARAMETER DRAW BIT
+            FOR BIT — measured at max|delta_a| = max|delta_b| = EXACTLY 0.0 over
+            80 comparisons (S0B_D13_PREMISE_INVESTIGATION.md section 4.2, and
+            a0_1_verification.V11). That division is therefore not available: it
+            understates draw noise and inflates the fixed-factor share. Correct
+            that one line and the same script, same data, same estimand returns
+            55.1%.
+          rule: >
+            Quote 55.1% for the fixed-factor share, with the command above.
+            Quote 81.7% ONLY as "the earlier figure, under a draw-variance
+            formula refuted by the shared-draw measurement" — never as the share
+            itself. Quote 14.9-56.8% only as method B, naming its estimand. The
+            DIRECTION of the seat's argument (a large share of the
+            block-clustered variance is fixed-factor heterogeneity) is CONFIRMED
+            at 55.1%.
+          erratum_sites_not_edited: >
+            S0B_COUNCIL_REVIEW.md is a FROZEN VERBATIM RECORD of what four seats
+            said and is NOT edited. Its S-M1 row and its section 5 record the 82%
+            figure as "not reproduced". That reading is corrected by ERRATUM E-1
+            in S0B_FINAL_GATE_REPORT.md section 6.3, which names those sites.
+            What the seat said stands as said.
+      c3_conservatism_is_not_safe_here:
+        statement: >
+          D13's SE is conservative in MAGNITUDE, and conservatism is NOT the safe
+          choice under these decision rules, because D16's E1 clauses are
+          ONE-SIDED GREATER tests (D16.common_statistic.directionality, inherited
+          from 01A expectations.E1.directionality). An inflated SE makes a NULL
+          outcome spuriously easy to obtain, and
+          D16.outcome_classifications turns null outcomes into REPORTED
+          CONCLUSIONS (NOT SUPPORTED / PARTIALLY SUPPORTED). Under D13 as
+          written, the addendum would manufacture false nulls in exactly the
+          direction the pre-registered expectations are about.
+        rule: >
+          "Conservative" must not be used in this file, in the A1 reports or in
+          the manuscript as a justification for D13's unit without this sentence
+          attached.
+      c4_E1c_incoherence:
+        statement: >
+          D16 E1c restricts the primary analysis to matched conditions in which
+          both mappings are non-injective (fiber_count < 1024). D16 itself records
+          that this is "a random sampling-tie event depending on replicate and on
+          n_train" (E1c.non_emptiness_verified.full_context). The restriction is
+          therefore defined PER (block, replicate, scenario). Under D13's collapse
+          to 8 block means the restriction CANNOT be applied coherently: a block
+          mean mixes cells that satisfy and cells that fail the restriction, and
+          E1c's low_power_fallback (frozen_threshold_effective_blocks_min = 4)
+          can fire for a purely artefactual reason — because there are only 8
+          units to begin with, not because the stratum is thin.
+        consequence: "correcting D13 to the draw level also repairs E1c. E1c's own rule text is NOT changed by this amendment."
+    aggregation_order: >
+      1. average replicates WITHIN a scenario;
+      2. form the matched d=5 minus d=3 difference per scenario pair;
+      3. average scenario-pair differences WITHIN a block, giving 8 block means;
+      4. compute the point estimate, the cluster-robust SE and the t interval on
+         those 8 block means with 7 df.
+    bootstrap:
+      kind: block_resampling_paired_percentile
+      resampled_unit: block
+      B: 2000
+      seed: 90210
+      note: "B and seed inherited from 01A contrast.uncertainty.bootstrap; unchanged."
+    prohibited_procedures:
+      - id: P13a
+        prohibited: "sd/sqrt(48) or any per-scenario denominator, for any quantity, anywhere"
+        reason: "anti-conservative; the 48 scenarios span only 8 parameter draws"
+      - id: P13b
+        prohibited: "treating the 48 scenarios as independent inferential units"
+      - id: P13c
+        prohibited: "treating the 2,400 replicates (48 scenarios x 50) as independent inferential units"
+      - id: P13d
+        prohibited: "any i.i.d. bootstrap over scenario pairs or over replicates"
+      - id: P13e
+        prohibited: "labelling the spread across the fixed factor grid as MCSE; it is condition_spread (01A contrast.uncertainty.mcse_naming_caveat)"
+    mandatory_disclosure_per_reported_quantity:
+      rule: >
+        EVERY reported quantity — in the acceptance report, the validation
+        report, every table and every figure caption — must state (i) its
+        effective number of blocks and (ii) its duplicated conditions. Neither
+        may be assumed, inferred by the reader, or omitted because it equals the
+        nominal value.
+      required_fields:
+        - effective_n_blocks          # integer, after removing duplicated/degenerate conditions
+        - effective_n_scenario_pairs  # integer, after removing duplicated conditions
+        - duplicated_conditions       # explicit description, or the string "none"
+        - degrees_of_freedom          # effective_n_blocks - 1
+      known_duplications_inherited_from_01A:
+        - what: "representation loss is EXACTLY invariant to n_train for the deterministic encoders (label, onehot, hash_shared, homals); measured max|rep_loss(n=500) - rep_loss(n=5000)| == 0.0 on the frozen twin"
+          consequence: "24 of the 48 scenario pairs are literal duplicates; effective_n_scenario_pairs = 24 for those encoders BEFORE clustering"
+          source: "01A contrast.uncertainty.duplicate_pairs_disclosure"
+        - what: "hash_shared representation loss is IDENTICAL across bucket widths B0/B1/B2; measured max|B0-B1| == max|B0-B2| == 0.0 on the frozen twin"
+          consequence: "the three hash_shared width contrasts are ONE piece of evidence, not three; see D16 E1a"
+          source: "01A contrast.uncertainty.degenerate_bucket_widths_disclosure"
+      failure_mode_if_omitted: >
+        A quantity reported without its effective block count and its duplicated
+        conditions is non-conforming and must not be quoted in the manuscript.
+
+  D14:
+    title: "Signal-strength confound — OPTION 1 accepted with a narrowed interpretation"
+    status: ACCEPTED_ADVISOR_RULING
+    replaces_in_01A:
+      - "decisions.D14.status UNRESOLVED_ADVISOR_RULING_REQUIRED -> RESOLVED: option_1"
+      - "disclosed_confound_signal_strength.advisor_options_at_the_A0_gate — option_2 and option_3 are now CLOSED and may not be revisited"
+    adopted_option: 1
+    operative_rule: >
+      Keep the inherited d=5 DGP UNCHANGED. Do NOT divide tau by sqrt(d). Do NOT
+      add a third signal-matched arm. Report BOTH raw absolute risk gaps AND
+      signal-normalized gaps. Frame the arm as a DENSE-SIGNAL STRESS TEST.
+    explicitly_closed_options:
+      option_2_normalise_tau_by_sqrt_d: CLOSED_FORBIDDEN
+      option_3_signal_matched_third_arm: CLOSED_FORBIDDEN
+    dgp_status: "01A design block unchanged; d_active = 5, tau in {0.5, 1.5} exactly as frozen"
+
+    framing_token:
+      frozen_token: DENSE_SIGNAL_STRESS_TEST
+      usage: >
+        This token, or its plain-language expansion "dense-signal stress test",
+        is the ONLY permitted framing of the addendum arm in the acceptance
+        report, the validation report, figure captions, table notes and the
+        manuscript.
+      forbidden_labels:
+        - "pure dimensionality effect"
+        - "pure dimensionality experiment"
+        - "pure dimensionality"
+      conditionally_forbidden_labels:
+        - label: "dimensionality effect"
+          forbidden_unless: "the same sentence, caption or table note carries BOTH the signal-normalized companion quantity AND the C1/C2/C3 confound disclosure"
+      forbidden_label_scope: "every A1 output, every figure caption, every table note, and the manuscript"
+      enforcement: >
+        A string check for the forbidden phrases over all A1 text outputs is part
+        of the D18 gate (see new_acceptance_criteria.AD15 item 11).
+
+    estimands:
+      raw:
+        log: "R_log*(Z) - R_log*(X)"
+        brier: "R_Brier*(Z) - R_Brier*(X)"
+        status: PRIMARY_ALWAYS_REPORTED
+      normalized:
+        relative_log_gap:
+          formula: "(R_log*(Z) - R_log*(X)) / (H(Y) - R_log*(X))"
+          numerator: "R_log*(Z) - R_log*(X)"
+          denominator: "H(Y) - R_log*(X)"
+          denominator_meaning: "the total log-loss signal available in X, in nats: the binary entropy of the marginal P(Y=1) minus the Bayes log-loss risk given X"
+          units: dimensionless
+        relative_brier_gap:
+          formula: "(R_Brier*(Z) - R_Brier*(X)) / Var{eta(X)}"
+          numerator: "R_Brier*(Z) - R_Brier*(X)"
+          denominator: "Var{eta(X)}"
+          denominator_meaning: "the variance of the conditional probability eta(X) = P(Y=1|X) under the exact cell law"
+          units: dimensionless
+        status: PRIMARY_FOR_D16_DECISION_RULES_AND_SENSITIVITY_ELSEWHERE
+
+    eta_is_a_probability_not_a_linear_predictor:
+      why_this_block_exists: >
+        A future implementer reading "Var{eta(X)}" may assume eta is the linear
+        predictor and "correct" the Brier normaliser to Var(g). That correction
+        would be WRONG in this codebase. This block records the verified fact so
+        the mistake cannot be made silently.
+      verified_fact: >
+        In this codebase `sim1_core.eta_raw` returns 1/(1+exp(-tau*g)), i.e. eta
+        IS the conditional probability P(Y=1|X), NOT a linear predictor.
+      evidence:
+        - "src/ct2i_benchmark/simulations/sim1_core.py:156-162 — def eta_raw(...); docstring 'logistic(g(x)) on the active block; beta0 = 0'; final statement `return 1.0 / (1.0 + np.exp(-prm.tau * g))`"
+        - "src/ct2i_benchmark/simulations/sim1_core.py:256-259 — def bayes_risks_x(p_cell, eta) returns (sum p*H_b(eta), sum p*eta*(1-eta)), i.e. R_Brier*(X) = E[eta(1-eta)]"
+      consequence: >
+        Var{eta(X)} is the CORRECT Brier-scale normaliser and satisfies the exact
+        identity Var{eta(X)} = Var(Y) - R_Brier*(X), where Var(Y) = p(1-p) with
+        p = E[eta(X)] and R_Brier*(X) = E[eta(1-eta)].
+      identity_confirmed_numerically_at_A0_1:
+        interpreter: /Users/Eric/.pyenv/versions/3.11.9/bin/python3
+        scope: "all 24 (marginal x tau x interaction_pairs x delta_eta) parameter draws at M=5, K=4, d_active=5, replicate 1, exact 1024-state enumeration"
+        max_abs_residual_var_eta_identity: 1.1102230246251565e-16
+        max_abs_residual_brier_risk_definition: 0.0
+        addendum_cells_executed_by_this_check: 0
+      do_not_correct: >
+        Any future edit replacing Var{eta(X)} with the variance of a linear
+        predictor, or with Var(Y), is a defect, not a correction.
+
+    denominator_tolerance:
+      frozen_value: 1.0e-6
+      applies_to: [relative_log_gap.denominator, relative_brier_gap.denominator]
+      rule: >
+        If |denominator| < 1.0e-6, the normalized quantity is recorded as
+        NOT_IDENTIFIED. NOT_IDENTIFIED is never coerced to 0, never dropped
+        silently, never imputed, and never averaged in as any finite value.
+        NOT_IDENTIFIED cells are counted and reported separately, and their count
+        is subtracted from the effective n of every quantity that uses them.
+      justification_one_line: >
+        Reuses the inherited tolerances.positive_gap_min = 1.0e-6
+        (01_PROTOCOL_FREEZE.yaml:527) — the frozen threshold at which a gap is
+        "clearly above numerical noise" — because both denominators ARE
+        strictly-positive gap quantities of exactly that kind, so no new
+        tolerance constant is introduced into the freeze.
+      headroom_measured_at_A0_1: >
+        Over the same 24-draw exact grid at d=3 and d=5 (96 denominator values):
+        min (H(Y) - R_log*(X)) = 0.00786, max = 0.15314;
+        min Var{eta(X)} = 0.00390, max = 0.06728. The smallest observed
+        denominator is ~3.9e3 times the tolerance, so NOT_IDENTIFIED is expected
+        to be empty in practice; it is frozen as a guard, not as a live branch.
+      not_identified_is_not_a_failure: >
+        NOT_IDENTIFIED on a normalized quantity does not make the cell a failed
+        cell. The raw gap for that cell is still reported.
+
+    stratified_reporting:
+      rule: "interaction_pairs = 0 and interaction_pairs = 3 are reported SEPARATELY, never pooled into a single headline number."
+      applies_to: [raw estimands, normalized estimands, every D16 clause, every figure panel, every table]
+      pooled_number_permitted_only_if: "the pooled number is accompanied, in the same table or caption, by both strata"
+
+    mandatory_confound_disclosure:
+      rule: >
+        All THREE confounds are RETAINED and PROMINENTLY DISCLOSED wherever a
+        d=5 minus d=3 difference is quoted: the A1 validation report, the
+        acceptance report, the FigS4_updated caption, every table note, and the
+        manuscript.
+      confounds:
+        - id: C1
+          name: total_signal_strength
+          statement: "the frozen linear predictor draws one p-centred standard-normal main effect PER ACTIVE COORDINATE with NO normalisation by d, so d=5 carries strictly more signal than d=3 at fixed tau"
+          measured: "sd(eta) ratio d5/d3 > 1 in 24 of 24 combinations, range 1.032-1.437 across two replicate windows"
+          source: "01A disclosed_confound_signal_strength; S0A_ADDENDUM_PREFLIGHT_REPORT.md section 4a"
+        - id: C2
+          name: interaction_saturation
+          statement: "interaction_pairs is matched by COUNT (3) not by saturation; 3 of C(3,2)=3 is 100% at d=3, 3 of C(5,2)=10 is 30% at d=5"
+          source: "01A disclosed_confound_interaction_saturation"
+        - id: C3
+          name: interaction_placement
+          statement: "the three lexicographic pairs differ between the arms: {(0,1),(0,2),(1,2)} at d=3 versus {(0,1),(0,2),(0,3)} at d=5, so every d=5 interaction involves coordinate 0 — the coordinate phi_D collapses — and coordinate 4 is purely additive"
+          source: "01A disclosed_confound_interaction_saturation.additional_structural_change_found_at_A0"
+      removal_forbidden: "none of C1, C2, C3 may be removed, softened, relegated to an appendix-only footnote, or described as controlled for"
+
+    normalized_analysis_status:
+      label: SENSITIVITY_ANALYSIS
+      operative_rule: >
+        The signal-normalized analysis is a SENSITIVITY ANALYSIS. It must not be
+        described as removing, eliminating, adjusting away or controlling for
+        confounding. Permitted phrasing: it shows whether the d effect SURVIVES
+        normalisation.
+      forbidden_phrasings:
+        - "removes the confound"
+        - "controls for signal strength"
+        - "adjusts for the signal-strength confound"
+        - "confound-free"
+      mechanism_caveat_retained: >
+        For the hash encoders the fiber partition is bit-for-bit identical at
+        d=3 and d=5 (hash_codes depends on M and K, never on d), so C1 and E1's
+        prediction point the SAME way. A confirmation of E1 is therefore not by
+        itself evidence for E1's mechanism, and must not be reported as such.
+        (01A disclosed_confound_signal_strength.why_it_matters_for_E1.)
+
+  D15:
+    title: "Extended raw-freeze manifest coverage; AD10 replacement text"
+    status: ACCEPTED_ADVISOR_RULING
+    replaces_in_01A:
+      - "decisions.D15.status UNRESOLVED_ADVISOR_RULING_REQUIRED -> RESOLVED: extend the manifest AND restate AD10"
+      - "acceptance_criteria.AD10.description — the REPLACEMENT TEXT below governs; AD10 in 01A is NOT edited"
+    editing_note: >
+      AD10 in 01A_ADDENDUM_PROTOCOL_FREEZE.yaml is NOT modified. 01A stays
+      byte-identical. The replacement text below is the operative wording of
+      AD10 for A1, by the authority split declared in provenance.
+    ad10_replacement_text: >
+      AD10 (as amended by D15). No protected raw file changed across the A1 run.
+      Coverage is defined by reference, not by an inline list: AD10 covers EVERY
+      ENTRY ENUMERATED IN RAW_FREEZE_MANIFEST_ADDENDUM.json, which is the
+      addendum's own extended manifest and which itself carries every entry of
+      the original RAW_FREEZE_MANIFEST.json. For every such entry the SHA-256
+      recorded before A1 must equal the SHA-256 recorded after A1. A line-count
+      check, a row-count check, a byte-size check or an mtime check is
+      INSUFFICIENT and does not satisfy AD10 for any entry.
+    coverage_definition:
+      authority: RAW_FREEZE_MANIFEST_ADDENDUM.json
+      rule: "every entry enumerated therein"
+      no_hardcoded_file_list: >
+        AD10 must NOT be restated with an inline file list. The manifest is the
+        single enumeration; a hardcoded list in the criterion would drift from it.
+      manifest_generation_status_at_A0_1: >
+        RAW_FREEZE_MANIFEST_ADDENDUM.json is generated by a separate A0.1 work
+        item and is referenced here by NAME only. This file does not enumerate
+        its contents and does not depend on their order.
+      manifest_must_carry_per_entry: [relative_path, sha256, size_bytes, recorded_at_phase]
+      superset_requirement: >
+        RAW_FREEZE_MANIFEST_ADDENDUM.json must be a strict superset of
+        RAW_FREEZE_MANIFEST.json's five entries (05a/05b/05c/05d parquet and
+        12_SIM2_RESULTS.csv), and must additionally cover every protected raw CSV
+        and every new raw addendum output.
+    hash_requirement:
+      algorithm: SHA-256
+      granularity: per_file
+      line_count_check_status: INSUFFICIENT
+      why: >
+        AT16 currently checks only the LINE COUNT of raw/sim1b_replicates.csv, so
+        altered content with an unchanged row count would pass
+        (01A acceptance_criteria.AD10.corrected_at_A0_council_review).
+    immutability_of_the_original_manifest: >
+      RAW_FREEZE_MANIFEST.json is NOT modified, NOT regenerated and NOT
+      re-hashed in place. The addendum manifest is a NEW sibling file.
+    package_checksum_ordering:
+      rule: >
+        The final package checksum manifests — PACKAGE_SHA256.json and
+        PACKAGE_SHA256SUMS.txt — are generated LAST, after every other A1 output
+        exists and is final. Generating them earlier makes them stale and is a
+        gate failure.
+      inherited_from: "01A outputs.regenerated_last"
+
+  D16:
+    title: "E1 split into three separately adjudicated clauses with frozen decision rules"
+    status: ACCEPTED_ADVISOR_RULING
+    replaces_in_01A:
+      - "decisions.D16.status UNRESOLVED_ADVISOR_RULING_REQUIRED -> RESOLVED"
+      - "expectations.E1 as a single compound proposition -> three clauses E1a, E1b, E1c"
+      - "expectations.E1.decision_rule_required_before_A1 -> satisfied by this block"
+    e1_remains_not_an_acceptance_criterion: >
+      E1a, E1b and E1c are PRE-REGISTERED EXPECTATIONS, exactly as E1 was. They
+      are NOT acceptance criteria and NOT validity gates. 01A
+      acceptance_criteria.not_acceptance_criteria [E1, E3, E4] is unchanged and
+      now reads as covering E1a, E1b and E1c.
+    common_statistic:
+      inference: "block-clustered per D13: 8 blocks, 7 df, cluster-robust SE, block-resampling bootstrap"
+      contrast: "d = 5 minus d = 3, matched per 01A contrast.matching_key"
+      directionality: "one-sided, greater (inherited from 01A expectations.E1.directionality)"
+      aggregation: "01A contrast.aggregation — replicates averaged within scenario first; replicates never treated as independent"
+      effective_n_disclosure: "mandatory per D13.mandatory_disclosure_per_reported_quantity"
+      amendment_3_ref: >
+        POINTER ONLY, added 2026-08-24 by AMENDMENT-3; no D16 rule text is
+        changed. `inference` above inherits D13's "8 blocks, 7 df", whose
+        premise is REFUTED (D13.premise_refuted_at_A0_1). D16's inference line
+        therefore follows D13 and is unsettled until the advisor answers
+        advisor_confirmation_requested.Q6. Note that
+        `directionality: one-sided, greater` is what makes the choice
+        consequential: an SE inflated 10-20x manufactures NULL outcomes, and
+        outcome_classifications turns those into reported conclusions. See
+        D13.consequences_if_D13_is_implemented_as_written.c3.
+
+    clauses:
+      E1a:
+        encoder: hash_shared
+        primary_statistic: "block-clustered d=5 minus d=3 RELATIVE (signal-normalized) LOG-LOSS gap, i.e. the contrast in relative_log_gap as defined in D14.estimands.normalized"
+        supporting_statistic: "the parallel block-clustered contrast in relative_brier_gap"
+        bucket_width_handling:
+          rule: "B0, B1 and B2 COLLAPSE TO ONE piece of evidence"
+          why: >
+            hash_shared representation loss is IDENTICAL across B0/B1/B2 —
+            measured max|B0-B1| == max|B0-B2| == 0.0 on the frozen twin, because
+            the shared-value token space holds only K = 4 tokens and B in
+            {10, 20, 40} never changes the partition
+            (01A contrast.uncertainty.degenerate_bucket_widths_disclosure).
+          bh_family_members_contributed: 1
+          forbidden: "entering B0, B1 and B2 as three BH family members; that triple-counts one partition"
+      E1b:
+        encoder: hash_column
+        primary_statistic: >
+          NARROW-WIDTH statistic: within each scenario, average the B0 and B1
+          relative_log_gap contrasts; aggregate those scenario values to block
+          means per D13; test the block means one-sided greater.
+        averaging_level: "within scenario, then within block — never a pooled average across blocks before clustering"
+        widths_averaged: [B0, B1]
+        secondary_results:
+          rule: "B0, B1 and B2 are ALSO reported SEPARATELY as secondary results"
+          status: SECONDARY_NOT_BH_MEMBERS
+          significance_claims_permitted: false
+        supporting_statistic: "the parallel narrow-width relative_brier_gap contrast"
+        bh_family_members_contributed: 1
+      E1c:
+        encoder: count
+        amendment_3_ref: >
+          POINTER ONLY, added 2026-08-24 by AMENDMENT-3; no E1c rule text is
+          changed. The `fiber_count < 1024` restriction below is a PER-REPLICATE
+          event (this clause's own words: "a random sampling-tie event depending
+          on replicate and on n_train"), so it is defined per
+          (block, replicate, scenario). It CANNOT be applied coherently to 8
+          collapsed block means, because a block mean mixes cells that satisfy
+          and cells that fail the restriction, and low_power_fallback can then
+          fire artefactually. Under the corrected inferential unit — the draw
+          (block, replicate), 400 per arm — the restriction applies exactly
+          where it is defined. See
+          D13.consequences_if_D13_is_implemented_as_written.c4 and
+          advisor_confirmation_requested.Q6.
+        per_cell_recording_requirement:
+          rule: "fiber_count is RECORDED IN EVERY CELL of the addendum output, for every encoder configuration, not only for count"
+          gate_ref: "01A acceptance_criteria.AD14 and new_acceptance_criteria.AD15 item 10"
+        primary_analysis_restriction:
+          rule: >
+            The primary analysis includes ONLY MATCHED conditions in which BOTH
+            the d=3 mapping and the d=5 mapping are non-injective, i.e.
+            fiber_count < 1024 on BOTH sides of the pair.
+          state_space: 1024
+          state_space_source: "01A exactness.state_space = 4**5 = 1024"
+        non_emptiness_verified:
+          claim: "`fiber_count < 1024` is a NON-EMPTY condition, not a vacuous restriction"
+          verified_line_quoted_from_01A: "01A_ADDENDUM_PROTOCOL_FREEZE.yaml:480 — \"in {576, 768, 1024} and under Zipf in {768, 1024}: the marginal does NOT\""
+          full_context: >
+            01A expectations.E1.measured_caveat_recorded_at_A0 states that swept
+            over many draws the fiber count under uniform takes values in
+            {576, 768, 1024} and under Zipf in {768, 1024}. Both sets contain
+            values strictly below 1024, so the restriction selects a non-empty
+            stratum. The marginal does NOT determine the fiber count: the count
+            encoder maps a level to its SAMPLE count, so its merge is a random
+            sampling-tie event depending on replicate and on n_train.
+          consequence: "the estimand on count is a mixture over whether a tie occurred, and the stratum is identified AFTER the fact from the recorded fiber_count, never assumed from the marginal"
+        other_cells:
+          rule: "all cells failing the matched non-injective restriction are REPORTED SEPARATELY, never discarded and never pooled into the primary"
+          status: SECONDARY_NOT_BH_MEMBERS
+        low_power_fallback:
+          rule: >
+            If too few independent blocks remain after the restriction, E1c is
+            reported DESCRIPTIVELY with no significance claim, no p-value and no
+            q-value, and it is REMOVED from the BH family (the family then has 2
+            members, and that fact is stated).
+          frozen_threshold_effective_blocks_min: 4
+          advisor_confirmation_ref: advisor_confirmation_requested.Q2   # promoted 2026-08-24; value UNCHANGED and operative
+          threshold_justification_one_line: >
+            With 3 or fewer surviving block means the cluster-robust t interval
+            has <= 2 df and is not usable, so 4 is the smallest count at which a
+            significance claim is defensible; frozen now so the threshold cannot
+            be chosen after seeing the outcome.
+          descriptive_report_must_state: [effective_n_blocks, effective_n_scenario_pairs, point_estimate, block_level_spread, "the explicit sentence that no significance claim is made"]
+        bh_family_members_contributed: 1
+
+    bh_family:
+      procedure: "Benjamini-Hochberg FDR at 0.05, one-sided greater"
+      scope: "the E1 family, nested inside the addendum's own family per 01A decisions.D4; it is NOT folded into the parent freeze's frozen H1-H6 family"
+      members_explicit:
+        - "E1a: ONE member — hash_shared relative_log_gap contrast, with B0/B1/B2 collapsed to one"
+        - "E1b: ONE member — hash_column NARROW-WIDTH (mean of B0 and B1) relative_log_gap contrast"
+        - "E1c: ONE member — count relative_log_gap contrast restricted to matched non-injective cells, PRESENT ONLY IF effective_n_blocks >= 4"
+      nominal_family_size: 3
+      family_size_if_E1c_falls_back: 2
+      not_bh_members:
+        - "any Brier contrast (supporting/directional evidence only, no q-value)"
+        - "any raw (unnormalized) contrast used in the PARTIALLY_SUPPORTED condition"
+        - "E1b's separate B0, B1, B2 secondary results"
+        - "E1c's non-restricted cells"
+        - "any per-stratum (interaction_pairs = 0 / = 3) breakdown"
+      forbidden: "expanding the family after seeing q-values; adding members to lower a q; reporting a q for a non-member"
+
+    outcome_classifications:
+      status: OUTCOME_SUMMARIES_NOT_VALIDITY_GATES
+      loud_notice: >
+        CONFIRMED / PARTIALLY_SUPPORTED / NOT_SUPPORTED are OUTCOME SUMMARIES.
+        They are NOT validity gates. No acceptance criterion depends on them.
+        NULL OR REVERSED FINDINGS MUST BE RETAINED AND REPORTED IN FULL, not
+        explained away, not re-cut, not followed by a design change. This is 01A
+        expectations.E4, which is binding reporting policy.
+      evaluated_per_clause: [E1a, E1b, E1c]
+      CONFIRMED:
+        conditions_all_required:
+          - "the primary NORMALIZED log-loss contrast estimate is POSITIVE"
+          - "its one-sided BH-adjusted q < 0.05"
+          - "the NORMALIZED Brier contrast is in the SAME (positive) direction"
+      PARTIALLY_SUPPORTED:
+        conditions_all_required:
+          - "the primary NORMALIZED log-loss contrast estimate is POSITIVE"
+          - "its one-sided BH-adjusted q >= 0.05"
+          - "the RAW log-loss contrast is POSITIVE"
+          - "the NORMALIZED Brier contrast is POSITIVE"
+      NOT_SUPPORTED:
+        conditions_any_sufficient:
+          - "the primary NORMALIZED log-loss contrast estimate is non-positive (<= 0)"
+          - "the principal risk measures are MATERIALLY DIRECTIONALLY INCONSISTENT"
+        materially_directionally_inconsistent_definition:
+          advisor_confirmation_ref: advisor_confirmation_requested.Q4   # promoted 2026-08-24; definition UNCHANGED and operative
+          rule: >
+            The normalized log-loss contrast and the normalized Brier contrast
+            have OPPOSITE signs AND both absolute estimates exceed
+            positive_gap_min = 1.0e-6. Opposite signs where either magnitude is
+            at or below 1.0e-6 are numerical noise, not material inconsistency.
+          tolerance_source: "01_PROTOCOL_FREEZE.yaml:527 tolerances.positive_gap_min"
+      residual_case:
+        advisor_confirmation_ref: advisor_confirmation_requested.Q3     # promoted 2026-08-24; the fourth class is UNCHANGED and operative
+        fourth_class_notice: >
+          INCONCLUSIVE_REPORTED_IN_FULL is a FOURTH outcome class. The advisor
+          specified exactly THREE. See Q3.
+        rule: >
+          A clause satisfying none of the three condition sets (for example a
+          positive normalized estimate with q >= 0.05 but a non-positive raw or
+          normalized Brier contrast) is reported as INCONCLUSIVE_REPORTED_IN_FULL
+          with all four component estimates printed. It is never rounded up to
+          PARTIALLY_SUPPORTED.
+      not_identified_handling: >
+        A clause whose primary normalized estimate is NOT_IDENTIFIED for any cell
+        reports the count of NOT_IDENTIFIED cells and its reduced effective n;
+        NOT_IDENTIFIED is never coerced to 0 (D14.denominator_tolerance).
+
+  D17:
+    title: "Independent reference check for AD1 and AD2 (AMENDED TWICE 2026-08-24 — see corrects_the_advisor_ruling_as_written)"
+    status: ACCEPTED_ADVISOR_RULING_WITH_TWO_CORRECTIONS_PENDING_RATIFICATION
+    amended_by: [AMENDMENT-1, AMENDMENT-4]
+    amendment_date: 2026-08-24
+    what_is_unamended: >
+      The advisor's ACCEPTANCE of an independent reference check, his choice of
+      sim1_core.reference_gap_report as the independent implementation, his
+      sampling rule (all 48 scenarios x all 13 encoder configurations x one
+      frozen replicate = 624 cells), his instruction to persist production and
+      reference gaps AND their identity errors, and the inherited tolerance are
+      ALL UNCHANGED. What is amended is narrower: WHICH of the persisted columns
+      the AD1/AD2 verdict is computed from.
+    replaces_in_01A:
+      - "decisions.D17.status UNRESOLVED_ADVISOR_RULING_REQUIRED -> RESOLVED"
+      - "acceptance_criteria.AD1.circularity_warning_from_the_A0_council_review — the remedy below is now MANDATORY, not recommended"
+      - "acceptance_criteria.AD2.circularity_warning — same"
+    problem_restated: >
+      `exact_gap_report` computes the risk difference and the theoretical gap
+      from the SAME `fiber_posteriors` aggregation, and the 1B runner stores
+      theoretical_gap = representation_loss, so an identity error recomputed from
+      stored columns is ~1e-16 BY CONSTRUCTION (measured 1.28e-16 on the frozen
+      twin). AD1 and AD2 would pass whatever the fiber algebra does.
+    reference_implementation:
+      symbol: sim1_core.reference_gap_report
+      verified_location: "src/ct2i_benchmark/simulations/sim1_core.py:332"
+      verified_signature: "reference_gap_report(fid, p_cell, eta) -> dict"
+      existence_verified_at_A0_1: true
+      independence_property: >
+        Shares no code with the fast path: pure-Python dict grouping, `math`
+        rather than numpy reductions, no bincount, no `fiber_posteriors`
+        (docstring at sim1_core.py:332-346).
+      keys_returned_used_here: [gap_logloss, gap_brier, identity_error_logloss, identity_error_brier]
+      fast_path_counterpart: "src/ct2i_benchmark/simulations/sim1_core.py:309 exact_gap_report"
+    sampling_rule:
+      status: DETERMINISTIC_FROZEN_NO_IMPLEMENTER_DISCRETION
+      scenarios: "ALL 48 addendum scenarios, S1BD-0001 .. S1BD-0048"
+      encoder_configurations: "ALL 13 configurations (7 non-hash + 2 hash x 3 bucket widths), per 01A design.encoders.configuration_count"
+      replicates_per_scenario: 1
+      frozen_replicate_rule:
+        rule: "reference_replicate(scenario) = int(scenario_id[-4:])"
+        plain_statement: >
+          The frozen replicate for scenario S1BD-XXXX is the integer XXXX, i.e.
+          scenario S1BD-0001 uses replicate 1, S1BD-0002 uses replicate 2, ...,
+          S1BD-0048 uses replicate 48.
+        replicate_index_base_verified: >
+          Replicate indices are 1-based in this package: the frozen
+          05b_SIM1B_REPLICATE_RESULTS.parquet at M=5, K=4 has replicate.min()==1,
+          replicate.max()==50, replicate.nunique()==50 (read-only check at A0.1).
+        in_range: "1 <= 48 <= 50, so every scenario's frozen replicate exists"
+        why_not_replicate_1_for_all: >
+          Fixing one replicate index across all scenarios would probe a single
+          slice of the replicate axis. Tying the index to the scenario ordinal is
+          equally deterministic, requires no randomness, and spreads the check
+          over 48 distinct replicate indices.
+        no_discretion: "the implementer chooses nothing; the rule is a pure function of the scenario id"
+      cell_count: 624
+      cell_count_derivation: "48 scenarios x 13 configurations x 1 replicate = 624"
+      minimum_required: 624
+      satisfies_minimum: true
+      expansion_rule: "the sample may not be reduced; it may only be enlarged, and any enlargement must be a superset stated before the run"
+    persisted_columns:
+      requirement: "SIX columns persisted per reference cell, as data, never as prose"
+      columns:
+        - name: reference_log_gap
+          source: "reference_gap_report(...)['gap_logloss']"
+        - name: reference_brier_gap
+          source: "reference_gap_report(...)['gap_brier']"
+        - name: production_log_gap
+          source: "the production/fast path value for the same cell (exact_gap_report / the runner's stored representation-loss route)"
+        - name: production_brier_gap
+          source: "the production/fast path value for the same cell"
+        - name: log_identity_error
+          source: "reference_gap_report(...)['identity_error_logloss'] — the genuine |(R_log(Z)-R_log(X)) - I(Y;X|Z)| computed inside the independent implementation"
+          classification: DESCRIPTIVE_NOT_GATING       # AMENDMENT-1, 2026-08-24
+          retained_because: "the advisor named this column; it stays mandatory and persisted"
+          why_not_gating: "measured insensitive to injected production defects — see measured_sensitivity_at_A0_1"
+        - name: brier_identity_error
+          source: "reference_gap_report(...)['identity_error_brier'] — the genuine |(R_bri(Z)-R_bri(X)) - E[Var(eta|Z)]| computed inside the independent implementation"
+          classification: DESCRIPTIVE_NOT_GATING       # AMENDMENT-1, 2026-08-24
+          retained_because: "the advisor named this column; it stays mandatory and persisted"
+          why_not_gating: "measured insensitive to injected production defects — see measured_sensitivity_at_A0_1"
+        - name: recomputed_fiber_count                 # ADDED by AMENDMENT-1
+          source: "the number of distinct fibers in the partition the checker REBUILDS from (M, K, marginal, tau, interaction_pairs, delta_eta, seed, encoder, bucket_width)"
+          classification: GATING
+        - name: stored_fiber_count                     # ADDED by AMENDMENT-1
+          source: "the fiber_count written by the production runner for the same cell"
+          classification: GATING
+        - name: fiber_count_match                      # ADDED by AMENDMENT-1
+          source: "1 if recomputed_fiber_count == stored_fiber_count, else 0; NULL only where the production row carries no fiber_count"
+          classification: GATING
+          why_this_column_exists: >
+            BOTH the production path and sim1_core.reference_gap_report are
+            handed the SAME fiber id vector `fid`, so a defect in fiber
+            CONSTRUCTION (group_ids, hash_codes, ebar_coordinatewise) makes both
+            sides consistently wrong and the production-versus-reference
+            comparison stays at ~1e-15. This is exactly the failure class the
+            docstring at sim1_core.py:332-346 warns about. A structurally
+            independent detector is therefore required, and the recomputed
+            partition's cardinality is one.
+        - name: stored_representation_loss_log_mc     # GATING from AMENDMENT-4
+          source: "the production runner's stored `representation_loss` for the log-loss row of the same cell"
+          classification: GATING
+        - name: stored_representation_loss_brier_mc    # GATING from AMENDMENT-4
+          source: "the production runner's stored `representation_loss` for the Brier row of the same cell"
+          classification: GATING
+        - name: stored_mcse_log                        # ADDED by AMENDMENT-4
+          source: "the production runner's stored `mcse` for the log-loss row of the same cell"
+          classification: GATING
+        - name: stored_mcse_brier                      # ADDED by AMENDMENT-4
+          source: "the production runner's stored `mcse` for the BRIER row of the same cell. The log-loss mcse is ~2x the Brier one (measured median ratio 2.08 on the frozen d = 3 arm), so reusing it would slacken the Brier gate by that factor."
+          classification: GATING
+        - name: stored_mc_tolerance_log                # ADDED by AMENDMENT-4
+          source: "6 * stored_mcse_log + 1.0e-9 — the gate 3 budget for this cell, persisted so the verdict is re-derivable from the CSV alone"
+          classification: GATING
+        - name: stored_mc_tolerance_brier              # ADDED by AMENDMENT-4
+          source: "6 * stored_mcse_brier + 1.0e-9"
+          classification: GATING
+        - name: stored_mc_within_tolerance             # ADDED by AMENDMENT-4
+          source: "1 if BOTH stored representation losses are within their budgets, else 0; NULL where the production row carries no representation loss or no mcse — NULL is never counted as a pass"
+          classification: GATING
+        - name: fiber_fingerprint                      # ADDED by AMENDMENT-4
+          source: "sim1_core.partition_fingerprint(fid), written by the A1 runner on every SUCCESS row from the very `fid` that row's population layer was computed under"
+          classification: GATING
+          new_runner_column: true
+        - name: recomputed_fiber_fingerprint           # ADDED by AMENDMENT-4
+          source: "the same digest, computed by the checker from the partition it REBUILDS independently of the runner"
+          classification: GATING
+        - name: fiber_fingerprint_match                # ADDED by AMENDMENT-4
+          source: "1 if the two digests are equal as strings, else 0; NULL only where the production row carries no fingerprint"
+          classification: GATING
+          why_this_column_exists: >
+            `fiber_count` is INVARIANT under fiber relabelling and under any
+            cardinality-preserving assignment defect: a permutation of the
+            cell -> fiber assignment, or a swap of one cell between two fibers,
+            preserves the fiber count AND the entire multiset of fiber sizes.
+            The digest is canonical (fibers relabelled in order of first
+            appearance, i.e. sorted by smallest cell index, then hashed), so it
+            is equal if and only if the PARTITIONS are equal. It shares no code
+            with group_ids, hash_codes, quantize or np.unique — the helpers
+            whose defects it exists to detect.
+      keying_columns_also_required: [scenario_id, replicate, encoder, bucket_width, width_label, d_active]
+      forbidden: >
+        Deriving any of the six from stored production columns that share one
+        aggregation. The reference columns must come from
+        `sim1_core.reference_gap_report` executed on the cell.
+    evaluation_rule:
+      amended_by: AMENDMENT-1
+      amendment_date: 2026-08-24
+      superseded_wording_recorded_for_the_record:
+        v1_text: >
+          "ad1_ad2_are_evaluated_against: the reference columns, not the
+          production self-check; tolerance_ref: exact_identity_abs = 1.0e-10;
+          also_required: |production_log_gap - reference_log_gap| and
+          |production_brier_gap - reference_brier_gap| are reported and must
+          also satisfy exact_identity_abs."
+        why_superseded: >
+          "the reference columns" was read as including the two identity-error
+          columns, and those are measured to be blind to production defects of
+          size 1e-2. The v1 wording also placed the production-versus-reference
+          comparison under `also_required`, i.e. as an addition rather than as
+          the gate. AMENDMENT-1 inverts that emphasis and adds the
+          fiber-construction detector the comparison cannot supply.
+      ad1_ad2_gating_rule:
+        semantics: CONJUNCTIVE_BOTH_MUST_PASS
+        tolerance_ref: "exact_identity_abs = 1.0e-10 (01_PROTOCOL_FREEZE.yaml:525), UNCHANGED by AMENDMENT-1 and UNCHANGED by AMENDMENT-4"
+        tolerance_classes:               # ADDED by AMENDMENT-4
+          note: >
+            `tolerance_ref` above names ONE tolerance class, and it does not
+            cover every gate. AMENDMENT-4 states this explicitly rather than
+            letting a reader assume exact_identity_abs governs all four gates.
+          G1: "exact_identity_abs = 1.0e-10 — exact against exact"
+          G2: "no tolerance; integer equality of a count"
+          G3: "MCSE-SCALED, 6 * stored_mcse + 1.0e-9. A NEW TOLERANCE CLASS, introduced by AMENDMENT-4, which the advisor's ruling does not mention and which the inherited freeze does not contain. It is not derived from 01_PROTOCOL_FREEZE.yaml `tolerances`; it is derived from the stored quantity's own standard error."
+          G4: "no tolerance; string equality of a canonical digest"
+          why_a_second_class_is_unavoidable: >
+            G3 compares a Monte-Carlo estimate against an exact number. No
+            constant absolute tolerance can be both tight enough to detect a
+            defect and loose enough to pass a correct run, because the MC error
+            varies by four orders of magnitude across the sample (mcse 0 to
+            6.8e-4). A tolerance proportional to the estimate's own standard
+            error is the only one that adapts, and it is the standard
+            construction for exactly this comparison.
+        gate_G1_production_versus_reference:
+          statement: >
+            In EVERY reference cell, |production_log_gap - reference_log_gap|
+            <= 1.0e-10 AND |production_brier_gap - reference_brier_gap|
+            <= 1.0e-10, where the reference values come from
+            sim1_core.reference_gap_report executed on the cell and NEVER from
+            any stored production column.
+          detects: "defects in the fiber ALGEBRA — conditional means, fiber masses, risk aggregation"
+          measured_discriminating_power: "fires at 5.5e4 x tolerance under ebar_bias and 1.1e8 x tolerance under mass_dropout"
+        gate_G2_fiber_construction_cross_check:
+          statement: >
+            In EVERY reference cell for which a production fiber_count exists,
+            recomputed_fiber_count == stored_fiber_count exactly (integer
+            equality; no tolerance applies to a count).
+          detects: "defects in fiber CONSTRUCTION, which G1 is structurally blind to because both paths consume the same fid"
+          measured_discriminating_power: "0/624 match under fiber_merge, while G1 stays at 6.2e-15 and does not fire"
+          applicability: >
+            G2 is evaluable only against an arm whose production rows are on
+            disk. This is why the D17 check must run AFTER the A1 runner, against
+            the runner's output — not before it. See advisor_confirmation_requested.Q1.
+        gate_G3_stored_representation_loss:
+          added_by: AMENDMENT-4
+          statement: >
+            In EVERY reference cell for which the production row carries a
+            representation loss and an mcse, for BOTH metrics separately,
+            |stored_representation_loss - recomputed exact population gap|
+            <= 6 * stored_mcse + 1.0e-9.
+          detects: >
+            defects in the cell -> fiber ASSIGNMENT, which G1 and G2 are both
+            structurally blind to. The stored representation loss is the
+            runner's Monte-Carlo risk under the partition the runner ACTUALLY
+            used (ebar_cells[ev_cell]), while the recomputed gap comes from the
+            checker's own rebuilt partition, so this is the only comparison in
+            D17 that crosses the fiber-construction boundary.
+          tolerance_class: MCSE_SCALED_NOT_EXACT_IDENTITY_ABS
+          why_not_the_frozen_tolerance: >
+            The stored column is a Monte-Carlo plug-in over the evaluation
+            sample, not an exact population number: it differs from the exact
+            gap by up to 1.07e-3 on a CORRECT implementation. Gating it at
+            exact_identity_abs = 1.0e-10 would fail a correct run. See
+            representation_loss_is_monte_carlo.
+          why_k_equals_6: >
+            The stored quantity is a sample mean whose standard error is the
+            stored mcse, so k is a number of standard errors. k = 6 is the
+            same constant the runner-level AD1/AD2 property test uses
+            (tests/test_a0_2_defect_closure.AD12_K). Measured on the 624 clean
+            cells of the frozen d = 3 arm the worst cell used 0.592 of its
+            budget (i.e. 3.55 mcse); at k = 3 two clean cells would fail, so
+            k = 6 is the first round margin that a correct run clears
+            everywhere, and it was NOT chosen after seeing a failure.
+          why_the_floor: >
+            202 of the 624 clean cells have mcse exactly 0 and others have it
+            denormal (min 2.4e-20), because the injective encoders satisfy
+            ebar == eta pointwise. Their observed |difference| is at most
+            2.2e-16, so the 1.0e-9 floor is four orders of magnitude tighter
+            than exact_identity_abs would have been generous, and it avoids
+            dividing by zero.
+          measured_discriminating_power: >
+            clean 624/624 within budget; under fiber_permute 166 of 624 cells
+            fire, the worst at 2.1e4 x its budget, while G1 stays at 5.4e-15
+            and G2 at 624/624; under fiber_swap 6 of 624 fire, the worst at
+            3.5e5 x budget, again with G1 and G2 clean.
+          applicability: "as G2 — evaluable only against an arm whose production rows are on disk. On the A1 gate arm a cell count of zero is a FAILURE, not an inapplicable gate."
+        gate_G4_partition_fingerprint:
+          added_by: AMENDMENT-4
+          statement: >
+            In EVERY reference cell for which the production row carries a
+            `fiber_fingerprint`, that digest equals the digest of the partition
+            the checker rebuilds, as strings. No tolerance: a digest is either
+            equal or it is not.
+          detects: "the SAME class as G3, exactly rather than statistically"
+          tolerance_class: EXACT_STRING_EQUALITY_NO_TOLERANCE
+          why_G3_is_not_enough: >
+            G3's tolerance is the Monte-Carlo noise floor, so an assignment
+            defect whose effect on the population gap is smaller than 6 mcse
+            survives it. MEASURED on the frozen d = 3 arm: a one-cell swap
+            moved the population gap in 151 cells and G3 fired in only 6 of
+            them, NONE of them a hash configuration — a swap confined to the
+            hash configurations would have passed the whole 624-cell sample
+            while corrupting gaps by up to 1.4e-3. At d = 5 this matters more,
+            not less: all seven coordinate-wise encoders are injective at
+            M = K**d, so the SIX HASH CONFIGURATIONS ARE THE ONLY ONES WITH A
+            NON-TRIVIAL PARTITION, and they are exactly where G3 is weakest
+            (their mcse is the largest on the arm). G4 fired on 295 of 624
+            under the same swap and on 297 of 624 under the permutation —
+            precisely the cells whose partition actually changed, with zero
+            false positives on the clean run.
+          measured_discriminating_power: "clean 624/624; fiber_permute 297/624 mismatches; fiber_swap 295/624 mismatches; G1 and G2 clean throughout"
+          does_not_fire_on_a_relabelling: >
+            Permuting an ALL-SINGLETON assignment yields the SAME partition, so
+            the digest is unchanged. That is correct, not a blind spot: there
+            is nothing to detect. It is also why council-Claude's attack A3b
+            was numerically inert on the coordinate-wise encoders at d = 5.
+          cost: "one new persisted string column on the A1 runner (32 hex characters per SUCCESS row) and one blake2b pass over 1,024 cells per encoder configuration"
+          applicability: >
+            Evaluable only where the production row carries the column. The
+            frozen d = 3 twin's parquet PREDATES it, so G4 reports
+            NOT_EVALUATED there; on the A1 gate arm its absence means the
+            runner did not write it, which is a non-conforming run and is
+            reported as a FAILURE.
+        verdict: "AD1 and AD2 PASS if and only if G1, G2, G3 and G4 ALL pass over the full frozen sample: zero cells over the exact tolerance, zero fiber_count mismatches, zero stored representation losses outside their MCSE-scaled budgets, and zero partition-fingerprint mismatches."
+      descriptive_not_gating:
+        columns: [log_identity_error, brier_identity_error, production_self_identity_error_log, production_self_identity_error_brier]
+        rule: >
+          These are PERSISTED AND REPORTED but carry NO verdict. AD1/AD2 must
+          NEVER be reported as "passed" on the strength of the identity-error
+          columns. A report quoting only a small identity error as evidence that
+          AD1/AD2 passed is non-conforming.
+        why: >
+          reference_gap_report defines ebar_f as its OWN mass-weighted
+          within-fiber mean, so R_log(Z) - R_log(X) = I(Y;X|Z) telescopes
+          EXACTLY inside that implementation (likewise Brier and E[Var(eta|Z)]).
+          Its internal identity error is a self-check of the SAME CLASS as the
+          production self-check the ruling was written to escape, and it stays
+          at ~5e-15 no matter how wrong the production number is.
+      harness_superset_note: >
+        scripts/s0b_reference_gap_check.py currently folds the two identity
+        errors into its per-cell `worst` statistic alongside the two
+        production-versus-reference differences. That is a strict SUPERSET of
+        gate G1 and can only make the gate harder to pass, so it is conforming
+        and NO harness change is required by this amendment. What is prohibited
+        is the converse: computing the verdict from the identity errors ALONE.
+
+    measured_sensitivity_at_A0_1:
+      why_this_block_exists: >
+        Recorded so that no future reader re-litigates the reclassification. The
+        question "do the two named identity-error columns detect a broken
+        production path?" was ANSWERED BY MEASUREMENT, not by argument.
+      source_report: simulation-results-ct2i/S0B_REFERENCE_IMPLEMENTATION_TEST_REPORT.md
+      harness: scripts/s0b_reference_gap_check.py
+      interpreter: /Users/Eric/.pyenv/versions/3.11.9/bin/python3
+      arm_used: "the EXISTING FROZEN d = 3 arm (production values already on disk); ZERO addendum cells executed"
+      method: >
+        Five defects injected as IN-PROCESS MONKEYPATCHES of sim1_core (three at
+        AMENDMENT-1, two more at AMENDMENT-4). No source file edited, no repo
+        copy made, every perturbed CSV written outside the package and deleted.
+      how_to_read_the_partition_fingerprint_rows: >
+        ADDED BY AMENDMENT-5. Every `partition_fingerprint` (G4) count in this
+        table was obtained through
+        scripts/s0b_g4_fingerprint_bite.py, NOT through the plain
+        s0b_reference_gap_check.py commands. 05b_SIM1B_REPLICATE_RESULTS.parquet
+        predates the fiber_fingerprint column, so on the only arm that exists the
+        plain commands report fingerprint_checked=0 and
+        G4_partition_fingerprint:NOT_EVALUATED. The driver supplies G4's missing
+        precondition explicitly: it builds the stored fingerprint map from the
+        CLEAN recomputed digests in S0B_REFERENCE_GAP_CHECK_d3_frozen.csv —
+        exactly what a conforming A1 runner would have written — and injects it
+        into load_stored in-process. Every other column in this table (G1, G2,
+        G3, both identity errors) IS obtained end-to-end from the plain
+        commands. G4's first evaluation against real production output is on
+        A1's own rows. See a0_1_verification.V12.
+      tolerance: 1.0e-10
+      clean_run:
+        cells: 624
+        max_log_identity_error: 5.447e-15
+        max_brier_identity_error: 2.050e-15
+        max_abs_production_minus_reference: 5.551e-15
+        fiber_count_matches: "624/624"
+        cells_with_a_non_degenerate_gap: "295/624 carry |gap| > 1e-6, so the check is not passing on an all-zero sample"
+        verdict: PASS
+      injected_defects:
+        - defect: ebar_bias
+          what_it_corrupts: "conditional means — fiber_posteriors returns ebar x (1 + 1e-6)"
+          log_identity_error: "5.447e-15 — UNCHANGED, DOES NOT FIRE"
+          brier_identity_error: "UNCHANGED, DOES NOT FIRE"
+          abs_production_minus_reference: "5.541e-07 — FIRES, 5.5e4 x tolerance"
+          fiber_count_match: "624/624 — does not fire (construction is intact)"
+          caught_by: [G1]
+        - defect: mass_dropout
+          what_it_corrupts: "fiber masses — the lightest positive-mass fiber's mass is zeroed"
+          log_identity_error: "5.447e-15 — UNCHANGED, DOES NOT FIRE"
+          brier_identity_error: "UNCHANGED, DOES NOT FIRE"
+          abs_production_minus_reference: "1.083e-02 — FIRES, 1.1e8 x tolerance"
+          fiber_count_match: "624/624 — does not fire (construction is intact)"
+          caught_by: [G1]
+        - defect: fiber_merge
+          what_it_corrupts: "fiber GROUPING — group_ids returns fid // 2, halving every partition"
+          log_identity_error: "UNCHANGED, DOES NOT FIRE"
+          brier_identity_error: "UNCHANGED, DOES NOT FIRE"
+          abs_production_minus_reference: "6.2e-15 — DOES NOT FIRE (both paths consume the same fid)"
+          fiber_count_match: "0/624 — FIRES"
+          caught_by: [G2]
+        - defect: fiber_permute                      # ADDED by AMENDMENT-4
+          what_it_corrupts: "the cell -> fiber ASSIGNMENT — the rebuilt partition is rolled by one cell, which preserves the fiber count and the entire multiset of fiber sizes"
+          log_identity_error: "5.402e-15 — UNCHANGED, DOES NOT FIRE"
+          brier_identity_error: "2.113e-15 — UNCHANGED, DOES NOT FIRE"
+          abs_production_minus_reference: "5.440e-15 — DOES NOT FIRE (both paths consume the same fid)"
+          fiber_count_match: "624/624 — DOES NOT FIRE (a permutation preserves the count exactly)"
+          stored_representation_loss: "166/624 cells OUTSIDE 6*mcse + 1e-9, worst cell at 2.1e4 x its budget — FIRES"
+          partition_fingerprint: "297/624 mismatches — FIRES on every cell whose partition actually changed"
+          caught_by: [G3, G4]
+          runner_level_effect: "through the runner at d = 5 the same defect moved relative_log_gap on hash_column/B0 from 0.1564 to 0.4715 (3.01x), the D16 E1a/E1b PRIMARY STATISTIC, while all 1,027 tests then in the suite passed. The suite is now 1,086 tests and FAILS under this defect: the attack is a regression test (tests/test_a0_2_defect_closure.py::TestFiberAssignmentDefectsAreDetectable)."
+        - defect: fiber_swap                         # ADDED by AMENDMENT-4
+          what_it_corrupts: "ONE cell moved out of fiber A and one out of fiber B — the minimal same-cardinality partition defect (Codex C4)"
+          log_identity_error: "5.447e-15 — UNCHANGED, DOES NOT FIRE"
+          brier_identity_error: "2.050e-15 — UNCHANGED, DOES NOT FIRE"
+          abs_production_minus_reference: "5.551e-15 — DOES NOT FIRE"
+          fiber_count_match: "624/624 — DOES NOT FIRE (every cardinality is preserved by construction)"
+          stored_representation_loss: "6/624 cells fire, worst at 3.5e5 x budget — FIRES, but only just: the partition moved the gap in 151 cells and G3 saw 6, none of them hash"
+          partition_fingerprint: "295/624 mismatches — FIRES"
+          caught_by: [G3 (weakly), G4]
+      conclusion_forced_by_the_table: >
+        No single statistic detects all five defects, and the two columns the
+        advisor named detect NONE of them. Each gate is necessary: drop G1 and
+        the two algebra defects go undetected; drop G2 and fiber_merge goes
+        undetected; drop G3 and G4 and BOTH assignment defects go undetected
+        while every other column reads clean; drop G4 alone and the minimal
+        same-cardinality defect is detected in 6 cells of 624, none of them a
+        hash configuration, which at d = 5 is the only place a non-trivial
+        partition exists.
+
+    representation_loss_is_monte_carlo:
+      added_by: AMENDMENT-1
+      finding: >
+        The `representation_loss` column stored on disk in
+        05b_SIM1B_REPLICATE_RESULTS.parquet (and written by the same code path in
+        the finite runner) is a MONTE-CARLO PLUG-IN estimated over the 50,000-row
+        evaluation sample. It is NOT an exact population quantity.
+      measured: "it differs from the exact population gap by up to 1.07e-3, median 1.1e-16 — the expected MC scale, orders of magnitude outside exact_identity_abs = 1.0e-10"
+      consequence_for_d17: >
+        D17's instruction that the production-versus-reference difference "must
+        also satisfy exact_identity_abs" is NOT SATISFIABLE against the stored
+        `representation_loss` column, and a gate written against that column
+        would fail for a correct implementation. The instruction is therefore
+        implemented against the EXACT FAST PATH — sim1_core.exact_gap_report and
+        the exact population gap for the cell — which is the quantity the
+        advisor's tolerance was written for.
+      the_stored_column_is_still_reported: >
+        AMENDED BY AMENDMENT-4. This entry previously read that
+        stored_representation_loss_*_mc and its absolute difference from the
+        exact gap are persisted DESCRIPTIVELY and "carry no verdict and no
+        tolerance". Under gate G3 they carry both: the verdict is
+        stored_mc_within_tolerance and the tolerance is 6 * stored_mcse + 1e-9.
+        What is unchanged is the REASON they cannot carry exact_identity_abs —
+        they are Monte-Carlo plug-ins — which is exactly why G3's tolerance is
+        scaled by the stored standard error instead. The superseded wording is
+        left visible here rather than deleted.
+      this_is_not_a_defect_in_the_production_code: >
+        The MC plug-in is the correct quantity for the FINITE-sample columns it
+        was written for. The mismatch is between that column and an EXACT
+        tolerance, not inside either one.
+
+    corrects_the_advisor_ruling_as_written:
+      status: TWO_CORRECTIONS_PENDING_ADVISOR_RATIFICATION
+      ratification_question: advisor_confirmation_requested.Q5
+      second_ratification_question: advisor_confirmation_requested.Q7   # AMENDMENT-4
+      plain_statement: >
+        THIS AMENDMENT CORRECTS D17 AS THE ADVISOR WROTE IT. He instructed that
+        AD1 and AD2 be evaluated using sim1_core.reference_gap_report and that
+        the production and reference gaps AND THEIR IDENTITY ERRORS be persisted.
+        Read literally, the two identity-error columns he named are the natural
+        verdict columns — and they are measured to be BLIND to production defects
+        of size 1e-2. His stated INTENT (escape a self-referential check that
+        passes whatever the fiber algebra does) is preserved and, in the author's
+        judgement, better served by gating on the production-versus-reference
+        comparison plus the fiber-construction cross-check. But this is a change
+        to what his own words specify, made on measured evidence AFTER the ruling
+        was issued, and it is NOT the author's decision to make silently.
+      what_the_advisor_must_ratify_or_overrule: >
+        (i) reclassifying log_identity_error and brier_identity_error as
+        descriptive rather than gating, while still persisting them; and
+        (ii) adding the recomputed-versus-stored fiber_count cross-check as a
+        second, co-equal gate that his ruling does not mention. AMENDMENT-4
+        adds (iii) two further co-equal gates and (iv) a SECOND TOLERANCE CLASS
+        — see advisor_confirmation_requested.Q7.
+      if_he_overrules: >
+        If he directs that AD1/AD2 be gated on the identity-error columns as
+        literally written, the gate becomes one that the measured evidence shows
+        cannot fail; that outcome must then be stated plainly in the acceptance
+        report rather than reported as a passed check. No other entry in this
+        file changes.
+    ordering_caveat: "see advisor_confirmation_requested.Q1 — the phase in which the 624-cell check runs is an open ordering question. AMENDMENT-1 sharpens it: gate G2 REQUIRES production rows on disk, so the addendum check must run AFTER the A1 runner."
+
+  D18:
+    title: "Runner-first gate — ten items, encoded as a new acceptance criterion"
+    status: ACCEPTED_ADVISOR_RULING
+    replaces_in_01A:
+      - "decisions.D18.status INHERENT_TO_A0_BECOMES_AN_A1_GATE -> ACCEPTED_ADVISOR_RULING, now carrying an explicit ten-item gate"
+      - "01A recorded the gate as 'criterion AD13'; AD13 in 01A covers only the AT1-AT16-against-the-real-runner clause. The full ten-item gate is criterion AD15 below."
+    encoded_as: new_acceptance_criteria.AD15
+    relationship_to_AD13_and_AD14: >
+      AD13 and AD14 in 01A are NOT edited and remain in force. AD15 is a NEW,
+      additional criterion in the same AD* namespace; it subsumes AD13's clause
+      as item 2/3 and AD14's clauses as items 7 and 10, and adds the remainder.
+      Satisfying AD15 satisfies AD13 and AD14; the converse does not hold.
+    binding_precondition: "no addendum cell is RETAINED until AD15 passes in full"
+
+# -----------------------------------------------------------------------------
+# New acceptance criterion. A1-A15 (parent) are untouched. AD1-AD14 (01A) are
+# untouched. The completed arm's 13/13 statement stands unchanged and is never
+# restated as "13/13 + n".
+# -----------------------------------------------------------------------------
+new_acceptance_criteria:
+  namespace_note: >
+    Evaluated into 07A_SIM1B_DENSE_ADDENDUM_ACCEPTANCE_REPORT.json alongside
+    AD1-AD14, in the addendum's separate AD* namespace.
+  id_collision_check:
+    performed_at: A0.1
+    method: "read both freezes end to end and grepped both for AD* identifiers"
+    parent_freeze_01_PROTOCOL_FREEZE_yaml: "uses the A* namespace, criteria A1-A15; grep for 'AD' returned NO criterion identifiers — the AD* namespace is unused there"
+    addendum_freeze_01A: "defines AD1 through AD14; AD13 IS TAKEN (the AT1-AT16-against-the-real-runner criterion, 01A:648) and AD14 IS TAKEN (d_active + fiber_count + typed setup-failure rows, 01A:652)"
+    repository_scan: "grep for AD15/AD16/AD17 across simulation-results-ct2i/, tests/ and scripts/ returned no matches"
+    conclusion: "AD15 is the lowest free identifier and is chosen"
+  AD15:
+    description: >
+      RUNNER-FIRST GATE (decision D18). Before ANY full addendum cell is
+      retained, all ten items below hold against the ACTUAL A1 runner.
+    tolerance_ref: exact
+    a0_1_status: "NOT SATISFIABLE IN A0.1 for the run-time items; the runner and tests are written in A0.1, but AD15 is EVALUATED in A1"
+    gate_semantics: "all ten items are conjunctive; any single failure blocks retention of every addendum cell"
+    items:
+      - id: 1
+        requirement: "scripts/run_sim1b_dense_addendum.py exists and is the runner that produces every addendum row"
+        source_ref: "01A decisions.D3 — NEW file; run_sim1b_finite.py and sim1_core.py stay byte-identical"
+      - id: 2
+        requirement: "the runner is the SINGLE SOURCE OF TRUTH for the addendum seed rule; the rule is defined once, inside the runner"
+      - id: 3
+        requirement: "the tests IMPORT that seed rule from the runner and MUST NOT redefine it; the current duplication in tests/test_a0_dense_addendum_properties.py and in the microbenchmark is removed"
+      - id: 4
+        requirement: "AT1-AT16 are re-run against the real runner and all pass"
+      - id: 5
+        requirement: "the runner tests cover BOTH n_train = 500 and n_train = 5000; neither is exercised only by extrapolation"
+        note: "01A inheritance includes seeds.n_train_pairing — n=500 is the FIRST 500 ROWS of the n=5000 draw; the n=500 nesting test must exercise the REAL runner"
+      - id: 6
+        requirement: "the runner emits a TYPED ROW for EVERY ATTEMPTED CELL, including cells that fail; executed rows and successful rows are separately countable"
+        source_ref: "01A decisions.D12 and acceptance_criteria.AD6.executed_not_successful"
+      - id: 7
+        requirement: "SILENT `continue` ON SETUP EXCEPTIONS IS PROHIBITED; a setup exception emits a typed row carrying the exception type, and no replicate disappears"
+        defect_being_fixed: "scripts/run_sim1b_finite.py:150-151 — `except Exception as e:  # noqa: BLE001` followed by `continue`, which writes ZERO rows for a failed replicate"
+      - id: 8
+        requirement: "every non-SUCCESS row carries NULL metrics; no failure is stored as a valid zero or a chance-level metric"
+        source_ref: "01A acceptance_criteria.AD9; parent freeze `failures` typed status vocabulary"
+      - id: 9
+        requirement: "exact_or_mc is labelled CORRECTLY: population quantities that are IDENTIFIED_EXACT carry `exact`, not `mc`"
+        defect_being_fixed: "scripts/run_sim1b_finite.py:160 sets exact_or_mc='mc' in the base row dict; the addendum arm is exact for all 13 configurations because K**M = 1024 <= ENUM_CAP (01A exactness)"
+      - id: 10
+        requirement: "fiber_count, collision_count and occupied_buckets are RECORDED where applicable, not declared and left NULL"
+        known_gap_being_fixed: "01A known_gaps_disclosed_at_A0 G1 — collision_count and occupied_buckets are 100% NULL across all 1,094,400 rows of the frozen 1B output"
+        applicability: "fiber_count applies to every encoder configuration; collision_count and occupied_buckets apply to the hash configurations"
+        downstream_dependency: "D16 E1c cannot identify its stratum without the recorded fiber_count"
+      - id: 11
+        requirement: "the D14 framing check passes: no A1 text output contains a forbidden label from rulings.D14.framing_token.forbidden_labels"
+        note: "item 11 is the enforcement hook for D14; it is part of AD15 because it is a mechanical, checkable gate"
+    also_correct_the_minor_verified_issues:
+      status: MANDATED_BY_THE_RULING_TEXT
+      items:
+        - "make the n = 500 nesting test exercise the real runner (see item 5)"
+        - "prevent setup exceptions from disappearing (see item 7)"
+        - "correct exact_or_mc labels (see item 9)"
+        - "correct the small resource-ratio rounding discrepancies (01A resources.ratio_precision_note; net effect +0.004 core-hours, cap verdict unchanged)"
+        - "clearly distinguish executed rows from successful rows (see item 6)"
+
+# -----------------------------------------------------------------------------
+# QUESTIONS FOR THE ADVISOR — he is asked to confirm or overrule each.
+#
+# Q1 was open from the start. Q2-Q5 were PROMOTED here on 2026-08-24 by
+# AMENDMENT-2. Q2, Q3 and Q4 were previously frozen deep inside this file with
+# written justification; each EXTENDS a decision rule the advisor wrote himself,
+# so burying it was the wrong call. Q5 is AMENDMENT-1.
+#
+# EVERY question keeps its frozen value as the OPERATIVE DEFAULT. Nothing here
+# is waiting on an answer to proceed; each is waiting on an answer to be
+# LEGITIMATE.
+# -----------------------------------------------------------------------------
+advisor_confirmation_requested:
+  status: OPEN_ADOPTED_READINGS_NOT_SETTLED_DECISIONS
+  count: 8
+  promoted_at: 2026-08-24
+  promoted_by: [AMENDMENT-2, AMENDMENT-3, AMENDMENT-4, AMENDMENT-5]
+  highest_priority: Q6
+  this_file_is_the_single_authority_for_question_numbering: >
+    ADDED BY AMENDMENT-5. The labels Q1-Q8 mean what THIS list says they mean,
+    everywhere in the package. No other document may introduce its own Qn
+    scheme. S0B_ADVISOR_RULING_IMPLEMENTATION_REPORT.md previously numbered its
+    own open items Q1-Q8 and collided with this list on the label Q6 — its Q6
+    was the microbenchmark seed-rule duplication, this file's Q6 is the D13
+    inferential unit, the highest-severity item in the package. That report's
+    items have been renumbered to the non-colliding IR-1..IR-8 scheme and each
+    now carries its mapping into this list.
+  priority_note: >
+    Q6 and Q8 are the two questions that block A1 inference outright, and they
+    are the only two that concern the primary statistic rather than a value the
+    advisor left blank. Q1-Q5 and Q7 can be answered after A1 without rerunning
+    anything. Q6 cannot: it determines which numbers A1 computes. Q8 cannot
+    either: it determines which quantity A1 reports as the primary, and the two
+    candidate readings have OPPOSITE SIGNS.
+  index:
+    Q6: "WHICH INFERENTIAL UNIT GOVERNS — 8 blocks / 7 df as ruled, or 400 parameter draws / df ~ 392 as measured? (D13's premise is refuted; ANSWER THIS FIRST)"
+    Q8: "HOW DOES THE NORMALIZED CONTRAST AGGREGATE — per-arm ratios differenced, or the raw contrast over ONE common denominator? The two readings have OPPOSITE SIGNS. (ANSWER THIS SECOND)"
+    Q1: "In which phase does the D17 624-cell reference check run?"
+    Q2: "effective_blocks_min = 4 — the advisor wrote 'too few independent blocks' with no number"
+    Q3: "A FOURTH outcome class was added to the advisor's three"
+    Q4: "'materially directionally inconsistent' was quantified"
+    Q5: "The two D17 columns the advisor named do not gate (AMENDMENT-1)"
+    Q7: "D17 gains two further gates and a SECOND TOLERANCE CLASS; a D17 PASS no longer means what it meant (AMENDMENT-4)"
+
+  # ===================================================================
+  # Q6 — THE HIGHEST-PRIORITY OPEN QUESTION IN THIS FILE.
+  # ===================================================================
+  Q6:
+    title: "Which inferential unit governs the addendum: 8 parameter-draw blocks with 7 df, as D13 rules, or 400 parameter draws with df ~ 392, as the code and the measurements show?"
+    amendment_ref: AMENDMENT-3
+    location_of_the_refutation: rulings.D13.premise_refuted_at_A0_1
+    severity: BLOCKS_A1_INFERENCE
+    status_of_D13: PREMISE_REFUTED_ADVISOR_RULING_REQUIRED
+    what_the_advisor_wrote: >
+      "D13 — ACCEPT. Use block-clustered inference on the 8 independent
+      parameter-draw blocks with 7 degrees of freedom. Use block-resampling
+      bootstrap. Never treat the 48 scenarios or 2,400 replicates as independent
+      inferential units. State the effective number of blocks and duplicated
+      conditions for every reported quantity."
+    the_premise_he_was_given: >
+      That the DGP parameters are drawn ONCE PER BLOCK and reused across that
+      block's 50 replicates, so that there are exactly 8 independent parameter
+      draws. That is what the A0 council record, 01A:362-366, 01A:411-417 and the
+      runner docstring all told him, and it is what "8 independent
+      parameter-draw blocks" names.
+    what_was_measured_after_the_ruling: >
+      The premise is FALSE. The replicate index is folded into the DGP seed
+      (addendum_seed) and draw_params is called INSIDE the replicate loop, so
+      parameters are drawn afresh for every replicate. Over 56 within-block
+      replicate pairs spanning ALL 8 blocks, max|a(r1) - a(r2)| ranged from
+      1.5211429810022610 to 4.5610643088552312 and was EXACTLY 0.0 in 0 of 56
+      pairs. The 400 addendum seeds produce 400 DISTINCT (a, b) byte signatures.
+      The repository's own frozen test
+      `test_replicate_still_varies_the_draw` already asserted this.
+    what_the_block_key_really_buys: >
+      Excluding delta_eta and n_train makes the 6 scenarios at a fixed
+      (block, replicate) share ONE parameter draw — measured max|da| = max|db| =
+      EXACTLY 0.0 over 80 comparisons spanning all 8 blocks. That exclusion is
+      correct and load-bearing. It establishes the CLUSTER, not the NUMBER of
+      draws. D13 inferred the second from the first.
+    what_survives_either_way: >
+      That sd/sqrt(48), and any per-scenario denominator, understates the
+      standard error. The 48 scenario means are clustered. That narrow finding
+      is correct and is not in question.
+    the_two_options:
+      option_A_as_ruled:
+        unit: "the block; 8 units; 7 df; block-resampling bootstrap"
+        what_it_would_have_to_be_re_justified_as: >
+          NOT as a fact about the parameter draws — that is refuted — but as a
+          deliberate ESTIMAND CHOICE: that the target of inference generalizes
+          to a POPULATION OF CONDITIONS beyond this frozen grid, so between-block
+          spread should be charged to the standard error. This is a defensible
+          scientific position and it is the advisor's to take. It must be stated
+          as an estimand choice.
+        cost: >
+          SE 10-20x larger than under option B; ~385 df of real information
+          discarded; a percentile bootstrap over 8 units admits at most 8^8
+          distinguishable resamples and has no usable tail resolution, so
+          B = 2000 is false precision; and E1c's per-replicate fiber_count
+          restriction cannot be applied coherently to 8 collapsed block means.
+      option_B_as_the_evidence_supports:
+        unit: "the parameter draw (block, replicate); 400 units per arm; cluster size 6; block a FIXED effect; df ~ 392 per arm"
+        rationale: >
+          The 8 blocks are a COMPLETE 2 x 2 x 2 enumeration of fixed design
+          factors, not a random sample. Between-block spread is designed
+          heterogeneity. This is the A0 council's own stated principle
+          (S0A_ADDENDUM_COUNCIL_REVIEW.md:229), applied consistently one level up.
+        aggregation: "collapse the 6 scenarios within a draw FIRST, keep the 50 draws per block; bootstrap resamples draws WITHIN block, stratified."
+        cost: >
+          If the intended estimand really is a population of conditions, option B
+          understates the uncertainty of THAT estimand.
+    the_conservative_choice_is_not_the_safe_choice:
+      statement: >
+        This must be stated plainly because the usual instinct is wrong here.
+        D16's E1 clauses are ONE-SIDED GREATER tests. An inflated standard error
+        does not merely widen an interval — it makes a NULL result spuriously
+        easy to obtain, and D16.outcome_classifications converts null results
+        into REPORTED CONCLUSIONS (NOT SUPPORTED, PARTIALLY SUPPORTED). Choosing
+        option A "to be safe" would systematically manufacture false nulls in
+        exactly the direction the pre-registered expectations are about.
+        Conservatism protects a two-sided claim; it does not protect a one-sided
+        one.
+    what_changes_if_he_rules_option_A:
+      inference: "D13 stands as written; its status returns to ACCEPTED_ADVISOR_RULING with the premise RESTATED as an estimand choice rather than as a fact about the draws."
+      required_wording_change: "01A:362-366 and 01A:411-417 remain corrected BY REFERENCE regardless — the factual sentences there are wrong either way."
+      also_required: "E1c needs a rule for applying a per-replicate restriction to block means, or an explicit statement that E1c reports descriptively; and the block-resampling bootstrap's 8-unit resolution limit must be disclosed wherever an interval is quoted."
+      retractions: "the retractions section still applies in full — the A0 CONFIRMED finding was confirmed on a false premise whichever unit is finally chosen."
+    what_changes_if_he_rules_option_B:
+      inference: "D13.operative_rule, inference_unit, n_blocks, degrees_of_freedom, aggregation_order and bootstrap.resampled_unit are replaced by rulings.D13.corrected_inferential_unit_proposed."
+      d16: "D16.common_statistic.inference follows D13; no D16 clause, no BH member and no outcome classification changes."
+      e1c: "E1c's restriction becomes coherent with no change to its own text."
+      disclosure: "D13.mandatory_disclosure_per_reported_quantity.required_fields gains effective_n_draws alongside effective_n_blocks; the disclosure rule itself is unchanged."
+      no_rerun: "nothing needs re-running. No addendum cell has been executed and no frozen output is affected."
+    what_A0_1_did_NOT_do: >
+      A0.1 did NOT adopt option B, did not implement it, and did not quietly
+      relax D13. D13's ruling text is preserved unedited above. A0.1 flagged the
+      premise, recorded the measurement, and returned the decision to the
+      advisor.
+    operative_until_he_rules: >
+      NEITHER SCHEME IS OPERATIVE. This is the one place in this file where no
+      frozen default is carried forward, because the ruled default is known to
+      rest on a false premise and adopting the alternative unilaterally would be
+      overriding a binding ruling. A1 inference is BLOCKED on this question. The
+      A1 runner may still be built, tested and gated; it may not compute a
+      standard error, a p-value or a q-value until Q6 is answered.
+
+  Q1:
+    title: "In which phase does the D17 624-cell reference check run?"
+    neutral_statement_of_the_tension: >
+      D17 requires persisting BOTH production and reference gaps and their
+      identity errors for at least 624 addendum cells. Production values for
+      ADDENDUM cells cannot exist until Phase A1 runs, because A0.1 is forbidden
+      to run any addendum cell. The advisor's A0.1 console block nevertheless
+      lists `D17 INDEPENDENT REFERENCE CHECK: <passed/required>` as an A0.1 line
+      item. The two are not jointly satisfiable as literally written.
+    adopted_reading_at_A0_1:
+      what_A0_1_does: >
+        A0.1 BUILDS and VALIDATES the reference-check harness against the
+        EXISTING FROZEN d = 3 arm, where production values already exist, and
+        reports `passed/required` over that existing-arm sample. This exercises
+        `sim1_core.reference_gap_report`, the six persisted columns, the
+        production-versus-reference comparison and the tolerance, without
+        executing a single addendum cell.
+      what_moves_to_A1: >
+        The >= 624 ADDENDUM-cell reference check becomes an A1 gate, folded into
+        the D18 criterion (new_acceptance_criteria.AD15) and evaluated before any
+        addendum cell is retained.
+    status_of_this_reading: ADOPTED_BUT_CONFIRMABLE
+    explicitly_not: "a settled decision, and not a narrowing of D17"
+    if_the_advisor_overrules: >
+      The alternative readings are (a) the A0.1 console line refers only to the
+      harness, which is what is adopted; or (b) D17's 624-cell check is deferred
+      in full and the A0.1 console line is reported as 0/624 required. Either can
+      be adopted without changing any other entry in this file; only the A0.1
+      console value and the placement of the check inside AD15 would change.
+  Q2:
+    title: "effective_blocks_min = 4 for the E1c low-power fallback"
+    location_of_the_frozen_value: rulings.D16.clauses.E1c.low_power_fallback.frozen_threshold_effective_blocks_min
+    what_the_advisor_wrote: >
+      Verbatim, under D16 E1c: "if too few independent blocks remain, report
+      descriptively without a significance claim." He set the RULE but named NO
+      NUMBER for "too few".
+    what_was_frozen_and_why:
+      value: 4
+      justification_as_recorded: >
+        With 3 or fewer surviving block means the cluster-robust t interval has
+        <= 2 df and is not usable, so 4 is the smallest count at which a
+        significance claim is defensible.
+      why_frozen_before_A1: >
+        So the threshold cannot be chosen after seeing the outcome. Freezing SOME
+        number before the run is not optional; which number it is, is his call.
+    the_alternative: >
+      Any other integer threshold. 5 or 6 is the natural stricter choice (4 or 5
+      df); 3 is the natural looser one, at the cost of a 2-df interval.
+    what_changes_if_he_rules_the_other_way:
+      if_stricter: "E1c is more likely to fall back to descriptive reporting; the BH family then has 2 members instead of 3, which LOWERS the q-values of E1a and E1b. This is not a neutral change to the other two clauses."
+      if_looser: "E1c keeps a significance claim on as few as 2-3 df, i.e. an interval wide enough to be near-uninformative but still quotable."
+      nothing_else: "no other entry in this file changes; the value appears in exactly one place."
+    operative_until_he_rules: 4
+
+  Q3:
+    title: "A FOURTH outcome class, INCONCLUSIVE_REPORTED_IN_FULL, was added to the advisor's three"
+    location_of_the_frozen_value: rulings.D16.outcome_classifications.residual_case
+    what_the_advisor_wrote: >
+      He specified EXACTLY THREE classes and their conditions: CONFIRMED
+      (positive primary normalized log-loss contrast, one-sided BH q < 0.05,
+      Brier contrast same direction); PARTIALLY SUPPORTED (primary positive but
+      q >= 0.05 WHILE raw log-loss and normalized Brier contrasts have the same
+      positive direction); NOT SUPPORTED (primary non-positive, or the principal
+      risk measures materially directionally inconsistent).
+    the_gap_that_was_found: >
+      A clause can satisfy none of the three. Concretely: primary normalized
+      log-loss estimate POSITIVE, q >= 0.05, but the raw log-loss contrast OR the
+      normalized Brier contrast is NON-POSITIVE while not being materially
+      directionally inconsistent. That case fails CONFIRMED (q), fails PARTIALLY
+      SUPPORTED (his "while" clause), and fails NOT_SUPPORTED (the primary is
+      positive and the inconsistency is below the materiality threshold).
+    what_was_frozen_and_why:
+      value: "a fourth class INCONCLUSIVE_REPORTED_IN_FULL, printing all four component estimates, explicitly never rounded up to PARTIALLY SUPPORTED"
+      justification_as_recorded: >
+        The alternative to naming the case is silently absorbing it into one of
+        the three, which would be a reporting decision made by omission.
+    why_this_is_promoted_rather_than_left_frozen: >
+      ADDING A CLASS TO HIS FROZEN DECISION RULES IS A MATERIAL CHANGE TO THE
+      RULES, not a clarification of them. He may consider a three-way partition
+      deliberate.
+    the_alternatives:
+      a: "keep the fourth class as frozen (operative default)"
+      b: "widen NOT_SUPPORTED to be the residual — anything not CONFIRMED and not PARTIALLY SUPPORTED is NOT SUPPORTED"
+      c: "widen PARTIALLY SUPPORTED by relaxing his 'while' clause to require only ONE of the raw log-loss / normalized Brier contrasts to be positive"
+    what_changes_if_he_rules_the_other_way:
+      if_b: "a positive-but-unconvincing clause is reported as NOT SUPPORTED, which overstates the negative. Only the label changes; the four component estimates are printed either way."
+      if_c: "the same clause is reported as PARTIALLY SUPPORTED, which overstates the positive. This is the direction the frozen text explicitly refuses ('never rounded up')."
+      nothing_else: "no estimate, no test, no q-value and no acceptance criterion depends on the class label — these are outcome summaries, not validity gates (his own words)."
+    operative_until_he_rules: "the fourth class, INCONCLUSIVE_REPORTED_IN_FULL"
+
+  Q4:
+    title: "'Materially directionally inconsistent' was quantified"
+    location_of_the_frozen_value: rulings.D16.outcome_classifications.NOT_SUPPORTED.materially_directionally_inconsistent_definition
+    what_the_advisor_wrote: >
+      "NOT SUPPORTED means the primary normalized estimate is non-positive or the
+      principal risk measures are materially directionally inconsistent." He used
+      the word "materially" without defining it.
+    what_was_frozen_and_why:
+      value: >
+        The normalized log-loss contrast and the normalized Brier contrast have
+        OPPOSITE SIGNS **AND** both absolute estimates exceed 1.0e-6.
+      justification_as_recorded: >
+        Opposite signs where either magnitude is at or below 1.0e-6 are numerical
+        noise, not material inconsistency. The threshold reuses the inherited
+        tolerances.positive_gap_min = 1.0e-6 (01_PROTOCOL_FREEZE.yaml:527) rather
+        than introducing a new constant into the freeze.
+    the_alternatives:
+      a: "keep the frozen definition (operative default)"
+      b: "a larger materiality threshold, e.g. a fraction of the estimate's own block-clustered SE, which would make 'material' scale with the noise rather than with an absolute constant"
+      c: "require the inconsistency to be statistically distinguishable from zero on both scales rather than merely to exceed a magnitude"
+    what_changes_if_he_rules_the_other_way:
+      if_b_or_c: "some clauses that the frozen rule labels NOT SUPPORTED would instead fall into the residual class of Q3. The two questions interact: the answer to Q4 changes WHICH cases land in Q3's fourth class."
+      nothing_else: "the definition appears in exactly one place and gates no acceptance criterion."
+    operative_until_he_rules: "opposite signs AND both |estimates| > 1.0e-6"
+
+  Q5:
+    title: "The two D17 columns the advisor named do not gate — his ruling as written does not do what he intended"
+    location_of_the_correction: rulings.D17.corrects_the_advisor_ruling_as_written
+    amendment_ref: AMENDMENT-1
+    what_the_advisor_wrote: >
+      "D17 — ACCEPT. Evaluate AD1 and AD2 using the independent
+      sim1_core.reference_gap_report implementation. ... Persist production and
+      reference log-loss/Brier gaps and their identity errors."
+    his_evident_intent: >
+      To escape a self-referential check. The A0 council found that
+      exact_gap_report computes the risk difference and the theoretical gap from
+      the SAME fiber_posteriors aggregation, so an identity error recomputed from
+      stored columns is ~1e-16 BY CONSTRUCTION and AD1/AD2 would pass whatever
+      the fiber algebra does.
+    what_was_measured_after_the_ruling: >
+      Three defects injected in-process into the D17 harness. Two of them made
+      the production result wrong by 5.5e-07 and 1.1e-02, and BOTH identity-error
+      columns he named stayed UNCHANGED at 5.4e-15. A third defect (fiber
+      merging) moved neither the identity errors nor the production-versus-
+      reference difference; only a recomputed-versus-stored fiber_count caught
+      it (0/624 match). Full table: rulings.D17.measured_sensitivity_at_A0_1.
+    root_cause_in_one_sentence: >
+      reference_gap_report defines ebar_f as its own mass-weighted within-fiber
+      mean, so its internal identity telescopes exactly and is a self-check of
+      the same class as the production one; and both paths consume the same fid,
+      so fiber-construction defects evade the cross-implementation comparison
+      too — the exact failure class the docstring at sim1_core.py:332-346 warns
+      about.
+    what_was_frozen_and_why:
+      value: >
+        The two named columns are RETAINED as mandatory persisted columns but
+        RECLASSIFIED as DESCRIPTIVE_NOT_GATING. AD1/AD2 gate conjunctively on
+        (G1) |production - reference| on both risk scales at exact_identity_abs,
+        and (G2) recomputed_fiber_count == stored_fiber_count.
+      justification: >
+        G1 and G2 together detect all three injected defects and each is
+        necessary; the columns he named detect none of them. His sampling rule,
+        his choice of reference implementation and his tolerance are unchanged.
+    the_alternative: >
+      Gate on the identity-error columns as literally written. The measured
+      evidence shows that gate cannot fail.
+    what_changes_if_he_rules_the_other_way: >
+      AD1/AD2 become a check that passes unconditionally; that must then be
+      stated plainly in the acceptance report rather than reported as a passed
+      verification. The persisted columns are identical either way, so the
+      decision can be revisited after A1 without rerunning anything.
+    operative_until_he_rules: "G1 AND G2, with the named identity errors persisted but descriptive"
+    also_for_his_attention: >
+      The on-disk 05b `representation_loss` column is a MONTE-CARLO PLUG-IN over
+      the 50,000-row evaluation sample, differing from the exact population gap
+      by up to 1.07e-3. D17's "must also satisfy exact_identity_abs" (1.0e-10) is
+      therefore NOT SATISFIABLE against that stored column, and would fail for a
+      CORRECT implementation. It is implemented against the exact fast path
+      instead. See rulings.D17.representation_loss_is_monte_carlo.
+
+  Q7:
+    title: "D17 gains two further gates and a second tolerance class: a D17 PASS no longer certifies what it certified when the ruling was written"
+    location_of_the_correction: rulings.D17.evaluation_rule.ad1_ad2_gating_rule
+    amendment_ref: AMENDMENT-4
+    this_is_the_third_correction_to_D17: >
+      Stated plainly because the pattern is itself evidence. D17 as the advisor
+      wrote it did not gate (Q5). D17 as AMENDMENT-1 amended it gates against
+      three defect classes but not against a fourth. Each correction was forced
+      by a measurement taken after the previous one, not by a change of mind.
+    what_the_advisor_wrote: >
+      "D17 — ACCEPT. Evaluate AD1 and AD2 using the independent
+      sim1_core.reference_gap_report implementation. ... Persist production and
+      reference log-loss/Brier gaps and their identity errors." His ruling names
+      ONE tolerance for the comparison it requires: the inherited
+      exact_identity_abs.
+    what_was_measured_after_AMENDMENT_1: >
+      A Phase A0.1 review council attacked the amended two-gate rule from two
+      independent seats. council-Claude executed a fiber-assignment permutation
+      in the runner: 1,027 tests passed, relative_log_gap on hash_column/B0
+      moved 0.1564 -> 0.4715 (3.01x), and both surviving gates read clean.
+      Codex derived the same class independently (C4, a wrong same-cardinality
+      partition). Reproduced on the frozen d = 3 arm through the D17 harness
+      itself: fiber_permute leaves |production - reference| at 5.4e-15 and
+      fiber_count at 624/624 while corrupting the population gap.
+    what_was_frozen_and_why:
+      value: >
+        TWO further co-equal gates. G3: the stored representation loss must
+        agree with the recomputed exact population gap to within
+        6 * stored_mcse + 1e-9, per metric. G4: the stored canonical partition
+        fingerprint must equal the recomputed one, exactly.
+      justification: >
+        G3 is the only comparison in D17 that crosses the fiber-construction
+        boundary, because the stored value is the runner's Monte-Carlo risk
+        under the partition the runner ACTUALLY used. G4 is required in
+        addition because G3's tolerance is the Monte-Carlo noise floor: the
+        minimal same-cardinality defect moved the gap in 151 cells and G3 saw 6
+        of them, none of them a hash configuration — and at d = 5 the six hash
+        configurations are the ONLY ones with a non-trivial partition.
+    what_this_changes_about_a_D17_PASS: >
+      A PASS now asserts four things rather than two, and one of them is
+      asserted at a tolerance the advisor never set. A run that would have been
+      reported as a clean D17 PASS under AMENDMENT-1 can now FAIL, and the
+      failure would be reported, not retuned (provenance.immutability).
+    the_new_tolerance_class_he_has_not_seen:
+      what: "6 * stored_mcse + 1.0e-9, applied to G3 only"
+      why_it_is_not_covered_by_his_ruling: >
+        `tolerance_ref` in this file is exact_identity_abs = 1.0e-10, inherited
+        from 01_PROTOCOL_FREEZE.yaml:525. It is an EXACT tolerance and G3 does
+        not compare two exact numbers: the stored column is a Monte-Carlo
+        plug-in that differs from the exact gap by up to 1.07e-3 on a CORRECT
+        implementation, so gating it at 1.0e-10 would fail a correct run. No
+        constant absolute tolerance works either, because the sample's mcse
+        spans 0 to 6.8e-4. A tolerance scaled by the stored quantity's own
+        standard error is the only one that adapts.
+      how_k_was_chosen: >
+        k = 6 is the constant already used by the runner-level AD1/AD2 property
+        test. On the 624 clean cells the worst uses 0.592 of its budget
+        (3.55 mcse); at k = 3 two clean cells would fail. It was fixed before
+        the attacks were run and was not widened to fit anything.
+      the_floor: "1.0e-9, because 202 of 624 clean cells have mcse exactly 0 (the injective encoders satisfy ebar == eta pointwise); their observed differences are at most 2.2e-16"
+    what_G4_costs: >
+      One new persisted column on the A1 runner, `fiber_fingerprint` (32 hex
+      characters per SUCCESS row), and a new pure function
+      sim1_core.partition_fingerprint. No existing column, row count or number
+      changes. The frozen d = 3 twin predates the column, so G4 reports
+      NOT_EVALUATED there and is live only on the A1 arm.
+    the_alternatives:
+      a: "ratify both gates as frozen (operative default)"
+      b: "ratify G3 and decline G4, accepting that the minimal same-cardinality defect is detected in ~1% of cells and that at d = 5 the exposure is concentrated in the six hash configurations"
+      c: "decline both and keep the AMENDMENT-1 two-gate rule, in which case the acceptance report must state that a defect corrupting the D16 primary statistic by 3x passes D17 with every column reading clean"
+    what_changes_if_he_rules_the_other_way: >
+      Nothing needs re-running either way: the gates are evaluated after the A1
+      arm from persisted columns, and every column is persisted under all three
+      alternatives. Only the verdict changes.
+    operative_until_he_rules: "G1 AND G2 AND G3 AND G4, conjunctively"
+
+  # ===================================================================
+  # Q8 — THE SECOND QUESTION THAT BLOCKS A1 INFERENCE.
+  # ===================================================================
+  Q8:
+    title: "How does the normalized contrast aggregate: the DIFFERENCE OF THE TWO ARMS' PER-ARM RATIOS, or the RAW CONTRAST OVER ONE COMMON DENOMINATOR? The two readings have opposite signs."
+    amendment_ref: AMENDMENT-5
+    severity: BLOCKS_A1_INFERENCE
+    provenance_document: S0B_NORMALIZED_CONTRAST_SENSITIVITY.md
+    verification_ref: a0_1_verification.V13
+    what_the_advisor_wrote: >
+      D14: "Report both: 1. raw absolute risk gaps; and 2. signal-normalized
+      gaps", followed by two formulas that are stated PER ARM —
+      relative_log_gap = (R_log*(Z) - R_log*(X)) / (H(Y) - R_log*(X)) and
+      relative_brier_gap = (R_Brier*(Z) - R_Brier*(X)) / Var{eta(X)}.
+      D16 E1a then makes the primary statistic "the block-clustered d=5 minus
+      d=3 relative (signal-normalized) log-loss gap, i.e. the contrast in
+      relative_log_gap as defined in D14.estimands.normalized". Neither text
+      says HOW the contrast of a RATIO is formed.
+    what_is_left_undetermined:
+      a_the_decisive_one: >
+        Is the normalized contrast the DIFFERENCE OF TWO PER-ARM RATIOS (two
+        different denominators, which is what D14's per-arm formula literally
+        gives), or the RAW CONTRAST DIVIDED BY ONE COMMON DENOMINATOR (the d=3
+        arm's, or the two arms' mean)? D14's formula excludes the second reading;
+        D16's wording never forbids it; and it is the reading under which the
+        headline FLIPS SIGN.
+      b: >
+        At which level does the division happen when replicates are averaged?
+        01A contrast.aggregation ("replicates are averaged WITHIN scenario
+        first") is unambiguous for a LINEAR quantity; relative_log_gap is a
+        RATIO, and "average the replicates first" does not say whether the
+        average is of the ratio, or inside it.
+      c: >
+        Is the primary pooled over the three delta_eta levels, or reported per
+        level? D14 mandates per-stratum reporting for interaction_pairs and is
+        SILENT on delta_eta.
+    measured_at_A0_1:
+      how: >
+        Exact 1024-state population layer, 50 replicates per block per arm, 8
+        blocks; t throughout uses D13's unit as ruled (8 block means, 7 df) so
+        the rows isolate the AGGREGATION choice. No learner is fitted and ZERO
+        addendum cells were executed. Command:
+        `PYTHONPATH=src /Users/Eric/.pyenv/versions/3.11.9/bin/python3
+        scripts/s0b_normalized_contrast_sensitivity.py --reps 50` (about 5 s).
+      not_identified_handling: "min denominator observed 2.713e-03 (log) and 1.354e-03 (Brier) against D14's tolerance 1.0e-06 — NO cell is NOT_IDENTIFIED, so no row below is affected by that rule."
+      E1a_hash_shared:
+        - "reading (a) PER-ARM, A1 mean-of-ratios:            -0.01815  SE 0.01007  t -1.80  blocks>0 1/8"
+        - "reading (a) PER-ARM, A2 ratio-of-means in scenario: -0.01964  SE 0.01023  t -1.92  blocks>0 1/8"
+        - "reading (a) PER-ARM, A3 ratio-of-means in block:    -0.01790  SE 0.01115  t -1.61  blocks>0 1/8"
+        - "reading (a) PER-ARM, A6 d=3 numerator from the frozen twin: -0.01822  SE 0.01000  t -1.82  blocks>0 1/8"
+        - "reading (a) COMMON DENOMINATOR, A4 over the d=3 denominator: +0.34759  SE 0.06242  t +5.57  blocks>0 8/8"
+        - "reading (a) COMMON DENOMINATOR, A5 over the two-arm mean:    +0.19357  SE 0.03222  t +6.01  blocks>0 8/8"
+        - "level (c), A1 at delta_eta 0.0 / 0.1 / 0.3: -0.02353 (t -3.37) / -0.02023 (t -1.74) / -0.01069 (t -0.78)"
+        - "RAW log-loss contrast (linear, ratio-order-free): +0.00919  SE 0.00198  t +4.64  blocks>0 8/8"
+        - "normalized Brier companion (A1): -0.01967  SE 0.01037  t -1.90  blocks>0 1/8"
+      E1b_hash_column_mean_B0_B1:
+        - "reading (a) PER-ARM, A1 mean-of-ratios: -0.05182  SE 0.01961  t -2.64  blocks>0 2/8"
+        - "reading (a) COMMON DENOMINATOR, A4 over the d=3 denominator: +0.11646  SE 0.04592  t +2.54  blocks>0 7/8"
+        - "reading (a) COMMON DENOMINATOR, A5 over the two-arm mean:    +0.04619  SE 0.02936  t +1.57  blocks>0 6/8"
+        - "RAW log-loss contrast: +0.00129  SE 0.00209  t +0.62  blocks>0 6/8"
+      what_does_NOT_matter: >
+        Three folding rules that were suspected of being ambiguous are
+        IMMATERIAL to the estimate, and this narrows the question to (a)-(c)
+        above. E1a's B0/B1/B2 collapse: max|rel_log(B0) - rel_log(B1 or B2)| =
+        4.25e-14 over all 2,400 cells, so the three widths induce one partition.
+        E1b's "average B0 and B1": the denominator does not depend on the
+        encoder, so mean-of-normalized IS normalized-of-mean, exactly.
+        Recomputing the d=3 arm exactly versus reading it from the frozen twin:
+        -0.01822 vs -0.01815 (E1a), -0.05185 vs -0.05182 (E1b).
+    the_finding_this_decides:
+      claim_at_stake: "the normalized contrast has the OPPOSITE SIGN to the raw contrast."
+      survives: >
+        ALL ELEVEN per-arm aggregations measured for E1a — A1, A2, A3, A6, the
+        three delta_eta levels, both interaction_pairs strata, every width
+        folding, and the normalized Brier companion — are NEGATIVE, spanning
+        -0.0179 to -0.0196, with 1 of 8 blocks positive, against a raw contrast
+        that is positive in 8 of 8 blocks. The reversal does NOT depend on how
+        replicates, delta_eta levels or bucket widths are folded.
+      reverses: >
+        Under BOTH common-denominator readings the normalized contrast is
+        POSITIVE and there is NO REVERSAL AT ALL: A4 +0.34759 (t +5.57, 8/8) and
+        A5 +0.19357 (t +6.01, 8/8) for E1a. The reversal is proof against every
+        choice INSIDE D14's per-arm formula and disappears under a reading D14's
+        formula excludes but D16's wording never explicitly forbids.
+      caveat_the_claim_rests_on_E1a_alone: >
+        E1b's RAW contrast is only +0.00129 with t = +0.62 (6 of 8 blocks), so
+        E1b is "raw approximately zero, normalized negative" rather than a
+        reversal. The reversal claim rests on E1a, where the raw contrast is
+        unambiguous at +0.00919, t = +4.64, 8 of 8 blocks.
+    the_alternatives:
+      a1_per_arm: "the difference of the two arms' relative_log_gap values, as D14's formula literally reads. OPERATIVE DEFAULT."
+      a2_common_denominator: "the raw contrast over one denominator — the d=3 arm's, or the two arms' mean. D16 does not exclude it in words."
+      c1_pooled: "one primary pooled over the three delta_eta levels. OPERATIVE DEFAULT."
+      c2_per_level: "a primary per delta_eta level, as D14 already requires for interaction_pairs."
+    what_changes_either_way:
+      if_per_arm_a1: >
+        E1a's primary is negative and not significant at the ruled unit
+        (-0.0182, t = -1.80, q >= 0.05). Under D16's outcome_classifications
+        that is NOT SUPPORTED (the primary normalized estimate is non-positive),
+        and the raw/normalized sign reversal becomes the addendum's headline
+        finding and must be reported as such.
+      if_common_denominator_a2: >
+        E1a's primary is positive and significant (+0.348, t = +5.57, 8/8
+        blocks), which is CONFIRMED provided the Brier contrast agrees in
+        direction. The sign reversal disappears entirely and the addendum's
+        headline is the opposite one. Nothing needs re-running: both readings
+        are computed from the same persisted columns.
+      if_per_level_c2: >
+        The estimate moves by a factor of about 2 and is MONOTONE in delta_eta
+        (E1a -0.0235 at 0.0 to -0.0107 at 0.3; E1b -0.0793 to -0.0214). Which
+        level is primary would then have to be named. Level (b) moves the
+        estimate by less than 0.002 and can be settled by fiat.
+      nothing_needs_rerunning: >
+        Every reading is a function of the same persisted per-arm risks, so Q8
+        can in principle be answered after A1 — but the primary statistic, the
+        BH adjustment set and the E1 outcome classification all depend on it,
+        so answering it afterwards means choosing the headline after seeing it.
+        That is why it is raised before A1 rather than after.
+    the_unreproduced_acceptance_check_figure:
+      figure: "mean -0.0028, t = -0.58, 3 of 8 blocks positive"
+      source: "the A0.1 acceptance check's own independent reproduction of the E1a normalized contrast"
+      status: NOT_REPRODUCED_BY_ANY_ENUMERATED_ROUTE
+      what_was_tried: >
+        None of the eleven per-arm aggregations, neither common-denominator
+        reading, no delta_eta restriction, no width folding and no inference unit
+        lands near it. Three further readings outside D14's formula were also
+        tested and are also not it: hashing the d=3 arm on its active 3-column
+        space (+0.12228, t +9.15, 8/8), using H(Y) alone as the denominator
+        (+0.01324, t +4.64, 8/8), and normalizing the contrast by the d=5
+        denominator (+0.12805, t +4.88, 7/8). Two structural coincidences, offered
+        so the check can locate its own route rather than as an explanation:
+        t = -0.58 is exactly the E1b interaction_pairs = 0 per-stratum statistic
+        (estimate -0.01247, 2 of FOUR blocks positive, a 4-block cut); and
+        "3 of 8 blocks positive" occurs at A1 restricted to delta_eta = 0.3
+        (-0.01069, t -0.78) and at E1b A3 (-0.04493, t -2.03).
+      rule: >
+        The check's estimate AGREES with the measurement above in sign and in
+        significance verdict and DISAGREES in magnitude by a factor of about 6.
+        Until the check publishes its aggregation, -0.0028 MUST NOT be quoted
+        beside -0.0182 as though the two were competing measurements of one
+        estimand. Neither figure is withdrawn; the route is what is missing.
+    related: "D16's inference line still inherits D13's refuted premise — Q6. Q6 fixes the inference UNIT; Q8 fixes the QUANTITY. They are independent and both must be answered."
+    what_is_required: "One sentence fixing (a), and a statement on (c), before A1 is authorised."
+    operative_until_he_rules: >
+      Reading (a)-PER-ARM (the difference of the two arms' relative_log_gap
+      values), pooled over delta_eta, with the per-stratum interaction_pairs
+      disclosure D14 already mandates. This default is operative so that the
+      package has one, NOT because the question is settled.
+
+  nothing_else_is_open: >
+    D14 and D15 and D18 are ACCEPTED and closed. D17's SUBSTANCE is accepted but
+    it now carries TWO corrections pending ratification (Q5, Q7). D13 IS NO
+    LONGER CLOSED: its factual premise was refuted by measurement on 2026-08-24
+    and it is returned to the advisor as Q6 (AMENDMENT-3). D16's SUBSTANCE — the
+    E1a/E1b/E1c split and the outcome classifications — is accepted, but its
+    PRIMARY STATISTIC is no longer fully specified: AMENDMENT-5 measured the
+    contrast of D14's per-arm ratio to be aggregation-dependent in sign, and
+    that is returned to the advisor as Q8. The EIGHT questions above, plus the
+    items recorded under deferred_semantic_questions, are the complete list of
+    what this file asks the advisor to decide. This sentence previously read
+    that Q1 was the only such item (corrected by AMENDMENT-2), then that D13 was
+    closed (corrected by AMENDMENT-3), then that D17 was closed (corrected by
+    AMENDMENT-4), then that D16's substance was closed without qualification
+    (corrected by AMENDMENT-5).
+
+# -----------------------------------------------------------------------------
+# DEFERRED SEMANTIC QUESTIONS — recorded for the advisor, NOT decided here.
+# These are inherited-semantics conflicts, not new design choices. The A1 runner
+# takes the strict reading in each case; the advisor may direct otherwise.
+# -----------------------------------------------------------------------------
+deferred_semantic_questions:
+  status: RECORDED_NOT_DECIDED
+  recorded_at: 2026-08-24
+  count: 1
+  DQ1:
+    title: "Does 'NULL metrics on a non-SUCCESS row' apply to METRIC_UNDEFINED, which currently KEEPS its metrics?"
+    the_conflict:
+      inherited_rule: >
+        01A (carried into new_acceptance_criteria.AD15 item 8, and into the
+        advisor's own D18 bullet "require NULL metrics on non-success rows")
+        states that a non-SUCCESS cell carries NULL metrics.
+      what_the_existing_runner_does: >
+        scripts/run_sim1b_finite.py:235 sets status = METRIC_UNDEFINED on a row
+        that has ALREADY been populated with a valid log-loss, risk decomposition
+        and representation loss. The status is stamped because the EVALUATION
+        SAMPLE turned out to be single-class, which makes ROC-AUC and PR-AUC
+        undefined — not the log-loss.
+      the_tension: >
+        The strict reading NULLs the whole row, discarding a log-loss that is
+        perfectly well defined. The permissive reading keeps the metrics and
+        treats METRIC_UNDEFINED as a per-column annotation about the AUC columns
+        only, which weakens the "no failure is stored as a valid number" guard.
+    what_the_new_runner_does: "the STRICT reading — a METRIC_UNDEFINED row carries NULL metrics"
+    reachability_in_the_frozen_addendum_design:
+      question_as_posed: "is the single-class evaluation sample reachable at all, in the frozen design?"
+      finding: NOT_REACHABLE_IN_PRACTICE
+      argument:
+        - "the evaluation sample is n_eval = 50,000 i.i.d. draws (01A design.n_eval = 50000; sim1_design.N_EVAL = 50_000; run_sim1b_finite.py:131 n_test = D.N_EVAL, drawn at run_sim1b_finite.py:142)"
+        - "single-class means all 50,000 labels equal — the event tested at run_sim1b_finite.py:207, len(np.unique(yev)) > 1"
+        - "01A exactness.consequences_verified_at_A0 records, as a VERIFIED property of the frozen addendum design: 'eta stays inside [0.05, 0.95] at all 1024 states, so clipping never occurs'"
+        - "with eta bounded in [0.05, 0.95] at every state, P(all 50,000 labels identical) <= 2 x 0.95^50000"
+      numeric_bound: "<= 10^-1113.5 (log10(2) + 50000*log10(0.95) = -1113.52)"
+      provenance_one_liner: "/Users/Eric/.pyenv/versions/3.11.9/bin/python3 -c \"from math import log10; print(log10(2)+50000*log10(1-0.05))\""
+      addendum_cells_executed_by_this_check: 0
+      conclusion: >
+        In the FROZEN addendum design the branch is unreachable, so the strict
+        reading discards nothing in practice and the two readings cannot
+        disagree on any retained row. The question is therefore about the RULE,
+        not about any row that will exist.
+      scope_caveat: >
+        This bound depends on the [0.05, 0.95] eta guarantee, which is a property
+        of the frozen addendum design at M = 5, K = 4, d_active = 5 and
+        tau in {0.5, 1.5}. It does NOT transfer to any future configuration with
+        a wider eta range or a smaller n_eval, and the strict reading should not
+        be relaxed on the strength of an unreachability that a design change
+        could remove.
+    what_the_advisor_is_asked: >
+      Whether METRIC_UNDEFINED is (a) a non-SUCCESS status subject to the NULL
+      rule — the strict reading, currently implemented — or (b) a per-column
+      annotation that leaves valid metrics in place. The unreachability above
+      means either answer costs nothing on the addendum arm.
+    binding_status: "the strict reading is operative; no A1 output depends on the difference"
+
+# -----------------------------------------------------------------------------
+# Prohibitions in force
+# -----------------------------------------------------------------------------
+# RETRACTIONS — a Phase A0 finding delivered to the advisor as CONFIRMED is
+# PARTIALLY RETRACTED. Recorded here, by reference. Nothing is edited or erased.
+# -----------------------------------------------------------------------------
+retractions:
+  status: RECORDED_BY_REFERENCE
+  added_by: AMENDMENT-3
+  date: 2026-08-24
+  count: 1
+  R1:
+    title: "Phase A0 criterion C2: the CONFIRMED status is partially retracted — its premise, not its conclusion"
+    what_was_delivered_to_the_advisor: >
+      The Phase A0 council record delivered criterion C2 to the advisor as
+      CONFIRMED: that the uncertainty scheme was anti-conservative BECAUSE the
+      48 scenario pairs "cluster into 8 parameter-draw blocks", with
+      `seed.nunique() == 400 == 8 blocks x 50 replicates` cited as the
+      confirming measurement. D13 was ruled on that record.
+    what_is_retracted:
+      - "the premise: that there are 8 independent parameter draws. There are 400 — one per (block, replicate). Parameters are drawn afresh for every replicate."
+      - "the evidence line: `seed.nunique() == 400` was read as confirming 8 draws. It measures 400 DISTINCT PARAMETER DRAWS and therefore REFUTES the premise it was cited for."
+      - "the remedy that followed from the premise: collapse to 8 block means with 7 df."
+    what_is_NOT_retracted:
+      - "the narrow conclusion that `sd/sqrt(48)`, and any per-scenario denominator, UNDERSTATES the standard error. The 48 scenario means ARE clustered — 6 scenarios share every parameter draw. That finding stands."
+      - "the finding that the block key's exclusion of delta_eta and n_train is correct and is what keeps the within-DGP contrasts paired. Confirmed by measurement at exactly 0.0."
+      - "any other A0 criterion. This retraction is scoped to C2's premise and to the inference drawn from it."
+    proof_of_the_retraction: rulings.D13.premise_refuted_at_A0_1
+    sites_carrying_the_retracted_premise:
+      note: >
+        Listed so the advisor can see every place the false premise reached him.
+        Line numbers are as of 2026-08-24.
+      immutable_A0_record_NOT_EDITED:
+        - "S0A_ADDENDUM_COUNCIL_REVIEW.md:62 — the C2 row: 'they cluster into 8 parameter-draw blocks' and 'CONFIRMED. seed.nunique() == 400 == 8 blocks x 50 replicates'"
+        - "S0A_ADDENDUM_COUNCIL_REVIEW.md:229 — the long C2 paragraph. Its OWN closing argument ('sd across a fixed, exhaustively enumerated factorial grid is designed heterogeneity, not Monte Carlo error; calling it MCSE mislabels it') refutes its own remedy, because it applies verbatim to the 8 block means."
+        - "S0A_ADDENDUM_PREFLIGHT_REPORT.md:43 — criterion C2 statement"
+        - "S0A_ADDENDUM_PREFLIGHT_REPORT.md:47 — 'corrected to block-clustered inference on 8 blocks (7 df)'"
+        - "S0A_ADDENDUM_PREFLIGHT_REPORT.md:317 — the seed.nunique() == 400 evidence line"
+        - "S0A_ADDENDUM_PREFLIGHT_REPORT.md:333 — 'Adopted correction (D13): cluster-robust inference on the 8 blocks (7 df)'"
+        - "S0A_ADDENDUM_PREFLIGHT_REPORT.md:606 — the C2 summary row: 'there are only 8 blocks'"
+      why_the_S0A_files_are_not_edited: >
+        Prohibition PR3 and the advisor's own instruction — "Do not overwrite or
+        erase the A0 freeze or council record" — are ABSOLUTE. The A0 record is
+        the evidence of WHAT HE WAS TOLD when he ruled; editing it would destroy
+        the only trace of why D13 says what it says, and would make the
+        correction unauditable. It is corrected BY REFERENCE from this file, in
+        the same way 01A is corrected by reference, and for the same reason.
+      A0_1_files_that_may_be_and_should_be_corrected:
+        - path: "S0B_ADVISOR_RULING_IMPLEMENTATION_REPORT.md:28"
+          text: "the section heading 'D13 — block-clustered inference on 8 blocks, 7 df'"
+          status: NOT_CORRECTED_BY_THIS_WORK_ITEM
+          reason: >
+            This work item is scoped to 01B_ADDENDUM_ADVISOR_RULINGS.yaml alone
+            and a sibling A0.1 work item is concurrently editing other files.
+            The site is named here so it is not lost. It is an A0.1 product, not
+            part of the A0 freeze, so it is correctable.
+        - path: "scripts/run_sim1b_dense_addendum.py:305-313"
+          text: >
+            the `addendum_block` docstring, which asserts that the block key
+            "makes the 48 scenarios cluster into 8 parameter-draw blocks
+            (decision D13: those 8 blocks, with 7 degrees of freedom, are the
+            inferential units)".
+          status: NOT_CORRECTED_BY_THIS_WORK_ITEM
+          reason: >
+            Same scope restriction. This docstring is the ORIGIN of the false
+            premise in the A0 chain, and it sits one file away from
+            tests/test_a0_dense_addendum_properties.py::test_replicate_still_varies_the_draw,
+            which asserts the opposite. Whichever way Q6 is settled, that
+            docstring must stop stating the premise as a fact about parameter
+            draws.
+    what_is_NOT_affected:
+      raw_outputs: "NONE. No frozen raw output changes."
+      cells: "NONE. No addendum cell needs re-running; zero addendum cells have been executed."
+      manifests: "NONE. Neither RAW_FREEZE_MANIFEST.json nor RAW_FREEZE_MANIFEST_ADDENDUM.json is affected."
+      acceptance_criteria: "NONE of A1-A15 or AD1-AD15. This is an inference-scheme defect only."
+      the_completed_arm: "The completed arm's 13/13 statement is untouched."
+    numbers_that_must_be_re_derived_before_reuse:
+      - claim: "'one seat measured a 2.4x understatement' of sd/sqrt(48) (01A:411-417 / S0A preflight)"
+        why: "derived under the refuted premise. The measured SE(8 blk)/SE(48 scen) ratios on the frozen twin are 1.00-1.95."
+      - claim: "'82% of the clustered variance is fixed-factor heterogeneity' (earlier council seat)"
+        why: >
+          NOT an unreproduced number — this entry was CORRECTED by AMENDMENT-5.
+          The figure reproduces exactly (81.7%) under the seat's own method A
+          formula. Its defect is that the formula divides the draw variance by
+          the 3 delta_eta levels, which share one draw bit for bit; corrected on
+          the same data and the same estimand the share is 55.1%. Quote 55.1%;
+          quote 81.7% only as the superseded figure with its defect named. See
+          rulings.D13.consequences_if_D13_is_implemented_as_written.c2_between_block_variance_share.
+
+# -----------------------------------------------------------------------------
+prohibitions:
+  - id: PR1
+    rule: "ZERO full addendum cells at A0.1. A0.1 may write the amendment, the runner, the tests and the validation reports, and may run nothing that produces an addendum result row."
+    measured: "addendum cells run at A0.1 = 0; real-data models run = 0; GPU hours = 0"
+  - id: PR2
+    rule: "01A_ADDENDUM_PROTOCOL_FREEZE.yaml is IMMUTABLE and was not modified, overwritten or deleted by A0.1."
+  - id: PR3
+    rule: "Every S0A_* record (preflight report, council review, test report, resource estimate, microbenchmark rows) is IMMUTABLE and was not modified, overwritten or deleted. The A0 freeze and the council record are preserved intact."
+  - id: PR4
+    rule: "01_PROTOCOL_FREEZE.yaml, RAW_FREEZE_MANIFEST.json and every frozen raw output (05a/05b/05c/05d parquet, 12_SIM2_RESULTS.csv) are IMMUTABLE and were not modified."
+  - id: PR5
+    rule: "Acceptance criteria A1-A15 are not edited, not extended and not renumbered. The completed arm's 13/13 statement stands unchanged and is NEVER restated as \"13/13 + n\"."
+  - id: PR6
+    rule: "No real dataset, real-data model, image, prediction or target is read, trained, regenerated or modified. No manuscript prose is written. GPU use is forbidden."
+  - id: PR7
+    rule: "PHASE A1 MAY NOT BEGIN without the advisor's next authorization string. A0.1 stops after its status block and waits."
+  - id: PR8
+    rule: "No git write of any kind in A0.1 — no commit, add, tag, push, checkout, reset, config or stash. The orchestrator commits. The deliberately dirty Phase R provenance stamping in the working tree is neither committed nor reverted (01A decisions.D0, D10)."
+
+# -----------------------------------------------------------------------------
+# What A0.1 verified while writing this file (read-only; no cell executed)
+# -----------------------------------------------------------------------------
+a0_1_verification:
+  interpreter: /Users/Eric/.pyenv/versions/3.11.9/bin/python3
+  conda_t2i_used: false
+  addendum_cells_run: 0
+  real_data_models_run: 0
+  gpu_hours_used: 0
+  checks:
+    - id: V1
+      what: "block key yields exactly 8 blocks over the frozen 48-scenario grid"
+      result: "48 scenarios -> 8 distinct blocks; 8 blocks x 50 replicates -> 400 distinct addendum seeds"
+    - id: V2
+      what: "frozen twin block structure"
+      result: "05b at M=5,K=4: seed.nunique() == 400, replicate 1..50 (50 distinct) => 8 blocks"
+      amendment_3_correction: >
+        The measurement is correct; the "=> 8 blocks" INFERENCE is withdrawn.
+        400 distinct seeds are 400 distinct PARAMETER DRAWS, one per
+        (block, replicate). See V11 and rulings.D13.premise_refuted_at_A0_1.
+    - id: V3
+      what: "eta is the conditional probability, not a linear predictor"
+      result: "sim1_core.py:156-162 returns 1/(1+exp(-tau*g)); sim1_core.py:256-259 defines R_Brier*(X) = E[eta(1-eta)]"
+    - id: V4
+      what: "Var{eta(X)} == Var(Y) - R_Brier*(X) on the exact 1024-state law"
+      result: "max |residual| = 1.1102230246251565e-16 over 24 draws at d=5; max |E[eta(1-eta)] - R_Brier*(X)| = 0.0"
+    - id: V5
+      what: "denominator magnitudes against the frozen 1e-6 tolerance"
+      result: "min (H(Y)-R_log*(X)) = 0.00786; min Var{eta(X)} = 0.00390 over 96 exact denominators at d in {3,5}"
+    - id: V6
+      what: "sim1_core.reference_gap_report exists with the expected signature"
+      result: "src/ct2i_benchmark/simulations/sim1_core.py:332 — reference_gap_report(fid, p_cell, eta) -> dict"
+    - id: V7
+      what: "AD id collision check"
+      result: "01A defines AD1-AD14 (AD13 at 01A:648, AD14 at 01A:652); parent freeze uses A1-A15 only; AD15 free"
+    - id: V8
+      what: "fiber_count non-emptiness line in 01A"
+      result: "01A:480 quotes {576, 768, 1024} under uniform and {768, 1024} under Zipf"
+    - id: V9
+      what: "inherited tolerances"
+      result: "01_PROTOCOL_FREEZE.yaml:525-529 — exact_identity_abs 1e-10, zero_gap_abs 1e-12, positive_gap_min 1e-6, decomposition_identity_abs 1e-9, monte_carlo_gap_abs max(5*MCSE,1e-4)"
+    - id: V10
+      what: "the setup-exception and exact_or_mc defects named in AD15 items 7 and 9"
+      result: "scripts/run_sim1b_finite.py:150-151 `except Exception as e:` + `continue`; scripts/run_sim1b_finite.py:160 sets exact_or_mc='mc'"
+    - id: V11
+      added_by: AMENDMENT-3
+      verification_log_annotation_completed_by: AMENDMENT-4
+      what: "are the DGP parameters drawn once per block, or afresh per replicate?"
+      method: "regenerated parameters only, through the production seed rule (run_sim1b_dense_addendum.addendum_block / addendum_seed) and sim1_core.draw_params(..., d_active=5); no addendum cell executed, no data read"
+      what_was_verified: >
+        THREE claims, each separately: (1) that the 400 (block, replicate)
+        seeds produce 400 DISTINCT (a, b) parameter draws, which is what
+        refutes D13's premise of 8 draws; (2) that within a block, two
+        different replicates give DIFFERENT parameters, so the replicate is
+        part of the draw and not a repetition of it; and (3) that at a FIXED
+        (block, replicate) the three delta_eta levels give the SAME parameters
+        to the last bit, which is the part of D13's premise that SURVIVES and
+        is what makes the within-DGP contrasts paired.
+      command_to_reproduce: |
+        # from the repository root; regenerates parameters only, reads no data,
+        # writes nothing, runs no addendum cell. ~10 s.
+        /Users/Eric/.pyenv/versions/3.11.9/bin/python3 - <<'PY'
+        import sys, itertools, hashlib
+        sys.path[:0] = ["src", "scripts"]
+        import numpy as np
+        import run_sim1b_dense_addendum as R
+        from ct2i_benchmark.simulations import sim1_core as C
+        draws = {}
+        for b in R.addendum_blocks():
+            for rep in range(1, 51):
+                p = C.draw_params(R.M_ADD, R.K_ADD, b[2], b[3], b[4], R.DELTAS[0],
+                                  R.addendum_seed(b, rep), d_active=R.D_ADD)
+                draws[(b, rep)] = (np.asarray(p.a), np.asarray(p.b))
+        sig = {hashlib.sha256(a.tobytes() + bb.tobytes()).hexdigest()
+               for a, bb in draws.values()}
+        print("parameter draws:", len(draws), " distinct (a,b) signatures:", len(sig))
+        d = [abs(draws[(b, r1)][0] - draws[(b, r2)][0]).max()
+             for b in R.addendum_blocks()
+             for r1, r2 in itertools.combinations(range(1, 8), 2)]
+        print("within-block replicate pairs:", len(d),
+              " max|a(r1)-a(r2)| range: %.16f .. %.16f" % (min(d), max(d)),
+              " exactly 0.0 in", sum(1 for x in d if x == 0.0), "of", len(d))
+        dd = [abs(draws[(b, r)][0] - C.draw_params(R.M_ADD, R.K_ADD, b[2], b[3], b[4],
+                                                   de, R.addendum_seed(b, r),
+                                                   d_active=R.D_ADD).a).max()
+              for b in R.addendum_blocks() for r in (1, 2, 3, 4, 5) for de in R.DELTAS]
+        print("delta_eta cells:", len(dd), " max|da| across delta_eta:", max(dd))
+        PY
+      command_output_observed_2026_08_24: |
+        parameter draws: 400  distinct (a,b) signatures: 400
+        within-block replicate pairs: 168  max|a(r1)-a(r2)| range: 1.4992322804252805 .. 5.2811215215843603  exactly 0.0 in 0 of 168
+        delta_eta cells: 120  max|da| across delta_eta: 0.0
+      how_to_read_the_output: >
+        400 seeds -> 400 distinct signatures and 0 of 168 within-block pairs
+        identical REFUTES "8 independent parameter-draw blocks". max|da| across
+        delta_eta exactly 0.0 CONFIRMS that the block key's exclusion of
+        delta_eta is correct and load-bearing. The pair count differs from the
+        56 recorded below only because this command enumerates all 21 pairs of
+        the first 7 replicates in each of the 8 blocks rather than a subset;
+        the finding is identical and the range is consistent.
+      also_asserted_by_the_frozen_suite: "tests/test_a0_dense_addendum_properties.py::TestAddendumBlockPairingPreserved::test_replicate_still_varies_the_draw — the repository already asserted this, one file away from the docstring that stated the opposite"
+      result: >
+        AFRESH PER REPLICATE. Over 56 within-block replicate pairs spanning all
+        8 blocks, max|a(r1)-a(r2)| ranged 1.5211429810022610 to
+        4.5610643088552312; EXACTLY 0.0 in 0 of 56 pairs. 400 addendum seeds ->
+        400 distinct (a,b) byte signatures, zero collisions. Across the 3
+        delta_eta levels and the 2 n_train levels at fixed (block, replicate),
+        max|da| = max|db| = EXACTLY 0.0 (40 delta_eta cells; n_train absent from
+        the seed in all 24 groups). D13's premise is refuted; the block key's
+        exclusions are confirmed correct.
+    - id: V12
+      added_by: AMENDMENT-4
+      what: "does the AMENDMENT-1 two-gate D17 rule detect a fiber-ASSIGNMENT defect?"
+      method: >
+        Two new defects injected as IN-PROCESS monkeypatches through the D17
+        harness's own --inject-defect mechanism, on the EXISTING FROZEN d = 3
+        arm with --stored. No source file was mutated, zero addendum cells were
+        executed, and every perturbed CSV was written outside the package and
+        deleted.
+      provenance_correction:
+        corrected_by: AMENDMENT-5
+        what_was_wrong: >
+          As first recorded, this check listed THREE plain
+          s0b_reference_gap_check.py commands and then reported G4 firing on
+          297 of 624 and 295 of 624. Those commands DO NOT PRINT THOSE NUMBERS.
+          05b_SIM1B_REPLICATE_RESULTS.parquet predates the fiber_fingerprint
+          column, so on the only arm that exists the plain commands print
+          fingerprint_checked=0 and G4_partition_fingerprint:NOT_EVALUATED. The
+          297 and 295 came from a scratchpad driver that was not published. A
+          recorded command MUST reproduce its recorded number; that driver is
+          now published as scripts/s0b_g4_fingerprint_bite.py and cited below.
+        what_is_unchanged: "the numbers themselves. 297, 295, 166 and 6 all reproduce exactly through the published driver, re-measured 2026-08-25."
+      command_to_reproduce_G1_G2_G3: |
+        # from the repository root. ~10 s each. --inject-defect REFUSES to write
+        # inside the package, so an explicit out-of-package --out is required.
+        # These commands report G4 as NOT_EVALUATED — see the next block.
+        PYTHONPATH=src /Users/Eric/.pyenv/versions/3.11.9/bin/python3 \
+          scripts/s0b_reference_gap_check.py --arm d3_frozen --stored
+        PYTHONPATH=src /Users/Eric/.pyenv/versions/3.11.9/bin/python3 \
+          scripts/s0b_reference_gap_check.py --arm d3_frozen --stored \
+          --inject-defect fiber_permute --out /tmp/s0b_fiber_permute.csv
+        PYTHONPATH=src /Users/Eric/.pyenv/versions/3.11.9/bin/python3 \
+          scripts/s0b_reference_gap_check.py --arm d3_frozen --stored \
+          --inject-defect fiber_swap --out /tmp/s0b_fiber_swap.csv
+      command_to_reproduce_G4: |
+        # ~30 s, all three defects in one invocation. An out-of-package
+        # --out-dir is MANDATORY; the driver refuses to write into the package.
+        PYTHONPATH=src /Users/Eric/.pyenv/versions/3.11.9/bin/python3 \
+          scripts/s0b_g4_fingerprint_bite.py --out-dir /tmp/g4_bite
+      exact_conditions_under_which_the_G4_numbers_arise: >
+        G4 compares a STORED fiber_fingerprint column against a recomputed one.
+        No existing arm carries that column, so G4 is evaluable at A0.1 only
+        against a stand-in. The published driver builds the stored map from the
+        CLEAN recomputed digests already persisted in
+        S0B_REFERENCE_GAP_CHECK_d3_frozen.csv — exactly what a conforming A1
+        runner would have written — and injects it into load_stored in-process.
+        Everything else is the production checker, unmodified. No source file is
+        mutated, zero addendum cells are executed, and every CSV is written
+        outside the package.
+      result: >
+        NO — the AMENDMENT-1 two-gate rule does not detect a fiber-ASSIGNMENT
+        defect. Under BOTH command blocks, on all 624 cells:
+        clean: max|production - reference| 5.551e-15, cells_over_tolerance=0,
+        fiber_count_mismatches=0, stored_mc_gate_violations=0, worst gate-3 cell
+        using 0.592 of its budget, RESULT=PASS.
+        fiber_permute: G1 5.440e-15 and G2 624/624 BOTH READ CLEAN while G3
+        fires on 166 of 624; RESULT=FAIL on G3 alone.
+        fiber_swap: G1 5.551e-15 and G2 624/624 clean while G3 fires on only 6
+        of 624; RESULT=FAIL on G3 alone, by a margin of six cells.
+        UNDER THE PUBLISHED DRIVER ONLY, with synthetic stored fingerprints
+        supplying G4's missing precondition: G4 fires on 297 of 624
+        (fiber_permute) and 295 of 624 (fiber_swap), and on 0 of 624 clean.
+        Full table: rulings.D17.measured_sensitivity_at_A0_1.
+      what_this_is_NOT: >
+        NOT end-to-end evidence for G4 on real production output. G4's first
+        real evaluation is on A1's own rows. Read its A0.1 evidence as: correct,
+        measured, and obtained through a synthetic stand-in for a column no
+        existing arm carries. G3, G1 and G2 ARE evidenced end-to-end on the
+        frozen arm.
+      regression_tests: "tests/test_a0_2_defect_closure.py::TestFiberAssignmentDefectsAreDetectable, ::TestGate3StoredRepresentationLoss, ::TestGate4CanonicalPartitionFingerprint"
+    - id: V13
+      added_by: AMENDMENT-5
+      what: "is the raw-versus-normalized SIGN REVERSAL that D16 E1a rests on robust to the aggregation choice D14/D16 leave open?"
+      method: >
+        The D16 primary statistic is a function of the exact 1024-state cell law
+        alone, so it is computable before A1 runs. Eleven per-arm aggregations
+        and two common-denominator readings were evaluated on 50 replicates per
+        block per arm across all 8 blocks, with t held at D13's ruled unit (8
+        block means, 7 df) so the rows isolate the aggregation choice. No
+        learner was fitted and ZERO addendum cells were executed; the frozen
+        parquet is read only for the A6 row.
+      command_to_reproduce: |
+        PYTHONPATH=src /Users/Eric/.pyenv/versions/3.11.9/bin/python3 \
+          scripts/s0b_normalized_contrast_sensitivity.py --reps 50
+      result: >
+        PARTIALLY. The reversal survives ALL ELEVEN per-arm aggregations for
+        E1a (-0.0179 to -0.0196, 1 of 8 blocks positive) against a raw contrast
+        of +0.00919, t = +4.64, 8 of 8 blocks. It REVERSES under both
+        common-denominator readings: A4 (over the d=3 denominator) +0.34759,
+        t = +5.57, 8/8; A5 (over the two-arm mean denominator) +0.19357,
+        t = +6.01, 8/8. D16 does not say which reading is primary. E1b's raw
+        contrast is only +0.00129, t = +0.62, so the reversal claim rests on
+        E1a alone. Raised as advisor_confirmation_requested.Q8.
+      provenance_document: S0B_NORMALIZED_CONTRAST_SENSITIVITY.md
+  files_created_by_this_work_item: [simulation-results-ct2i/01B_ADDENDUM_ADVISOR_RULINGS.yaml]
+  files_modified_by_this_work_item: []
+  amendment_3_note: >
+    AMENDMENT-3 (2026-08-24) modified ONLY this file. No other file in the
+    repository was written, and no git command was run.
+  amendment_4_note: >
+    AMENDMENT-4 (2026-08-24) modified this file and four others:
+    scripts/s0b_reference_gap_check.py (gates G3 and G4 in the pass criterion
+    and the summary line; two new injectable defects),
+    scripts/run_sim1b_dense_addendum.py (persists the new `fiber_fingerprint`
+    column), src/ct2i_benchmark/simulations/sim1_core.py (adds the pure
+    function `partition_fingerprint`; no existing behaviour changed) and
+    tests/test_a0_2_defect_closure.py (16 tests). Full suite 1,070 -> 1,086
+    passed. Zero addendum cells were executed, no git command was run, and no
+    S0A_* record, freeze file, manifest or frozen raw output was touched.

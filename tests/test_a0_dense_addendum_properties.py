@@ -17,9 +17,38 @@ rather than a Monte Carlo estimate. Fourteen of the sixteen criteria below are
 therefore exact assertions and eight are exhaustive over all 1024 states.
 
 Criteria AT1-AT16 map one-to-one onto the classes below.
+
+Phase A0.1 migration (advisor decision D18 / 01B criterion AD15 item 3): the
+addendum SEED RULE is no longer defined in this module. It is imported from
+`scripts/run_sim1b_dense_addendum.py`, the real A1 runner, which is the single
+source of truth for it. AT1-AT16 therefore now exercise the rule that will
+actually produce the addendum rows rather than a duplicate of it. Three
+classes were added by the same migration and are numbered outside the AT
+series because they test the RUNNER, not the design:
+
+  TestTheSeedRuleIsNotRedefinedHere        AD15 item 3 (the duplication cannot
+                                           silently return; no fallback import)
+  TestNestedNTrainThroughTheRealRunner     AD15 item 5 (n=500 is the first 500
+                                           ROWS of the n=5000 draw, proven
+                                           through the runner's own code path,
+                                           at BOTH n_train levels)
+  TestRunnerFailureAccountingIsTyped       AD15 items 6, 7, 8, 9 (a setup
+                                           exception cannot delete a replicate;
+                                           non-success rows are NULL, never 0
+                                           or a sentinel; EXECUTED and
+                                           SUCCESSFUL rows are separately
+                                           countable in ONE output; a row with
+                                           no population quantity may not
+                                           claim `exact`)
+
+Those three classes call `scenario_worker` on NON-FROZEN probes (a single
+encoder configuration, one or two learners, a few hundred evaluation rows).
+The runner stamps every such row `NON_FROZEN_PROBE_NOT_AN_ADDENDUM_RESULT`,
+nothing is written to disk, and no frozen addendum cell is executed here.
 """
 from __future__ import annotations
 
+import ast
 import hashlib
 import itertools
 import json
@@ -49,68 +78,58 @@ SEED_MANIFEST = PKG / "03_SEED_MANIFEST.csv"
 RAW_MANIFEST = PKG / "RAW_FREEZE_MANIFEST.json"
 
 # ---------------------------------------------------------------------------
-# The frozen addendum design, restated here so a drift between the YAML freeze
-# and the tests is a visible edit in both places rather than a silent one.
+# THE SEED RULE IS IMPORTED, NEVER REDEFINED HERE.
+# (advisor decision D18 / 01B new_acceptance_criteria.AD15 item 3)
+#
+# Phase A0 carried a PRIVATE COPY of the addendum seed rule because A0 was
+# forbidden to write the runner it was testing: the tests then verified a
+# duplicate of the rule rather than the rule. A0.1 wrote
+# scripts/run_sim1b_dense_addendum.py, which is now the SINGLE SOURCE OF TRUTH,
+# so the copy is deleted. The factor grid, the seed namespace, the block key
+# and the 48-scenario enumeration below all come from that module, whose
+# `verify_against_freeze()` checks every one of them against 01A.
+#
+# The import is deliberately unguarded: no try/except, no fallback, no local
+# default. If the runner is missing, renamed, or drops any name below, this
+# module fails at COLLECTION time and every AT test errors loudly -- which is
+# the entire point of the gate. `TestTheSeedRuleIsNotRedefinedHere` asserts
+# both that the copy has not come back and that no fallback has been added.
 # ---------------------------------------------------------------------------
-M_ADD, K_ADD, D_ADD = 5, 4, 5
-N_CELLS = K_ADD ** D_ADD                     # 1024, exactly enumerable
-MARGINALS = ("uniform", "zipf")
-TAUS = (0.5, 1.5)
-N_INTS = (0, 3)                              # matched by COUNT to d=3 (decision D1)
-DELTAS = (0.0, 0.1, 0.3)
-N_TRAINS = (500, 5000)
-REPS_ADD = 50
-N_SCENARIOS_ADD = 48
-ROWS_ADD = 182_400
+import run_sim1b_dense_addendum as A1                             # noqa: E402
+from run_sim1b_dense_addendum import (                            # noqa: E402
+    D_ADD,
+    DELTAS,
+    EVAL_DRAW_OFFSET,
+    K_ADD,
+    M_ADD,
+    MARGINALS,
+    N_CELLS,
+    N_INTS,
+    N_SCENARIOS_ADD,
+    N_TRAINS,
+    OOF_BASE_1BD,
+    REPS_ADD,
+    ROWS_ADD,
+    SEED_BASE_1BD,
+    TAUS,
+    TRAIN_DRAW_OFFSET,
+    addendum_block,
+    addendum_eval_seed,
+    addendum_oof_seed,
+    addendum_scenarios,
+    addendum_seed,
+    addendum_train_seed,
+)
 
-# Seed namespace. Structurally disjoint: the largest seed realised anywhere in
-# the completed run is 995,419,050 (03_SEED_MANIFEST.csv) and the largest
-# DERIVED seed is that + 200,000, so a base of 2e9 cannot collide with any
-# original seed or any seed derived from one. Disjointness is nevertheless
-# asserted by enumeration in AT6 rather than argued.
-SEED_BASE_1BD = 2_000_000_000
-OOF_BASE_1BD = 91_211                        # original 1B uses 4211 + 17*replicate
-TRAIN_DRAW_OFFSET = 100_000                  # inherited from the 1B runner
-EVAL_DRAW_OFFSET = 200_000                   # inherited from the 1B runner
-
-
-def addendum_block(marginal: str, tau: float, n_int: int) -> tuple:
-    """Block key: same SHAPE and same exclusions as the frozen 1B block.
-
-    (M, K, marginal, tau, interaction_pairs). delta_eta and n_train are
-    EXCLUDED, which is what keeps the within-DGP contrasts paired.
-    """
-    return (M_ADD, K_ADD, marginal, tau, n_int)
-
-
-def addendum_seed(block: tuple, replicate: int) -> int:
-    """Addendum DGP seed. Same blake2b construction as `dgp_block_seed`, new base.
-
-    Deliberately NOT routed through `sim1_core.dgp_block_seed`: adding a key to
-    that module's SEED_BASE would edit the module that produced the frozen 1B
-    output. The addendum owns its base offset in its own namespace (decision D3).
-    """
-    h = int.from_bytes(
-        hashlib.blake2b(repr(tuple(block)).encode(), digest_size=4).digest(),
-        "little")
-    return SEED_BASE_1BD + 1000 * (h % 1_000_000) + int(replicate)
-
-
-def addendum_oof_seed(replicate: int) -> int:
-    return OOF_BASE_1BD + 17 * int(replicate)
-
-
-def addendum_scenarios() -> list[dict]:
-    """The 48 frozen addendum scenarios, in frozen enumeration order."""
-    out = []
-    for i, (marg, tau, ni, de, nt) in enumerate(
-            itertools.product(MARGINALS, TAUS, N_INTS, DELTAS, N_TRAINS), start=1):
-        blk = addendum_block(marg, tau, ni)
-        out.append(dict(
-            scenario_id=f"S1BD-{i:04d}", M=M_ADD, K=K_ADD, marginal=marg, tau=tau,
-            n_int=ni, delta_eta=de, n_train=nt, block=blk,
-            seeds=[addendum_seed(blk, r) for r in range(1, REPS_ADD + 1)]))
-    return out
+# Names the seed rule owns. Asserted absent from this module's own source by
+# `TestTheSeedRuleIsNotRedefinedHere`, so the duplication cannot silently return.
+SEED_RULE_NAMES = (
+    "M_ADD", "K_ADD", "D_ADD", "N_CELLS", "MARGINALS", "TAUS", "N_INTS",
+    "DELTAS", "N_TRAINS", "REPS_ADD", "N_SCENARIOS_ADD", "ROWS_ADD",
+    "SEED_BASE_1BD", "OOF_BASE_1BD", "TRAIN_DRAW_OFFSET", "EVAL_DRAW_OFFSET",
+    "addendum_block", "addendum_seed", "addendum_oof_seed",
+    "addendum_train_seed", "addendum_eval_seed", "addendum_scenarios",
+)
 
 
 COLS = [f"v{j}" for j in range(M_ADD)]
@@ -148,7 +167,7 @@ def _fibers_for_config(enc, Bw, mapping, tab) -> np.ndarray:
 def _reports_for_draw(marginal, tau, n_int, delta, n_train=5000, replicate=1):
     """Exact gap report for all 13 encoder configurations on one DGP draw."""
     prm, tab, seed = _dgp(marginal, tau, n_int, delta, replicate)
-    X, y, _ = FIN.sample_records(prm, tab, n_train, seed + TRAIN_DRAW_OFFSET)
+    X, y, _ = FIN.sample_records(prm, tab, n_train, addendum_train_seed(seed))
     out = {}
     for enc, Bw, lab in DES.encoder_configs("B", M_ADD, K_ADD):
         mapping = (FIN.make_sim_hash(enc == "hash_column", Bw).fit(X)
@@ -225,7 +244,7 @@ class TestEbarCoordinatewiseMatchesDirectAtD5:
     @pytest.mark.parametrize("encoder", NONHASH)
     def test_probe_route_equals_direct_enumeration(self, marginal, n_train, encoder):
         prm, tab, seed = _dgp(marginal=marginal)
-        X, y, _ = FIN.sample_records(prm, tab, n_train, seed + TRAIN_DRAW_OFFSET)
+        X, y, _ = FIN.sample_records(prm, tab, n_train, addendum_train_seed(seed))
         mapping = FIN.full_fit_mapping(X, y, encoder)
 
         eb_probe, fid_probe = RUNNER.ebar_coordinatewise(mapping, tab, prm)
@@ -447,9 +466,9 @@ class TestNestedNTrainDraw:
 
     def test_small_sample_is_the_prefix_of_the_large_one(self):
         prm, tab, seed = _dgp()
-        Xbig, ybig, ebig = FIN.sample_records(prm, tab, 5000, seed + TRAIN_DRAW_OFFSET)
+        Xbig, ybig, ebig = FIN.sample_records(prm, tab, 5000, addendum_train_seed(seed))
         Xsm = Xbig.iloc[:500].reset_index(drop=True)
-        Xbig2, ybig2, ebig2 = FIN.sample_records(prm, tab, 5000, seed + TRAIN_DRAW_OFFSET)
+        Xbig2, ybig2, ebig2 = FIN.sample_records(prm, tab, 5000, addendum_train_seed(seed))
         assert Xbig.equals(Xbig2) and np.array_equal(ybig, ybig2)
         assert np.array_equal(ebig, ebig2)
         assert Xsm.equals(Xbig2.iloc[:500].reset_index(drop=True))
@@ -474,8 +493,8 @@ class TestNestedNTrainDraw:
         the labels. This is asserted so the addendum runner cannot regress it.
         """
         prm, tab, seed = _dgp()
-        Xbig, ybig, ebig = FIN.sample_records(prm, tab, 5000, seed + TRAIN_DRAW_OFFSET)
-        Xind, yind, eind = FIN.sample_records(prm, tab, 500, seed + TRAIN_DRAW_OFFSET)
+        Xbig, ybig, ebig = FIN.sample_records(prm, tab, 5000, addendum_train_seed(seed))
+        Xind, yind, eind = FIN.sample_records(prm, tab, 500, addendum_train_seed(seed))
         assert Xind.equals(Xbig.iloc[:500].reset_index(drop=True))
         assert np.array_equal(eind, ebig[:500])
         assert not np.array_equal(yind, ybig[:500]), (
@@ -483,7 +502,7 @@ class TestNestedNTrainDraw:
 
     def test_eta_lookup_is_consistent_between_table_and_sample(self):
         prm, tab, seed = _dgp()
-        X, y, eta_i = FIN.sample_records(prm, tab, 2000, seed + EVAL_DRAW_OFFSET)
+        X, y, eta_i = FIN.sample_records(prm, tab, 2000, addendum_eval_seed(seed))
         ids = tab.cell_ids(X.to_numpy().astype(np.int64)[:, :prm.d_active])
         assert np.array_equal(eta_i, tab.eta[ids])
 
@@ -619,7 +638,7 @@ class TestNoSelfInfluenceAtD5:
     @staticmethod
     def _sample(n=400):
         prm, tab, seed = _dgp()
-        X, y, _ = FIN.sample_records(prm, tab, n, seed + TRAIN_DRAW_OFFSET)
+        X, y, _ = FIN.sample_records(prm, tab, n, addendum_train_seed(seed))
         assert 20 <= y.sum() <= n - 20
         return X, y
 
@@ -717,8 +736,8 @@ class TestDecompositionIdentityAtD5:
     @pytest.mark.parametrize("metric", ["logloss", "brier"])
     def test_total_equals_representation_plus_shortfall(self, encoder, Bw, metric, tol):
         prm, tab, seed = _dgp()
-        Xtr, ytr, _ = FIN.sample_records(prm, tab, 500, seed + TRAIN_DRAW_OFFSET)
-        Xev, _, eta_ev = FIN.sample_records(prm, tab, 5000, seed + EVAL_DRAW_OFFSET)
+        Xtr, ytr, _ = FIN.sample_records(prm, tab, 500, addendum_train_seed(seed))
+        Xev, _, eta_ev = FIN.sample_records(prm, tab, 5000, addendum_eval_seed(seed))
 
         if encoder in DES.HASH_ENC:
             mapping = FIN.make_sim_hash(encoder == "hash_column", Bw).fit(Xtr)
@@ -772,3 +791,344 @@ class TestOriginalRawUnchanged:
         assert set(freeze["acceptance_criteria"]) == {f"A{i}" for i in range(1, 16)}
         assert freeze["simulation_1b"]["factors"]["M"] == [5, 20]
         assert "addendum" not in FREEZE.read_text(encoding="utf-8").lower()
+
+
+# ===========================================================================
+# Phase A0.1 additions. These three classes test the RUNNER, not the frozen
+# design, so they are numbered outside the AT1-AT16 series. They close the
+# items of 01B `new_acceptance_criteria.AD15` that the A0 property tests could
+# not reach, and they are deliberately NOT duplicated from
+# tests/test_a1_runner_smoke.py: where that module already proves an item on a
+# clean all-success probe, the class below proves the part it cannot -- the
+# source-level ban on the duplicate, the nesting rule as the RUNNER slices it,
+# and a MIXED output in which some rows succeeded and some did not.
+# ===========================================================================
+
+class TestTheSeedRuleIsNotRedefinedHere:
+    """AD15 item 3. The duplication this migration removed cannot come back.
+
+    A test that merely imports the runner would still pass if someone later
+    re-added a private copy and stopped using the import. These assertions read
+    this module's own source, so a reintroduced copy is a test failure.
+    """
+
+    @staticmethod
+    def _tree():
+        return ast.parse(Path(__file__).read_text(encoding="utf-8"))
+
+    def test_module_defines_no_local_seed_rule(self):
+        tree = self._tree()
+        defined: set[str] = set()
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                defined.add(node.name)
+            elif isinstance(node, ast.Assign):
+                for tgt in node.targets:
+                    defined.update(n.id for n in ast.walk(tgt)
+                                   if isinstance(n, ast.Name))
+            elif isinstance(node, (ast.AnnAssign, ast.AugAssign)):
+                if isinstance(node.target, ast.Name):
+                    defined.add(node.target.id)
+        clash = sorted(defined & set(SEED_RULE_NAMES))
+        assert not clash, (
+            f"the seed rule is REDEFINED in this test module: {clash}. "
+            f"AD15 item 3 requires it to be imported from "
+            f"run_sim1b_dense_addendum, never restated here.")
+
+    def test_module_never_recomputes_the_seed_construction(self):
+        """No inline blake2b, no hard-coded seed base, no oof base."""
+        tree = self._tree()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Attribute):
+                assert node.attr != "blake2b", (
+                    "an inline blake2b call is a re-implementation of the seed "
+                    "rule; import addendum_seed instead")
+            if isinstance(node, ast.Constant) and isinstance(node.value, int):
+                assert node.value not in (SEED_BASE_1BD, OOF_BASE_1BD), (
+                    f"the literal {node.value} is a seed-namespace constant and "
+                    f"must be imported from the runner, not restated")
+
+    def test_the_runner_import_has_no_fallback(self):
+        """A guarded import would let the gate pass with the runner missing."""
+        tree = self._tree()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Try):
+                imported = any(isinstance(n, (ast.Import, ast.ImportFrom))
+                               for n in ast.walk(node))
+                assert not imported, "the runner import must not be inside a try"
+            if isinstance(node, ast.ExceptHandler) and node.type is not None:
+                names = {n.id for n in ast.walk(node.type) if isinstance(n, ast.Name)}
+                assert not (names & {"ImportError", "ModuleNotFoundError"}), (
+                    "a caught ImportError would hide a missing A1 runner")
+
+    def test_every_seed_name_is_the_runners_own_object(self):
+        for name in SEED_RULE_NAMES:
+            assert hasattr(A1, name), f"the runner no longer exports {name}"
+            assert globals()[name] is getattr(A1, name), (
+                f"{name} in this module is not the runner's object")
+        for fn in (addendum_block, addendum_seed, addendum_oof_seed,
+                   addendum_train_seed, addendum_eval_seed, addendum_scenarios):
+            assert fn.__module__ == "run_sim1b_dense_addendum"
+
+    def test_the_imported_runner_is_the_repository_file(self):
+        assert Path(A1.__file__).resolve() == (
+            REPO / "scripts" / "run_sim1b_dense_addendum.py").resolve()
+        assert sys.modules["run_sim1b_dense_addendum"] is A1
+
+    def test_seed_semantics_are_still_the_frozen_ones(self):
+        """A changed seed rule in the runner FAILS here, which is the gate.
+
+        Checked on the FULL 2,400-seed enumeration, structurally rather than by
+        re-deriving the digest: the base offset, the 1000 x hash + replicate
+        layout, the block invariance and the two derived channels are all
+        recovered from the seeds themselves. Re-deriving the blake2b digest
+        here would be a second copy of the rule, which is what AD15 item 3
+        forbids; the 01A formula text is checked once, in
+        tests/test_a1_runner_smoke.py::TestRunnerOwnsTheSeedRule.
+        """
+        seen, per_block = set(), {}
+        for sc in addendum_scenarios():
+            blk = addendum_block(sc["marginal"], sc["tau"], sc["n_int"])
+            assert sc["block"] == blk == (M_ADD, K_ADD, sc["marginal"],
+                                          sc["tau"], sc["n_int"])
+            assert len(sc["seeds"]) == REPS_ADD
+            for rep, seed in enumerate(sc["seeds"], 1):
+                assert seed == addendum_seed(blk, rep)
+                offset = seed - SEED_BASE_1BD
+                assert offset > 0
+                assert offset % 1000 == rep         # replicate in the low digits
+                assert 0 <= offset // 1000 < 1_000_000   # 32-bit digest, mod 1e6
+                per_block.setdefault(blk, set()).add(offset // 1000)
+                assert addendum_train_seed(seed) == seed + 100_000
+                assert addendum_eval_seed(seed) == seed + 200_000
+                seen.add(seed)
+        assert len(per_block) == 8                  # 8 parameter-draw blocks
+        assert all(len(v) == 1 for v in per_block.values()), (
+            "the block hash moved with the replicate; the block key changed")
+        assert len({next(iter(v)) for v in per_block.values()}) == 8
+        assert len(seen) == 8 * REPS_ADD == 400
+        assert {addendum_oof_seed(r) for r in range(1, REPS_ADD + 1)} == {
+            OOF_BASE_1BD + 17 * r for r in range(1, REPS_ADD + 1)}
+
+
+class TestNestedNTrainThroughTheRealRunner:
+    """AD15 item 5. 01A `seeds.n_train_pairing`, proven inside the runner.
+
+    AT8 establishes the nesting property of `sample_records`; the smoke module
+    establishes it on a matrix the TEST slices. Neither shows that the RUNNER
+    slices. Here the training matrix is intercepted where the runner hands it
+    to the encoder, so the assertion is about the runner's own code path: if
+    `scenario_worker` ever re-drew at n=500 instead of slicing, the captured
+    labels would stop nesting and this class fails.
+    """
+
+    PROBE_N_EVAL = 400
+
+    @classmethod
+    def _capture(cls, monkeypatch, scenario):
+        seen: dict = {"draws": []}
+        real_codes, real_sample = FIN.oof_train_codes, FIN.sample_records
+
+        def codes_spy(X, y, encoder_name, seed_oof, *a, **k):
+            seen.setdefault("X_train", X.copy())
+            seen.setdefault("y_train", np.asarray(y).copy())
+            return real_codes(X, y, encoder_name, seed_oof, *a, **k)
+
+        def sample_spy(prm, tab, n, seed, *a, **k):
+            seen["draws"].append((int(n), int(seed)))
+            return real_sample(prm, tab, n, seed, *a, **k)
+
+        monkeypatch.setattr(A1.FIN, "oof_train_codes", codes_spy)
+        monkeypatch.setattr(A1.FIN, "sample_records", sample_spy)
+        rows = A1.scenario_worker(scenario, n_eval=cls.PROBE_N_EVAL,
+                                  replicates=1, encoder_filter=("label",),
+                                  learner_filter=("logistic",))
+        assert rows, "the probe executed no cell"
+        return seen, rows
+
+    @staticmethod
+    def _pair():
+        """The two scenarios that differ ONLY in n_train, from the runner."""
+        scen = addendum_scenarios()
+        small, large = scen[0], scen[1]
+        assert (small["n_train"], large["n_train"]) == (500, 5000) == N_TRAINS
+        assert small["block"] == large["block"]
+        assert small["seeds"] == large["seeds"]
+        return small, large
+
+    @pytest.mark.parametrize("index,n_train", [(0, 500), (1, 5000)])
+    def test_both_n_train_levels_execute_a_real_runner_path(self, monkeypatch,
+                                                            index, n_train):
+        """Neither level is reached by extrapolation from the other."""
+        scen = self._pair()[index]
+        seen, rows = self._capture(monkeypatch, scen)
+        assert len(seen["X_train"]) == n_train
+        assert {r["n_train"] for r in rows} == {n_train}
+        assert all(r["status"] == Status.SUCCESS.value for r in rows)
+
+    @pytest.mark.parametrize("index", [0, 1])
+    def test_the_runner_draws_the_nest_max_and_never_redraws_at_500(
+            self, monkeypatch, index):
+        scen = self._pair()[index]
+        seen, _ = self._capture(monkeypatch, scen)
+        seed = scen["seeds"][0]
+        train_draws = [d for d in seen["draws"]
+                       if d[1] == addendum_train_seed(seed)]
+        assert train_draws == [(A1.N_TRAIN_NEST_MAX, addendum_train_seed(seed))]
+        assert A1.N_TRAIN_NEST_MAX == 5000
+        assert (500, addendum_train_seed(seed)) not in seen["draws"], (
+            "the runner re-drew at n=500; the nested rule requires slicing")
+        assert (self.PROBE_N_EVAL, addendum_eval_seed(seed)) in seen["draws"]
+
+    def test_n500_training_matrix_is_the_prefix_of_the_n5000_one(self, monkeypatch):
+        """The frozen rule itself, on the matrices the runner actually used."""
+        small, large = self._pair()
+        seen_small, _ = self._capture(monkeypatch, small)
+        seen_large, _ = self._capture(monkeypatch, large)
+        Xs, ys = seen_small["X_train"], seen_small["y_train"]
+        Xl, yl = seen_large["X_train"], seen_large["y_train"]
+        assert (len(Xs), len(Xl)) == (500, 5000)
+        assert Xs.equals(Xl.iloc[:500].reset_index(drop=True))
+        assert np.array_equal(ys, yl[:500])
+
+    def test_the_slicing_is_load_bearing_for_the_labels(self, monkeypatch):
+        """An independent n=500 draw agrees on X and disagrees on y (AT8).
+
+        So a runner that re-drew would look right on the covariates and be
+        silently unpaired on the labels. Asserted against the runner's own
+        captured training matrix, which is what makes it a runner test.
+        """
+        small, _ = self._pair()
+        seen, _ = self._capture(monkeypatch, small)
+        seed = small["seeds"][0]
+        prm = CORE.draw_params(M_ADD, K_ADD, small["marginal"], small["tau"],
+                               small["n_int"], small["delta_eta"], seed,
+                               d_active=D_ADD)
+        tab = FIN.build_eta_table(prm)
+        Xind, yind, _ = FIN.sample_records(prm, tab, 500, addendum_train_seed(seed))
+        assert Xind.equals(seen["X_train"])
+        assert not np.array_equal(yind, seen["y_train"])
+
+
+class TestRunnerFailureAccountingIsTyped:
+    """AD15 items 6, 7, 8, 9, on a MIXED output from the real runner.
+
+    The smoke module injects a failure that takes down the whole probe, so
+    every row it inspects has the same status. The cases that actually caused
+    the reported defects are mixed ones: a replicate that vanishes while its
+    siblings succeed (item 7), and a count of "executed" that silently means
+    "successful" (item 6, the TabS1 defect). Both are constructed here.
+    """
+
+    PROBE_N_EVAL = 400
+
+    @classmethod
+    def _mixed_output(cls, monkeypatch):
+        """Replicate 1's DGP draw raises; replicate 2 is untouched."""
+        s = addendum_scenarios()[0]
+        real = CORE.draw_params
+        boom = "injected setup failure at replicate 1"
+
+        def flaky(*args, **kw):
+            seed = args[6] if len(args) > 6 else kw["seed"]
+            if seed == s.seeds[0]:
+                raise RuntimeError(boom)
+            return real(*args, **kw)
+
+        monkeypatch.setattr(A1.CORE, "draw_params", flaky)
+        rows = A1.scenario_worker(s, n_eval=cls.PROBE_N_EVAL, replicates=2,
+                                  encoder_filter=("label",),
+                                  learner_filter=("logistic",))
+        return s, rows, boom
+
+    def test_a_failed_replicate_does_not_delete_itself(self, monkeypatch):
+        """AD15 item 7. `except Exception: continue` wrote ZERO rows."""
+        _s, rows, boom = self._mixed_output(monkeypatch)
+        by_rep: dict = {}
+        for r in rows:
+            by_rep.setdefault(r["replicate"], []).append(r)
+        assert set(by_rep) == {1, 2}, (
+            f"a replicate disappeared: {sorted(by_rep)}")
+        assert by_rep[1], "the failed replicate emitted no row"
+        for r in by_rep[1]:
+            assert r["status"] == Status.NUMERICAL_FAILURE.value
+            assert r["failure_stage"] == "dgp_setup"
+            assert r["error_type"] == "RuntimeError"
+            assert boom in r["error_message"], "the traceback was swallowed"
+        assert all(r["status"] == Status.SUCCESS.value for r in by_rep[2])
+
+    def test_executed_and_successful_are_distinguishable_in_the_schema(
+            self, monkeypatch):
+        """AD15 item 6 / decision D12. One output, two different counts."""
+        _s, rows, _ = self._mixed_output(monkeypatch)
+        assert {"row_executed", "row_success"} <= set(A1.FIELDS)
+        executed = sum(r["row_executed"] for r in rows)
+        success = sum(r["row_success"] for r in rows)
+        assert executed == len(rows)
+        assert 0 < success < executed, (
+            "the mixed probe must contain BOTH kinds of row, or the "
+            "distinction is untested")
+        summary = A1.summarise(rows)
+        assert summary["rows_executed"] == executed
+        assert summary["rows_success"] == success
+        assert summary["rows_failed"] == executed - success
+        assert summary["by_failure_stage"] == {"dgp_setup": executed - success}
+        # the counts are recoverable from the rows alone, not only from the
+        # summary helper: a downstream reader cannot conflate them by accident
+        assert sum(1 for r in rows
+                   if r["status"] == Status.SUCCESS.value) == success
+
+    def test_non_success_rows_carry_null_metrics_never_zero_or_a_sentinel(
+            self, monkeypatch):
+        """AD15 item 8. A blank is not a zero and not a chance level."""
+        _s, rows, _ = self._mixed_output(monkeypatch)
+        failed = [r for r in rows if r["row_success"] == 0]
+        assert failed
+        for r in failed:
+            for f in A1.ADDENDUM_METRIC_FIELDS:
+                v = r[f]
+                assert v is None, f"{f} must be NULL on a failed row, got {v!r}"
+                assert v != 0 and v != 0.0 and v != 0.5 and v != -1
+                assert not isinstance(v, (int, float, str)), f
+            assert r["relative_log_gap_status"] is None
+            assert r["relative_brier_gap_status"] is None
+
+    def test_a_row_without_a_population_quantity_may_not_claim_exact(
+            self, monkeypatch):
+        """AD15 item 9, from the other side: `exact` must be earned."""
+        _s, rows, _ = self._mixed_output(monkeypatch)
+        for r in rows:
+            if r["row_success"] == 0:
+                assert r["exact_or_mc"] is None
+                assert r["population_quantity_kind"] is None
+                assert r["theoretical_gap_status"] is None
+                assert r["reference_checked"] == 0
+            else:
+                assert r["exact_or_mc"] == "exact"
+                assert r["theoretical_gap_status"] == "IDENTIFIED_EXACT"
+
+    def test_exact_is_backed_by_the_identity_and_mc_by_a_real_mc_error(
+            self, tol):
+        """AD15 item 9. `exact` where the quantity IS exact, `mc` where the
+        quantity is genuinely Monte Carlo -- checked on a MERGING encoder, so
+        the gap and its Monte Carlo error are both strictly positive rather
+        than the degenerate zeros an injective encoder produces."""
+        assert CORE.hash_gap_identified(M_ADD, K_ADD) is True
+        rows = A1.scenario_worker(addendum_scenarios()[0],
+                                  n_eval=self.PROBE_N_EVAL, replicates=1,
+                                  encoder_filter=("hash_shared",),
+                                  learner_filter=("logistic",))
+        assert rows and all(r["status"] == Status.SUCCESS.value for r in rows)
+        for r in rows:
+            assert r["population_quantity_kind"] == "exact"
+            assert r["exact_or_mc"] == r["population_quantity_kind"]
+            assert r["n_cells"] == N_CELLS
+            assert r["pop_identity_error_logloss"] <= tol["exact_identity_abs"]
+            assert r["pop_identity_error_brier"] <= tol["exact_identity_abs"]
+            assert r["pop_gap_logloss"] > tol["positive_gap_min"]
+            # the finite-sample layer is never relabelled exact
+            assert r["sample_quantity_kind"] == "mc"
+            assert r["mcse"] > 0.0, "an `mc` label with no Monte Carlo error"
+            assert r["fiber_count"] < N_CELLS       # the merge is real
+            assert r["collision_count"] is not None
+            assert r["occupied_buckets"] is not None

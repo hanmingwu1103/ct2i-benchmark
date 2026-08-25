@@ -1,0 +1,48 @@
+{
+  "manifest_id": "A0_1_DELIVERABLES_SHA256",
+  "phase": "A0.1",
+  "phase_verdict": "BLOCKED",
+  "addendum_cells_run": 0,
+  "purpose": "Integrity coverage for every Phase A0.1 deliverable. Before this manifest existed, PACKAGE_SHA256.json covered no 01B_* or S0B_* file and no A0.1 script or test, so nothing produced in this phase was integrity-protected.",
+  "why_a_second_manifest": "Nine of the twenty entries are scripts and test modules outside simulation-results-ct2i/. Every key in PACKAGE_SHA256.json is resolved relative to the package directory by verify_package_checksums.in_package(), so a 'scripts/...' key there would resolve inside the package and report MISSING ON DISK forever. Keys here are relative to the REPOSITORY ROOT. scripts/verify_package_checksums.py verifies both manifests and exits non-zero if either disagrees with disk.",
+  "commit": "c7ac3611aa1e9ff1c9d6db902624b40a279615c5",
+  "branch": "simulation-only/manuscript-revision",
+  "generated_utc": "2026-08-24T17:26:22.397661+00:00",
+  "path_root": "repository root",
+  "generator_script": "ad hoc, scratchpad only, not committed; every entry is re-derivable from scripts/verify_package_checksums.py, which shares no code with it",
+  "manifest_excludes": [
+    "A0_1_DELIVERABLES_SHA256.json",
+    "PACKAGE_SHA256.json",
+    "PACKAGE_SHA256SUMS.txt"
+  ],
+  "also_excluded": [
+    "simulation-results-ct2i/00_README.md",
+    "scripts/verify_package_checksums.py"
+  ],
+  "excluded_note": "00_README.md is excluded because it carries the Option A provenance stamp token (AUTHORITATIVE COMMIT), which scripts/stamp_provenance.py rewrites after the commit exists; its hash therefore changes at stamp time. It stays covered by PACKAGE_SHA256.json, which is regenerated after every stamp. Keeping it out of this manifest makes this manifest stamp-invariant: no entry here contains a stamp token, so these hashes are valid both before and after stamping. scripts/verify_package_checksums.py is excluded because it is the instrument that checks this manifest; hashing the checker inside the thing it checks would add no independent assurance.",
+  "self_reference_guard": "The file list is enumerated literally in the generator; no glob is used, so no pattern can sweep in the manifest being written. The generator asserts that no entry's basename is one of ['A0_1_DELIVERABLES_SHA256.json', 'PACKAGE_SHA256.json', 'PACKAGE_SHA256SUMS.txt'] before hashing anything, and scripts/verify_package_checksums.py re-asserts self-entries == 0 on every run and FAILS if it is not.",
+  "stamp_token_policy": "VALID PRE- AND POST-STAMP. No file listed here contains PENDING_STAMP_SEE_PACKAGE_PROVENANCE, PENDING_ZIP_SHA256_SEE_SHA256SUMS or PENDING_ZIP_BYTES_SEE_SHA256SUMS (verified by grep at generation time), so scripts/stamp_provenance.py cannot change any of these hashes. PACKAGE_SHA256.json is the manifest that IS stamp-sensitive; per ruling D15 it is regenerated last, after stamping.",
+  "n_files": 20,
+  "files": {
+    "simulation-results-ct2i/01B_ADDENDUM_ADVISOR_RULINGS.yaml": "548d36d408423b892fe11a2e860847b99c17ccd4e71a40d3310408a75b9f6e73",
+    "simulation-results-ct2i/RAW_FREEZE_MANIFEST_ADDENDUM.json": "dff7c175c0c76891f0be3b2a80f42777f05496593a0707b28121a6d30105abc4",
+    "simulation-results-ct2i/S0B_ADVISOR_RULING_IMPLEMENTATION_REPORT.md": "45ee067dcd2163d47c9466afe0f629938a00d67298e6153864bdd5e928643da1",
+    "simulation-results-ct2i/S0B_COUNCIL_REVIEW.md": "8b479321f0ce2322097e19e9e0e8bad1be6b202eff42e93372472a23e871aa4d",
+    "simulation-results-ct2i/S0B_D13_PREMISE_INVESTIGATION.md": "08662de4083871b6983a119a80d5a61944a54b17c16afa3df5716afd7afef2ec",
+    "simulation-results-ct2i/S0B_FINAL_GATE_REPORT.md": "db608f79a5e767dddd25027f33e339392f5f3378759ba1841f7442af4b3c8844",
+    "simulation-results-ct2i/S0B_NORMALIZED_CONTRAST_SENSITIVITY.md": "06397e4e099ff32586c3e57ee69d11d7f0286cdc467202f5c1631aac661cc210",
+    "simulation-results-ct2i/S0B_REFERENCE_GAP_CHECK_d3_frozen.csv": "23d5ed5592d706dd8ca99e7e67580256705c00a0b278273b4885b93f2d0e2ef1",
+    "simulation-results-ct2i/S0B_REFERENCE_IMPLEMENTATION_TEST_REPORT.md": "e0d9430ceea16dde3c354a553e14ca3de85d0d9505ec8c4a864a147328c18ea8",
+    "simulation-results-ct2i/S0B_RESOURCE_CONFIRMATION.csv": "eada0544a74f2053565dee4399c8235604dbcf5ae41b6e03303e1c1c9008d360",
+    "simulation-results-ct2i/S0B_RUNNER_TEST_REPORT.md": "dccad33eedd243693ce0218ae09bdb0f1cdf3cfe66ea21e90ba475b5d098b593",
+    "scripts/run_sim1b_dense_addendum.py": "3bce507c908df8902c98d635e66578946e3cbd7728f34bb7a1546d35f94b6187",
+    "scripts/s0b_d13_premise_probe.py": "7db17bd4b96cac571663e8f817787b63d4619755566da169834dfa58adddebbe",
+    "scripts/s0b_g4_fingerprint_bite.py": "d09b997cc9026a071d4cc73183c0a1d462d3bfb58e9591eeeb64bf7182d1a07b",
+    "scripts/s0b_normalized_contrast_sensitivity.py": "de99fdcb28abfe85e0b08a2de08ad7c04719eda87c62206f5539f741d67c6b7c",
+    "scripts/s0b_reference_gap_check.py": "f6f304b10977fe671275984b8ca67a0c809f4e0d539ec119f176b05a0dfe1d5f",
+    "scripts/verify_raw_freeze_manifest_addendum.py": "ac799cf12f3c3f027cb897c4a01be698e4366b518e1088fee667593c246fadc7",
+    "tests/test_a0_1_reconciliation.py": "92a32ccd7589cbac990608272754164174b986638e7099b94f8145f34a67f910",
+    "tests/test_a0_2_defect_closure.py": "beed626349f54c309b75df7d53491109d6b22a7bde6003dfd733a21781ec364b",
+    "tests/test_a1_runner_smoke.py": "b500f670dad418fa634e75a293d36f439e9ac60101f4488047b8ae380816d61f"
+  }
+}

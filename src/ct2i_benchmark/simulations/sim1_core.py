@@ -175,6 +175,45 @@ def group_ids(codes: np.ndarray) -> np.ndarray:
     return np.asarray(inv).ravel()
 
 
+def partition_fingerprint(fid: np.ndarray) -> str:
+    """Canonical digest of the CELL -> FIBER PARTITION induced by `fid`.
+
+    Fibers are relabelled in order of FIRST APPEARANCE -- equivalently, sorted
+    by their smallest cell index -- and the relabelled sequence is hashed
+    together with its length.  Two id vectors therefore produce the same
+    digest if and only if they induce the SAME partition of the cells: a pure
+    relabelling of the fibers leaves it unchanged, while a permutation of the
+    cell -> fiber assignment, or a swap of one cell between two fibers,
+    changes it.
+
+    WHY THIS EXISTS.  `fiber_count` -- and the whole multiset of fiber sizes --
+    is INVARIANT under both of those defects, and the production-versus-
+    reference gap comparison is blind to them as well because both
+    implementations are handed the same `fid`.  The stored Monte-Carlo
+    representation loss does move, but only by the size of the induced change
+    in the population gap, which for a small assignment defect can sit under
+    the Monte-Carlo noise floor.  This digest is the exact, tolerance-free
+    detector for that class.
+
+    Deliberately does NOT call `group_ids`, `hash_codes`, `quantize` or
+    `np.unique`: it must share no code with the construction helpers whose
+    defects it exists to detect.
+    """
+    seen: dict[int, int] = {}
+    h = hashlib.blake2b(digest_size=16)
+    flat = np.asarray(fid).ravel().tolist()
+    h.update(b"ct2i-partition-v1:")
+    h.update(len(flat).to_bytes(8, "little"))
+    for v in flat:
+        v = int(v)
+        lab = seen.get(v)
+        if lab is None:
+            lab = len(seen)
+            seen[v] = lab
+        h.update(lab.to_bytes(8, "little"))
+    return h.hexdigest()
+
+
 def quantize(v: np.ndarray) -> np.ndarray:
     """Float codes -> exact integer keys (fiber identity must be exact)."""
     return np.rint(np.asarray(v, float) * KEY_SCALE).astype(np.int64)
