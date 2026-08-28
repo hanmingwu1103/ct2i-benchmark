@@ -43,3 +43,7 @@ simulation-results-ct2i/08_SIM1_FIGURE_DATA.csv
 return_phaseR_20260819/
 
 return_A0_1_20260825/
+
+# Release build artefacts: regenerate with scripts/build_return_package.py --final
+simulation-results-ct2i-final_*.zip
+simulation-results-ct2i-final_*.zip.sha256

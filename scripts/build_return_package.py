@@ -24,8 +24,22 @@ Phase R changes:
   * the ZIP carries the FULL 40-character commit SHA, read from the stamped
     02_ENVIRONMENT_AND_COMMIT.json rather than truncated from git HEAD.
 
+Final release changes:
+  * --final names the archive simulation-results-ct2i-final_<short-sha>.zip,
+    the advisor's release naming. The Phase R name stays the default so the
+    archives already in the repository root remain addressable by the rule that
+    produced them, and so the rename is an explicit, recorded choice;
+  * --skip-readme regenerates the manifests WITHOUT rewriting 00_README.md.
+    It exists for the second manifest pass of the release: after the archive is
+    built, the delivered FINAL_SIMULATION_HANDOFF.md is stamped with the
+    archive's SHA-256, which makes the on-disk manifests stale and they must be
+    rewritten. Re-rendering the README there would change nothing but its
+    "Built:" timestamp, gratuitously diverging the delivered tree from the
+    shipped archive, so that pass skips it.
+
 Usage: build_return_package.py [--allow-partial] [--allow-unstamped]
                               [--manifest-only] [--overwrite-archive]
+                              [--final] [--skip-readme]
 """
 from __future__ import annotations
 
@@ -251,11 +265,14 @@ def render_readme(commit, branch) -> str:
         "**Scope:** SIMULATION ONLY — real-data models run: 0, real-data files "
         "modified: 0, GPU hours: 0.", "",
         "## Start here", "",
-        "1. `20_RESULT_HANDOFF_MEMO.md` — what was run, what passed, where "
+        "1. `FINAL_SIMULATION_HANDOFF.md` — the release report: identifiers, "
+        "row counts, acceptance, resource use, limitations, and the exact files "
+        "intended for manuscript insertion.",
+        "2. `20_RESULT_HANDOFF_MEMO.md` — what was run, what passed, where "
         "everything is, and the open decisions.",
-        "2. `19_VALIDATION_REPORT.md` — every deviation from the plan and every "
+        "3. `19_VALIDATION_REPORT.md` — every deviation from the plan and every "
         "stated limitation.",
-        "3. `11_SIM1_TABLES/TabS2.csv` — acceptance criteria, one row each.", "",
+        "4. `11_SIM1_TABLES/TabS2.csv` — acceptance criteria, one row each.", "",
         f"**Acceptance: {npass} passed, {nfail} failed.**", "",
         "## One thing that will mislead you if you skip it", "",
         "Where the population Bayes-on-Z risk is not identified (hash encoders "
@@ -324,6 +341,8 @@ def main() -> int:
     allow_partial = "--allow-partial" in sys.argv
     allow_unstamped = "--allow-unstamped" in sys.argv
     manifest_only = "--manifest-only" in sys.argv
+    final = "--final" in sys.argv
+    skip_readme = "--skip-readme" in sys.argv
     branch = git("rev-parse", "--abbrev-ref", "HEAD")
     commit = stamped_commit()
     if len(commit) != 40 or not all(c in "0123456789abcdef" for c in commit):
@@ -335,15 +354,18 @@ def main() -> int:
         print(f"WARNING: building UNSTAMPED (full_commit_sha = {commit!r})")
 
     present = {n: (OUTD / n).exists() for n, _, _ in REQUIRED}
-    try:
-        build_readme(present, commit, branch)
-    except ReadmeMergeError as exc:
-        print(f"REFUSING to rewrite {README_NAME}: {exc}\n"
-              f"  {README_NAME} is UNCHANGED and no package was built. Fix the "
-              f"cause above -- teach render_readme() the missing section, "
-              f"rename a duplicated heading, or stamp the commit -- and "
-              f"re-run.")
-        return 1
+    if skip_readme:
+        print(f"--skip-readme: {README_NAME} left exactly as it is on disk")
+    else:
+        try:
+            build_readme(present, commit, branch)
+        except ReadmeMergeError as exc:
+            print(f"REFUSING to rewrite {README_NAME}: {exc}\n"
+                  f"  {README_NAME} is UNCHANGED and no package was built. Fix "
+                  f"the cause above -- teach render_readme() the missing "
+                  f"section, rename a duplicated heading, or stamp the commit "
+                  f"-- and re-run.")
+            return 1
     present[README_NAME] = True
 
     missing = [n for n, req, _ in REQUIRED if req and not (OUTD / n).exists()]
@@ -356,7 +378,9 @@ def main() -> int:
               "Re-run after the missing steps, or pass --allow-partial.")
         return 1
 
-    zpath = REPO / f"simulation-results-ct2i-repaired_{commit}.zip"
+    zname = (f"simulation-results-ct2i-final_{commit[:8]}.zip" if final
+             else f"simulation-results-ct2i-repaired_{commit}.zip")
+    zpath = REPO / zname
     if zpath.exists() and not manifest_only \
             and "--overwrite-archive" not in sys.argv:
         print(f"REFUSING to overwrite the existing archive {zpath.name} "

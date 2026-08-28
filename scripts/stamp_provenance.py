@@ -31,8 +31,20 @@ detects that situation and reports it rather than silently doing nothing.
 This script does NOT commit, tag or push anything.
 
 Usage: stamp_provenance.py <full-40-char-sha> [<zip-sha256>] [<zip-bytes>]
+                           [--only=NAME,...] [--exclude=NAME,...]
        stamp_provenance.py --check
        --check reports what is currently stamped and exits without writing.
+
+--only / --exclude restrict a run to a subset of the target files, named by
+basename; --check always reports every target. They exist because one release
+can legitimately need two different SHAs. REPAIR_REPORT.md is a Phase R
+historical document: its prose describes the Phase R push readbacks, the
+section 14.6 generation map and the tag sim-only-s1-complete-v2, so stamping it
+with a later release SHA would turn true statements false. It is therefore
+stamped with the Phase R identifiers and every other file with the current
+release's, in two invocations over disjoint file sets. Both are pure textual
+substitution, both are reproducible from the command line, and no stamp value
+is ever hand-edited into a file.
 """
 from __future__ import annotations
 
@@ -82,8 +94,23 @@ def md_targets() -> list:
 # the committed copy states every status fact truthfully (COMPLETE / YES) and
 # only the self-referential identifiers are deferred to this stamp.
 REPORT_FILE = "REPAIR_REPORT.md"
+# simulation-results-ct2i/FINAL_SIMULATION_HANDOFF.md carries the same three
+# tokens for the same reason, one level deeper: it reports the SHA-256 and byte
+# size of the archive it is itself shipped inside, and no file can carry the
+# hash of a container that does not exist until after the file is written. The
+# copy inside the ZIP keeps the tokens and points at the detached sums file;
+# the delivered on-disk copy is stamped once the archive exists, after which
+# the on-disk manifests are regenerated so the delivered tree still verifies.
+HANDOFF_FILE = "FINAL_SIMULATION_HANDOFF.md"
+REPORT_FILES = [(REPORT_FILE, REPO / REPORT_FILE),
+                (HANDOFF_FILE, OUTD / HANDOFF_FILE)]
 ZIP_SHA_PLACEHOLDER = "PENDING_ZIP_SHA256_SEE_SHA256SUMS"
 ZIP_BYTES_PLACEHOLDER = "PENDING_ZIP_BYTES_SEE_SHA256SUMS"
+# The final archive is named by the SHORT sha, so a report that names the
+# archive needs the abbreviation as a token of its own; deriving it from the
+# full SHA at stamp time is the whole point -- an identifier typed by hand is
+# an identifier that can disagree with the commit.
+SHORT_PLACEHOLDER = "PENDING_SHORT_SHA_SEE_PACKAGE_PROVENANCE"
 # The console block of section 15 is the anchor used to detect an already
 # stamped report, so a re-stamp with a different SHA can be reported instead of
 # silently skipped.
@@ -99,9 +126,8 @@ def normalise_zip_bytes(raw: str) -> str:
     return f"{int(digits):,}"
 
 
-def report_state() -> dict:
-    """What REPAIR_REPORT.md currently carries. Read-only."""
-    p = REPO / REPORT_FILE
+def report_state(p: Path) -> dict:
+    """What one token-carrying report currently holds. Read-only."""
     if not p.exists():
         return {"present": False}
     txt = p.read_text(encoding="utf-8")
@@ -111,6 +137,7 @@ def report_state() -> dict:
         "text": txt,
         "commit": m.group(1) if m else "(no console AUTHORITATIVE COMMIT line)",
         "sha_tokens": txt.count(PLACEHOLDER),
+        "short_tokens": txt.count(SHORT_PLACEHOLDER),
         "zip_sha_tokens": txt.count(ZIP_SHA_PLACEHOLDER),
         "zip_bytes_tokens": txt.count(ZIP_BYTES_PLACEHOLDER),
     }
@@ -134,34 +161,60 @@ def current() -> dict:
             out[f"  {name} :: commit quality gate"] = (
                 "[x] satisfied" if gm.group(0).startswith("- [x]")
                 else "[ ] pending stamp")
-    st = report_state()
-    if not st["present"]:
-        out[REPORT_FILE] = "(file absent)"
-    else:
-        out[REPORT_FILE] = st["commit"]
-        out[f"  {REPORT_FILE} :: tokens left"] = (
-            f"commit {st['sha_tokens']}, zip-sha256 {st['zip_sha_tokens']}, "
+    for name, path in REPORT_FILES:
+        st = report_state(path)
+        if not st["present"]:
+            out[name] = "(file absent)"
+            continue
+        out[name] = st["commit"]
+        out[f"  {name} :: tokens left"] = (
+            f"commit {st['sha_tokens']}, short-sha {st['short_tokens']}, "
+            f"zip-sha256 {st['zip_sha_tokens']}, "
             f"zip-bytes {st['zip_bytes_tokens']}")
     return out
 
 
-def stamp_report(sha: str, zip_sha: str | None, zip_bytes: str | None,
-                 changed: list, problems: list) -> None:
-    """Pure substitution of the three stamp tokens in REPAIR_REPORT.md."""
-    st = report_state()
+# The full set of stampable targets, named by basename. --only / --exclude are
+# validated against it, so a typo is refused rather than silently stamping
+# nothing.
+ALL_TARGETS = ([JSON_FILE] + MD_FILES + ROOT_MD_FILES
+               + [n for n, _ in REPORT_FILES])
+
+
+def selection(argv) -> set:
+    """Target basenames this invocation may write. Pure; raises on a typo."""
+    only, excl = None, set()
+    for a in argv:
+        if a.startswith("--only="):
+            only = (only or set()) | {s.strip() for s in
+                                      a[len("--only="):].split(",") if s.strip()}
+        elif a.startswith("--exclude="):
+            excl |= {s.strip() for s in
+                     a[len("--exclude="):].split(",") if s.strip()}
+    unknown = sorted(((only or set()) | excl) - set(ALL_TARGETS))
+    if unknown:
+        raise ValueError(f"unknown stamp target(s) {unknown}; known targets are "
+                         f"{ALL_TARGETS}")
+    return (set(ALL_TARGETS) if only is None else set(only)) - excl
+
+
+def stamp_report(name: str, path: Path, sha: str, zip_sha: str | None,
+                 zip_bytes: str | None, changed: list, problems: list) -> None:
+    """Pure substitution of the three stamp tokens in one report file."""
+    st = report_state(path)
     if not st["present"]:
         # Not a failure: the package stamp is independent of the report.
-        print(f"NOTE: {REPORT_FILE} not found at {REPO}; nothing to stamp there.")
+        print(f"NOTE: {name} not found at {path.parent}; nothing to stamp there.")
         return
     txt = st["text"]
     if st["sha_tokens"] == 0 and re.fullmatch(r"[0-9a-f]{40}", st["commit"]) \
             and st["commit"] != sha:
         problems.append(
-            f"{REPORT_FILE}: already stamped with {st['commit']}, which is not "
+            f"{name}: already stamped with {st['commit']}, which is not "
             f"{sha}. Restore the committed copy "
-            f"(git checkout -- {REPORT_FILE}) and re-run.")
+            f"(git checkout -- {name}) and re-run.")
         return
-    subs = [(PLACEHOLDER, sha)]
+    subs = [(PLACEHOLDER, sha), (SHORT_PLACEHOLDER, sha[:8])]
     if zip_sha is not None:
         subs.append((ZIP_SHA_PLACEHOLDER, zip_sha))
     if zip_bytes is not None:
@@ -173,9 +226,9 @@ def stamp_report(sha: str, zip_sha: str | None, zip_bytes: str | None,
         counts.append(f"{token} x{n}")
         new = new.replace(token, value)
     if new != txt:
-        (REPO / REPORT_FILE).write_text(new, encoding="utf-8")
-        changed.append(REPORT_FILE)
-    print(f"{REPORT_FILE}: substituted " + ", ".join(counts))
+        path.write_text(new, encoding="utf-8")
+        changed.append(name)
+    print(f"{name}: substituted " + ", ".join(counts))
     left = []
     if zip_sha is None and new.count(ZIP_SHA_PLACEHOLDER):
         left.append(f"{ZIP_SHA_PLACEHOLDER} x{new.count(ZIP_SHA_PLACEHOLDER)}")
@@ -183,7 +236,7 @@ def stamp_report(sha: str, zip_sha: str | None, zip_bytes: str | None,
         left.append(
             f"{ZIP_BYTES_PLACEHOLDER} x{new.count(ZIP_BYTES_PLACEHOLDER)}")
     if left:
-        print(f"{REPORT_FILE}: left in place (no value supplied): "
+        print(f"{name}: left in place (no value supplied): "
               + ", ".join(left))
 
 
@@ -215,19 +268,32 @@ def main() -> int:
             print(str(exc))
             return 2
 
+    try:
+        sel = selection(sys.argv[1:])
+    except ValueError as exc:
+        print(str(exc))
+        return 2
+    skipped = sorted(set(ALL_TARGETS) - sel)
+    print(f"targets: {sorted(sel)}")
+    if skipped:
+        print(f"NOT stamped by this invocation: {skipped}")
+
     changed = []
     jp = OUTD / JSON_FILE
-    if not jp.exists():
-        print(f"FAIL: {JSON_FILE} missing")
-        return 1
-    env = json.loads(jp.read_text(encoding="utf-8"))
-    if env.get("full_commit_sha") != sha:
-        env["full_commit_sha"] = sha
-        jp.write_text(json.dumps(env, indent=2), encoding="utf-8")
-        changed.append(JSON_FILE)
+    if JSON_FILE in sel:
+        if not jp.exists():
+            print(f"FAIL: {JSON_FILE} missing")
+            return 1
+        env = json.loads(jp.read_text(encoding="utf-8"))
+        if env.get("full_commit_sha") != sha:
+            env["full_commit_sha"] = sha
+            jp.write_text(json.dumps(env, indent=2), encoding="utf-8")
+            changed.append(JSON_FILE)
 
     problems = []
     for p, name in md_targets():
+        if name not in sel:
+            continue
         if not p.exists():
             problems.append(f"{name}: file missing")
             continue
@@ -243,7 +309,9 @@ def main() -> int:
             p.write_text(new, encoding="utf-8")
             changed.append(name)
 
-    stamp_report(sha, zip_sha, zip_bytes, changed, problems)
+    for name, path in REPORT_FILES:
+        if name in sel:
+            stamp_report(name, path, sha, zip_sha, zip_bytes, changed, problems)
 
     for k, v in current().items():
         print(f"{k:38s} {v}")
