@@ -4,8 +4,8 @@ A file that lives inside commit C cannot contain C's own SHA at write time --
 that is precisely how 00_README.md, 02_ENVIRONMENT_AND_COMMIT.json and
 PACKAGE_SHA256.json ended up naming three different commits. So the report
 generators write the placeholder token PENDING_STAMP_SEE_PACKAGE_PROVENANCE,
-and this script writes the real SHA into the four metadata files IN THE WORKING
-TREE once the commit exists. The ZIP is then built from the stamped tree, so the
+and this script writes the real SHA into the package metadata files and the
+repository-root README.md IN THE WORKING TREE once the commit exists. The ZIP is then built from the stamped tree, so the
 delivered package names exactly one commit everywhere.
 
 The repository-root REPAIR_REPORT.md is stamped by the same mechanism, for the
@@ -62,7 +62,19 @@ GATE_PATTERN = re.compile(
     r"^- \[[ x]\] " + re.escape(COMMIT_GATE) + r".*$", re.M)
 
 MD_FILES = ["00_README.md", "19_VALIDATION_REPORT.md", "20_RESULT_HANDOFF_MEMO.md"]
+# The repository-root README.md carries the same `AUTHORITATIVE COMMIT:` line
+# and says of itself that this script writes the SHA into it. It lives outside
+# the package directory, so it needs its own entry: without it the released
+# README would keep the token for ever while every other metadata file named a
+# commit -- the exact metadata disagreement Option A exists to prevent.
+ROOT_MD_FILES = ["README.md"]
 JSON_FILE = "02_ENVIRONMENT_AND_COMMIT.json"
+
+
+def md_targets() -> list:
+    """(path, display name) for every markdown file carrying the stamp line."""
+    return ([(OUTD / n, n) for n in MD_FILES]
+            + [(REPO / n, n) for n in ROOT_MD_FILES])
 
 # ---------------------------------------------------------------- report ----
 # REPAIR_REPORT.md lives one level above the package directory, at the repo
@@ -110,8 +122,7 @@ def current() -> dict:
     if jp.exists():
         out[JSON_FILE] = json.loads(jp.read_text(encoding="utf-8")).get(
             "full_commit_sha", "(absent)")
-    for name in MD_FILES:
-        p = OUTD / name
+    for p, name in md_targets():
         if not p.exists():
             out[name] = "(file absent)"
             continue
@@ -216,8 +227,7 @@ def main() -> int:
         changed.append(JSON_FILE)
 
     problems = []
-    for name in MD_FILES:
-        p = OUTD / name
+    for p, name in md_targets():
         if not p.exists():
             problems.append(f"{name}: file missing")
             continue

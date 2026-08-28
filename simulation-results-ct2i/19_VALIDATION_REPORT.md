@@ -1,12 +1,12 @@
 # 19 Validation Report
 
-**Generated:** 2026-08-18T17:05:12.131158+00:00  
+**Generated:** 2026-08-28T16:18:43.230721+00:00  
 **Repository:** https://github.com/hanmingwu1103/ct2i-benchmark.git  
 **Branch:** `simulation-only/manuscript-revision`  
-**Annotated tag (authoritative identifier):** `sim-only-s1-complete-v2`  
+**Annotated tag (authoritative identifier):** `ct2i-simulations-v1.0` — the final simulation release tag; quote this one. Superseded Phase R tag: `sim-only-s1-complete-v2` (the Phase R release, kept as history, not the current release).  
 AUTHORITATIVE COMMIT: `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`  
 **Pre-repair parent commit:** `82ca32868f42cb95d2add6527b0ee57649bf7ebd`  
-**ADDENDUM RUN: NO** — the targeted addendum (the M = 5, d = M = 5 Simulation 1B configuration) was NOT run; it remains an open advisor decision, see the handoff memo.
+**ADDENDUM RUN: NO** — the targeted addendum (the M = 5, d = M = 5 Simulation 1B configuration) was NOT run. **ADDENDUM STATUS: TERMINATED_BEFORE_EXECUTION** — the advisor permanently discontinued it before execution on 2026-08-25. It is not an open decision, not pending and not planned; full addendum cells run: 0. See `DENSE_ADDENDUM_DECISION.md`.
 
 **Scope:** SIMULATION ONLY. Real-data models run: 0. Real-data files modified: 0. Manuscripts modified: 0. Completed raw result files changed: 0. GPU hours: 0.
 
@@ -200,5 +200,5 @@ The figure is reported as measured. It has not been concealed, re-estimated down
 - [x] no criterion changed after observing results
 - [x] all figure and table scripts run from the frozen raw outputs
 - [x] Simulation 2 reproduces the validated values
-- [ ] the package includes the exact Git commit — NOT YET SATISFIED IN THIS COPY. Option A (deviation D1): the commit SHA is stamped into the working tree by `scripts/stamp_provenance.py` immediately after the Phase R commit is tagged, and the delivered ZIP is built from that stamped tree; the in-repo copy intentionally carries the placeholder `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`, because a file inside a commit cannot carry that commit's own SHA at write time. The authoritative identifiers are meanwhile the repository, the branch and the annotated tag `sim-only-s1-complete-v2`.
+- [ ] the package includes the exact Git commit — NOT YET SATISFIED IN THIS COPY. Option A (deviation D1): the commit SHA is stamped into the working tree by `scripts/stamp_provenance.py` immediately after the release commit is tagged, and the delivered ZIP is built from that stamped tree; the in-repo copy intentionally carries the placeholder `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`, because a file inside a commit cannot carry that commit's own SHA at write time. The authoritative identifiers are meanwhile the repository, the branch and the annotated tag `ct2i-simulations-v1.0`.
 - [x] this report lists every deviation

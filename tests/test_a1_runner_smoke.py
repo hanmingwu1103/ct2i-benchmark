@@ -486,7 +486,66 @@ class TestProtocolFileWiring:
 
     def test_execute_is_refused_while_a_required_key_is_absent(self, monkeypatch,
                                                               tmp_path):
+        """The 01B gate itself: a missing binding ruling still fails loudly.
+
+        This used to be asserted through `main(["--execute", ...])`. The
+        addendum was TERMINATED BEFORE EXECUTION on 2026-08-25 and `--execute`
+        now refuses BEFORE anything is loaded (see the test below), so the
+        ruling gate is exercised directly on the loader it belongs to. The
+        assertion is unchanged and strictly no weaker: an absent 01B is still a
+        hard FileNotFoundError naming every required key, and no output file is
+        produced by either route.
+        """
         monkeypatch.setattr(RUN, "RULINGS_01B", tmp_path / "absent.yaml")
-        with pytest.raises(FileNotFoundError):
-            RUN.main(["--execute", "--out", str(tmp_path / "never.csv")])
+        with pytest.raises(FileNotFoundError) as e:
+            RUN.load_rulings_01b(strict=True)
+        for key in RUN.REQUIRED_01B_KEYS:
+            assert key in str(e.value)
+        assert RUN.main(["--execute", "--out", str(tmp_path / "never.csv")]) != 0
         assert not (tmp_path / "never.csv").exists()
+
+
+class TestAddendumTerminatedBeforeExecution:
+    """The addendum was permanently discontinued before execution (2026-08-25).
+
+    `--execute` must refuse unconditionally -- not merely when a ruling key is
+    missing, not merely when the freeze disagrees -- and must never write a row.
+    """
+
+    def test_module_declares_the_terminal_status(self):
+        assert RUN.ADDENDUM_RUN is False
+        assert RUN.ADDENDUM_STATUS == "TERMINATED_BEFORE_EXECUTION"
+        assert "DENSE_ADDENDUM_DECISION.md" in RUN.ADDENDUM_DECISION_RECORD
+
+    def test_the_decision_record_exists_and_states_the_termination(self):
+        rec = PKG / "DENSE_ADDENDUM_DECISION.md"
+        assert rec.exists(), "the decision record is the authority for this gate"
+        text = rec.read_text(encoding="utf-8")
+        assert "TERMINATED_BEFORE_EXECUTION" in text
+        assert "full addendum cells run: 0" in text
+
+    def test_execute_refuses_with_a_nonzero_exit_and_writes_nothing(
+            self, tmp_path, capsys):
+        out = tmp_path / "never.csv"
+        rc = RUN.main(["--execute", "--out", str(out)])
+        assert rc != 0 and rc == RUN.EXIT_TERMINATED
+        assert not out.exists()
+        err = capsys.readouterr().err
+        assert "REFUSING TO EXECUTE" in err
+        assert "TERMINATED BEFORE EXECUTION" in err
+        assert "DENSE_ADDENDUM_DECISION.md" in err
+
+    def test_execute_refuses_even_with_a_valid_01B_and_a_clean_freeze(
+            self, tmp_path):
+        """No repository state re-enables execution."""
+        assert RUN.load_rulings_01b(strict=True)[1] == []
+        assert RUN.verify_against_freeze() == []
+        out = tmp_path / "still_never.csv"
+        assert RUN.main(["--execute", "--out", str(out)]) == RUN.EXIT_TERMINATED
+        assert not out.exists()
+
+    def test_dry_run_reports_the_terminal_status(self, capsys):
+        assert RUN.main(["--dry-run"]) == 0
+        out = capsys.readouterr().out
+        assert "TERMINATED_BEFORE_EXECUTION" in out
+        assert "No cell executed" in out

@@ -54,8 +54,10 @@ SHA_PLACEHOLDER = "PENDING_STAMP_SEE_PACKAGE_PROVENANCE"
 # The one line scripts/stamp_provenance.py rewrites in 00_README.md.
 STAMP_LINE = re.compile(r"^AUTHORITATIVE COMMIT: `([^`]*)`", re.M)
 # Must match scripts/run_s1_reports.py AUTHORITATIVE_TAG: every metadata file
-# has to name ONE tag (requirement R12).
-AUTHORITATIVE_TAG = "sim-only-s1-complete-v2"
+# has to name ONE authoritative tag (requirement R12). The Phase R tag is named
+# beside it with its role stated, so the two can never be confused.
+AUTHORITATIVE_TAG = "ct2i-simulations-v1.0"
+SUPERSEDED_PHASE_R_TAG = "sim-only-s1-complete-v2"
 
 
 def package_files():
@@ -234,8 +236,10 @@ def render_readme(commit, branch) -> str:
     nfail = sum(c["pass"] is False for c in acc["criteria"])
     L = [
         "# cT2I Simulation-Only Result Package", "",
-        f"**Release tag:** `{AUTHORITATIVE_TAG}` — quote this when citing the "
-        "package; it is the stable identifier.  ",
+        f"**Release tag:** `{AUTHORITATIVE_TAG}` — the final simulation release "
+        "tag; quote this when citing the package, it is the stable identifier. "
+        f"Superseded Phase R tag: `{SUPERSEDED_PHASE_R_TAG}` (the Phase R "
+        "release, retained as history, not the current release).  ",
         f"**Repository:** {git('remote', 'get-url', 'origin')}  ",
         f"AUTHORITATIVE COMMIT: `{commit}`  ",
         f"**Branch:** `{branch}`  ",

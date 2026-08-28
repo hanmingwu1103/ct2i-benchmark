@@ -42,6 +42,14 @@ plt.rcParams.update({"font.size": STYLE["font_size_pt"], "axes.linewidth": 0.6,
                      "savefig.dpi": 400})
 SINGLE, DOUBLE = STYLE["single_column_in"], STYLE["double_column_in"]
 
+# FigS4 only. The frozen style width (7.2 in) is the pre-trim canvas the other
+# panels hand to a "tight" bounding box; FigS4 fixes its own canvas instead, so
+# the number here is the delivered page width and must sit inside the 6.5-7.0 in
+# manuscript band. FIGS4_NOTE_BAND is the fraction of the canvas height reserved
+# below the axes for the two mandated disclosures.
+FIGS4_W, FIGS4_H = 6.9, 3.15
+FIGS4_NOTE_BAND = 0.15
+
 # Frozen zero-gap tolerance: any |representation loss| below this is numerically
 # zero and must not be rendered as a substantive curve (Phase R, requirement R9).
 ZERO_GAP_ABS = float(
@@ -53,10 +61,20 @@ def load(n):
     return pd.read_csv(p, low_memory=False) if p.exists() else None
 
 
-def save(fig, name):
+def save(fig, name, bbox="tight"):
+    """Write one figure. bbox="full" fixes the canvas at exactly figsize.
+
+    The default keeps the historical "tight" behaviour for every figure. FigS4
+    passes bbox="full" because a "tight" box is computed from the artists, so a
+    wide artist (there, a one-line footnote) silently inflates the page far past
+    the intended column width; a publication asset needs a canvas the author
+    fixes, not one an artist negotiates.
+    """
     FIGD.mkdir(parents=True, exist_ok=True)
+    if bbox == "full":                      # exactly figsize, no artist-driven growth
+        bbox = fig.bbox_inches
     for ext in ("pdf", "svg"):
-        fig.savefig(FIGD / f"{name}.{ext}")
+        fig.savefig(FIGD / f"{name}.{ext}", bbox_inches=bbox)
     plt.close(fig)
     print(f"  wrote {name}.pdf / .svg")
 
@@ -237,7 +255,11 @@ def fig_s4(b, keep):
     """Representation loss and learner shortfall by n_train and learner."""
     if b is None:
         return
-    fig, ax = plt.subplots(1, 2, figsize=(DOUBLE, 2.6))
+    fig, ax = plt.subplots(1, 2, figsize=(FIGS4_W, FIGS4_H), layout="constrained")
+    # rect is (left, bottom, width, height) in figure fractions: the axes block is
+    # confined above the reserved note band, so nothing can spill off the canvas.
+    fig.get_layout_engine().set(
+        rect=(0.005, FIGS4_NOTE_BAND, 0.99, 0.985 - FIGS4_NOTE_BAND))
     g = b[(b.status == "SUCCESS") & (b.metric == "logloss")]
 
     A = ax[0]
@@ -273,15 +295,18 @@ def fig_s4(b, keep):
     A.set(ylabel="learner shortfall (nats)", title="(b) learner shortfall")
     A.legend(frameon=False)
     keep.append(g.assign(panel="FigS4"))
-    fig.text(.5, -.16, "The completed 1B arm uses d = 3 signal coordinates in EVERY "
-             "existing cell: M varies the number of pure-noise columns only. Cells whose "
-             "population gap is NOT_IDENTIFIED are OMITTED from panel (a), NOT assigned "
-             "zero; a blank is not a zero. Markers are means over cells; error bars are "
-             "standard errors, smaller than the marker in every cell here so no bar is "
-             "visually separable from its marker (post-review finding 4). Representation "
-             "loss and learner shortfall are never combined.",
-             ha="center", fontsize=6, color="grey")
-    save(fig, "FigS4")
+    # The full methodological qualification is the external caption
+    # (10_SIM1_FIGURES/FIGURE_CAPTIONS.md, FigS4) and is deliberately NOT drawn
+    # here: as one unwrapped fig.text it stretched the "tight" bounding box to
+    # 20.26 in. Only the two mandated disclosures stay on the canvas, wrapped
+    # and inside the reserved bottom band, so no artist can widen the page.
+    fig.text(.5, FIGS4_NOTE_BAND / 2,
+             "Simulation 1B uses d = 3 signal coordinates in EVERY cell; M varies the "
+             "number of pure-noise columns only.\nCells whose population gap is "
+             "NOT_IDENTIFIED are OMITTED from panel (a), NOT assigned zero: a blank is "
+             "not a zero.\nFull qualification: see FIGURE_CAPTIONS.md, FigS4.",
+             ha="center", va="center", fontsize=6.5, color="grey", linespacing=1.6)
+    save(fig, "FigS4", bbox="full")
 
 
 def main() -> int:

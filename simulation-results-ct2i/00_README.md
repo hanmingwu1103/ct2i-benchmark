@@ -1,6 +1,6 @@
 # cT2I Simulation-Only Result Package
 
-**Release tag:** `sim-only-s1-complete-v2` — quote this when citing the package; it is the stable identifier.  
+**Release tag:** `ct2i-simulations-v1.0` — the final simulation release tag; quote this when citing the package, it is the stable identifier. Superseded Phase R tag: `sim-only-s1-complete-v2` (the Phase R release, retained as history, not the current release).  
 **Repository:** https://github.com/hanmingwu1103/ct2i-benchmark.git  
 AUTHORITATIVE COMMIT: `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`  
 **Branch:** `simulation-only/manuscript-revision`  
@@ -16,39 +16,55 @@ The repository, branch and annotated tag above are the authoritative identifiers
 
 **Acceptance: 13 passed, 0 failed.**
 
-## Phase A0.1 addendum deliverables (index)
+## Phase A0.1 addendum deliverables (index) — ⛔ TERMINATED BEFORE EXECUTION
 
-**Phase A0.1 verdict: BLOCKED.** Complete as work, blocked as a gate. Every required A0.1 deliverable exists, and **full addendum cells run: 0** — real-data models run: 0, GPU hours: 0, nothing under `raw/` written or altered. Phase A1 must not begin until the advisor settles the three matters in `S0B_FINAL_GATE_REPORT.md` §2; the machine-readable status block is that report's §9.
+```text
+addendum_run     = false
+addendum_status  = TERMINATED_BEFORE_EXECUTION
+full addendum cells run: 0        decided 2026-08-25 by the advisor
+```
 
-Phase A0.1 is the dense-signal Simulation 1B addendum (d = M = 5, K = 4). It is a later, separate phase from the Simulation 1 / Simulation 2 package indexed under `## Contents` above, and nothing in it changes a number there. The files below are the whole of it.
+**The dense-signal `M = 5, K = 4, d = 5` Simulation 1B addendum was PERMANENTLY DISCONTINUED BEFORE EXECUTION.** It is not pending, not planned, not paused and not awaiting approval; **Phase A1 will never run**, and no advisor decision is outstanding on it. Read the authoritative record first: **`DENSE_ADDENDUM_DECISION.md`**.
+
+**Every file indexed in this section is retained ONLY as a methodological audit record — design-audit provenance. None of their projected, exploratory or measured contrasts is a study result, and none may be cited as one.** Where a status cell below reads "current", "open", "ready" or "blocked", it describes the file as it stood at the close of A0.1 on 2026-08-25, before the termination; all of it is superseded and closed by the termination.
+
+*(Historical, for the audit trail: at the close of A0.1 the phase verdict was **BLOCKED** — complete as work, blocked as a gate, with three matters listed in `S0B_FINAL_GATE_REPORT.md` §2 for the advisor to settle. He settled them by ending the arm instead. Zero addendum cells were run: real-data models run: 0, GPU hours: 0, nothing under `raw/` written or altered.)*
+
+Phase A0.1 is the dense-signal Simulation 1B addendum (d = M = 5, K = 4). It is a later, separate phase from the Simulation 1 / Simulation 2 package indexed under `## Contents` above, and nothing in it changes a number there — nor could it, since it never ran. The files below are the whole of it.
+
+### Decision record
+
+| file | purpose | status |
+|---|---|---|
+| `DENSE_ADDENDUM_DECISION.md` | **the authoritative status of the addendum**: terminated before execution, why, with file:line evidence, and the retention basis of every A0/A0.1 file | **operative — supersedes every status statement in this section** |
 
 ### Ruling amendment
 
 | file | purpose | status |
 |---|---|---|
-| `01B_ADDENDUM_ADVISOR_RULINGS.yaml` | rulings D13–D18 transcribed and amended (v5, AMENDMENT-5); amends but does not supersede `01A_ADDENDUM_PROTOCOL_FREEZE.yaml`, which stays authoritative for the design | frozen at A0.1, before any addendum cell; 8 advisor questions open (`advisor_confirmation_requested`) |
+| `01B_ADDENDUM_ADVISOR_RULINGS.yaml` | rulings D13–D18 transcribed and amended (v5, AMENDMENT-5; AMENDMENT-6 records the termination); amends but does not supersede `01A_ADDENDUM_PROTOCOL_FREEZE.yaml`, which stays authoritative for the design | closed; `terminal_status: TERMINATED_BEFORE_EXECUTION`. Its 8 advisor questions are **CLOSED BY TERMINATION, not by answer** — kept verbatim for audit |
 
 ### Reports and data
 
 | file | purpose | status |
 |---|---|---|
-| `S0B_FINAL_GATE_REPORT.md` | the closing document of A0.1: verdict, the three advisor decisions, what was fixed, what remains open, honest disclosures, verification log | final; verdict **BLOCKED** |
-| `S0B_COUNCIL_REVIEW.md` | verbatim record of what four council seats said; all four returned a negative verdict | frozen verbatim — never edited, final status is in the gate report |
+| `S0B_FINAL_GATE_REPORT.md` | the closing document of A0.1: verdict, the three advisor decisions, what was fixed, what remained open, honest disclosures, verification log | superseded by the termination; its §9 console block is preserved and marked superseded, §9.0 carries the terminal block |
+| `S0B_COUNCIL_REVIEW.md` | verbatim record of what four council seats said; all four returned a negative verdict | frozen verbatim — **never edited**; its terminal status is recorded by reference in `DENSE_ADDENDUM_DECISION.md` §4, not by rewriting reviewers' words |
 | `S0B_ADVISOR_RULING_IMPLEMENTATION_REPORT.md` | what was built for each ruling D13–D18, in which file, and which test holds it in place | current, corrected by the consistency pass |
 | `S0B_RUNNER_TEST_REPORT.md` | the test-migration half of D18 / AD15: the property tests now exercise the real A1 runner | current |
 | `S0B_REFERENCE_IMPLEMENTATION_TEST_REPORT.md` | D17 independent reference check: what the harness compares and what it caught | current |
 | `S0B_REFERENCE_GAP_CHECK_d3_frozen.csv` | the D17 harness output, 624 cells on the frozen d = 3 arm | frozen output; **sensitivity arm only** — G4 `NOT_EVALUATED`, not reportable for AD1/AD2 |
-| `S0B_D13_PREMISE_INVESTIGATION.md` | measures whether the inferential unit is the block or the draw; D13's premise is refuted | current; basis of `01B` Q6 |
-| `S0B_NORMALIZED_CONTRAST_SENSITIVITY.md` | how far the normalized d = 5 minus d = 3 contrast moves under the readings D16 leaves unsaid | current; basis of `01B` Q8 |
-| `S0B_RESOURCE_CONFIRMATION.csv` | A1 resource position measured rather than projected: 8.573 core-hours, 0.2026 GB | current; supersedes `S0A_ADDENDUM_RESOURCE_ESTIMATE.csv`, which is left byte-identical |
-| `RAW_FREEZE_MANIFEST_ADDENDUM.json` | D15: SHA-256 coverage for every top-level `raw/*.csv`, a strict superset of `RAW_FREEZE_MANIFEST.json` | active; verifier reports `10/10 MATCH`, superset `5/5`, exit 0 |
+| `S0B_D13_PREMISE_INVESTIGATION.md` | measures whether the inferential unit is the block or the draw; D13's premise is refuted | audit record; was the basis of `01B` Q6, and is one of the stated reasons for the termination |
+| `S0B_NORMALIZED_CONTRAST_SENSITIVITY.md` | how far the normalized d = 5 minus d = 3 contrast moves under the readings D16 leaves unsaid | audit record; was the basis of `01B` Q8, and is one of the stated reasons for the termination. **Its contrasts are exploratory, not study results** |
+| `S0B_RESOURCE_CONFIRMATION.csv` | A1 resource position measured rather than projected: 8.573 core-hours, 0.2026 GB | audit record for an arm that was never run; supersedes `S0A_ADDENDUM_RESOURCE_ESTIMATE.csv`, which is left byte-identical |
+| `RAW_FREEZE_MANIFEST_ADDENDUM.json` | D15: SHA-256 coverage for every top-level `raw/*.csv`, a strict superset of `RAW_FREEZE_MANIFEST.json` | active for the 10 completed raw files; verifier reports `10/10 MATCH`, superset `5/5`, exit 0. Its 3 declared A1 outputs are marked `TERMINATED_BEFORE_EXECUTION_NEVER_PRODUCED` — they will never exist |
 
 ### Scripts (repository root, outside this directory)
 
 | file | purpose | status |
 |---|---|---|
-| `scripts/run_sim1b_dense_addendum.py` | the Phase A1 runner for the addendum | ready; **not run** — 0 cells executed |
-| `scripts/s0b_reference_gap_check.py` | the D17 reference harness, gates G1–G4 | run on the d = 3 frozen arm (sensitivity); the gate arm needs production rows and cannot run at A0.1 |
+| `scripts/run_sim1b_dense_addendum.py` | the runner that was written for the addendum | **never executed — 0 cells; `--execute` now REFUSES and exits 3.** Retained as design-audit provenance only |
+| `scripts/s0b_reference_gap_check.py` | the D17 reference harness, gates G1–G4 | run on the d = 3 frozen arm (sensitivity) only; the gate arm needed addendum production rows that will never exist |
 | `scripts/s0b_g4_fingerprint_bite.py` | proves G4 bites, using synthetic stored fingerprints because `05b` predates the column | run; cited by `01B` V12 |
 | `scripts/s0b_d13_premise_probe.py` | regenerates every number in `S0B_D13_PREMISE_INVESTIGATION.md` | run; regenerates parameters only, no cell |
 | `scripts/s0b_normalized_contrast_sensitivity.py` | regenerates every number in `S0B_NORMALIZED_CONTRAST_SENSITIVITY.md` | run |
@@ -60,9 +76,9 @@ Phase A0.1 is the dense-signal Simulation 1B addendum (d = M = 5, K = 4). It is 
 |---|---|---|
 | `tests/test_a0_1_reconciliation.py` | reconciliation items R1, R9, R10 — disagreements between artefacts rather than defects inside one | 24 tests, all pass |
 | `tests/test_a0_2_defect_closure.py` | executable closure of the council's confirmed defects, plus gates G3 and G4 | 58 tests, all pass |
-| `tests/test_a1_runner_smoke.py` | smoke and property tests against the real A1 runner, on non-frozen probes only | 91 tests, all pass |
+| `tests/test_a1_runner_smoke.py` | smoke and property tests against the never-executed runner, on non-frozen probes only; now also asserts that `--execute` refuses | 96 tests, all pass |
 
-Full suite: **1,086 passed / 1,086 collected** (`PYTHONPATH=src python -m pytest -q`).
+Full suite: **1,086 passed / 1,086 collected** at the close of A0.1, plus five tests added by the termination pass that hold the `--execute` refusal in place — all passing (`PYTHONPATH=src python -m pytest -q`). The finalization pass adds further tests elsewhere in the package; run the command for the current count.
 
 `scripts/_s1_parallel.py`, `src/ct2i_benchmark/simulations/sim1_core.py` and `tests/test_a0_dense_addendum_properties.py` were modified by this phase rather than added; `S0B_FINAL_GATE_REPORT.md` §6.4 says why.
 
@@ -86,7 +102,7 @@ No manuscript prose. The plan assigns the abstract, Results, Discussion and Conc
 | `01_PROTOCOL_FREEZE.yaml` | yes | f6d64fc0335d7cd3 |  |
 | `02_ENVIRONMENT_AND_COMMIT.json` | yes | a98ba9d8f0975e84 |  |
 | `03_SEED_MANIFEST.csv` | yes | 08a2bcf15fd29850 |  |
-| `04_SIM1_SCENARIO_MANIFEST.csv` | n/a |  | superseded by 11_SIM1_TABLES/TabS1.csv, which reports the design as EXECUTED rather than as planned |
+| `04_SIM1_SCENARIO_MANIFEST.csv` | n/a |  | superseded by 11_SIM1_TABLES/TabS1.csv, which reports the Simulation 1 design as EXECUTED rather than as designed |
 | `05a_SIM1A_REPLICATE_RESULTS.parquet` | yes | 648b9a5ddb70bfc2 | the plan's single 05_SIM1_REPLICATE_RESULTS.parquet is split by arm (05a/05b/05c/05d) because the arms have different schemas |
 | `05b_SIM1B_REPLICATE_RESULTS.parquet` | yes | 5b5a191031be52d0 |  |
 | `05c_SIM1C_EXACT_RESULTS.parquet` | yes | 1ebb5f533b0602de |  |

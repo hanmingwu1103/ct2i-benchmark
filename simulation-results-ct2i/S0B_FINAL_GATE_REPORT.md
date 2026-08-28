@@ -1,3 +1,28 @@
+> # ⛔ TERMINAL STATUS — THE DENSE-SIGNAL ADDENDUM WAS TERMINATED BEFORE EXECUTION
+>
+> ```text
+> addendum_run     = false
+> addendum_status  = TERMINATED_BEFORE_EXECUTION
+> full addendum cells run: 0        decided: 2026-08-25 by the advisor
+> ```
+>
+> The dense-signal `M = 5, K = 4, d = 5` Simulation 1B addendum was **permanently
+> discontinued before execution**. It is not pending, not planned, not paused, not awaiting
+> approval and not scheduled. **Phase A1 will never run.** Nothing in this document is an
+> open item, a next action, or work still to be done.
+>
+> **This file is retained ONLY as a methodological audit record — design-audit provenance.
+> None of its projected, exploratory or measured contrasts is a study result, and none may be
+> cited as one.**
+>
+> Authoritative decision record, with the reasons and their file:line evidence:
+> [`DENSE_ADDENDUM_DECISION.md`](DENSE_ADDENDUM_DECISION.md).
+> Everything below this box is the record **as it stood on 2026-08-25 before the termination**
+> and is preserved unaltered for audit; read every verdict, gate, question, default and "next
+> action" in it as **superseded and closed by the termination**.
+
+---
+
 # S0B — FINAL GATE REPORT (Phase A0.1)
 
 The closing document of Phase A0.1. Written 2026-08-25, **revised the same day by
@@ -19,7 +44,9 @@ All eight required A0.1 deliverables exist. Zero full addendum cells were run �
 under `raw/` has an mtime later than 2026-08-12 19:55, and the runner's
 `--dry-run` ends `No cell executed.` Zero real-data models, zero GPU hours.
 
-**Phase A1 must not begin.** The block is not a defect in the runner and not a
+**Phase A1 must not begin.** *(Terminal update 2026-08-25: Phase A1 will never begin. The
+advisor discontinued the addendum permanently rather than settle the three matters below;
+they are closed by termination, not by ruling.)* The block is not a defect in the runner and not a
 missing artefact. It is three substantive matters that only the advisor can
 settle, listed in §2. Two of them determine *which numbers A1 computes*; one
 determines whether a pre-registered stratum exists at all. Running A1 before
@@ -123,6 +150,8 @@ Fixing the unit fixes E1c's arithmetic too.
 `PREMISE_REFUTED_ADVISOR_RULING_REQUIRED`, and it is the **only** open item in
 the package with no operative default: `01B:1782-1788` states
 `NEITHER SCHEME IS OPERATIVE … A1 inference is BLOCKED on this question.`
+*(Terminal update: neither scheme ever became operative, and neither ever will — no A1
+inference exists to govern. Closed by termination.)*
 It is raised as **Q6**, `severity: BLOCKS_A1_INFERENCE`, `highest_priority: Q6`.
 
 **What the advisor is being asked.** Not to accept the correction — to choose the
@@ -375,7 +404,11 @@ pre-fix the filtered probe emitted 24 failure rows against 8 success rows).
 
 ---
 
-## 5. WHAT REMAINS OPEN
+## 5. WHAT REMAINS OPEN — ALL OF IT CLOSED BY TERMINATION (2026-08-25)
+
+*Nothing in this section is outstanding. Every item below was open at the close of A0.1; the
+advisor closed all of them at once by discontinuing the addendum before execution. They are
+kept for the audit trail, not as work. See `DENSE_ADDENDUM_DECISION.md`.*
 
 ### 5.1 The eight advisor questions in 01B (`advisor_confirmation_requested`, `count: 8`)
 
@@ -833,8 +866,32 @@ nothing at the stated precision.
 
 ## 9. STATUS BLOCK
 
+### 9.0 TERMINAL STATUS (2026-08-25) — THIS IS THE OPERATIVE BLOCK
+
 ```
-CT2I ADDENDUM A0.1 STATUS: BLOCKED
+CT2I ADDENDUM STATUS: TERMINATED_BEFORE_EXECUTION
+FULL ADDENDUM CELLS RUN: 0
+ADDENDUM_RUN: false
+REAL-DATA MODELS RUN: 0
+GPU HOURS USED: 0
+MANUSCRIPTS MODIFIED: 0
+COMPLETED RAW RESULT FILES CHANGED: 0
+PHASE A1: WILL NEVER RUN
+OPEN ADVISOR QUESTIONS (01B Q1-Q8): CLOSED BY TERMINATION, NOT BY ANSWER
+DECISION RECORD: simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md
+NEXT ACTION: NONE — THE ADDENDUM IS DISCONTINUED; NO APPROVAL IS BEING AWAITED
+```
+
+### 9.1 SUPERSEDED — the block as reported at the close of A0.1, 2026-08-25
+
+**The block below is preserved verbatim as the record of what was reported at the time. It is
+SUPERSEDED. Its `NEXT ACTION: WAIT FOR ADVISOR APPROVAL BEFORE FULL A1 EXECUTION` line is no
+longer true: the advisor ruled the same day, and the ruling was to terminate rather than to
+approve. Read every FAIL, OPEN and gate verdict in it as closed by termination — none of them
+will ever be re-evaluated, because the arm they gate will never be run.**
+
+```
+CT2I ADDENDUM A0.1 STATUS: BLOCKED  [SUPERSEDED — see 9.0: TERMINATED_BEFORE_EXECUTION]
 FULL ADDENDUM CELLS RUN: 0
 REAL-DATA MODELS RUN: 0
 GPU HOURS USED: 0
@@ -852,6 +909,8 @@ FULL TEST SUITE: 1086/1086
 PROJECTED A1 CPU CORE-HOURS: 8.573
 CRITICAL VETO COUNT: 16
 NEXT ACTION: WAIT FOR ADVISOR APPROVAL BEFORE FULL A1 EXECUTION
+  [SUPERSEDED 2026-08-25 — no approval is being awaited; the addendum was
+   TERMINATED BEFORE EXECUTION. Operative next action: see 9.0.]
 ```
 
 **Why each non-PASS field reads as it does.** A ruling whose premise is refuted
@@ -995,4 +1054,8 @@ no behaviour, no seed rule, no row count); and one file created,
 collected** before and after, and the `--dry-run` still projects 182,400
 EXECUTED rows and executes nothing.
 
-**Stop. Phase A1 is not authorised. Answer Q6 first, then Q8.**
+~~**Stop. Phase A1 is not authorised. Answer Q6 first, then Q8.**~~
+
+**SUPERSEDED 2026-08-25. Phase A1 is not merely unauthorised — it is discontinued. Q6 and
+Q8 will not be answered; they are CLOSED BY TERMINATION. Nothing further is required of the
+advisor on the addendum. See `DENSE_ADDENDUM_DECISION.md`.**

@@ -1,6 +1,6 @@
 # REPAIR_REPORT.md — cT2I simulation package, Phase R
 
-**STATUS: FINAL.** **Revised 2026-08-19**, three times on that date. The first
+**STATUS: FINAL.** **Revised 2026-08-19**, four times on that date. The first
 revision followed an authorized `git filter-repo` history rewrite that was
 required to publish the branch at all; every commit identifier in this document
 changed as a result, and the rewrite, its authorization, its evidence base and
@@ -9,14 +9,22 @@ revision (the mandatory final console block moved to §15). The second revision
 records that the branch and both annotated tags were **pushed and remotely
 verified** (§8b), fills in the rebuilt ZIP's real name, size and SHA-256, and
 adds the ZIP-vs-ZIP proof that the rewrite moved no scientific content
-(§14.10). The third revision is this one: it makes this report itself
+(§14.12). The third revision made this report itself
 committable, by writing the authoritative commit SHA and the two ZIP-identity
 values as stamp tokens (see **Two copies of this report** below) so that the copy
 of the report visible in the repository can state the true, finished status
 instead of the blocked, pre-push status that the earlier committed draft carried;
-it records the forward move of the `sim-only-s1-complete-v2` tag (§8c). No
-scientific content, number, figure, table or frozen raw output was touched by the
-rewrite, by the push, or by this revision.
+it recorded the forward move of the `sim-only-s1-complete-v2` tag (§8c). The
+fourth revision is this one, and it records two changes. First, the branch
+history was rewritten a **third** time — message-only, to strip an automated
+`Co-Authored-By: Claude` trailer from all 23 commits at the repository owner's
+request — so every commit identifier in this document moved one further hop;
+that rewrite is disclosed in **§14.11** and mapped in §14.6. Second, the return
+package was rebuilt and now carries the six Phase A0 preflight artefacts, so its
+composition is **55 hashed files (57 files in the archive)** rather than the 49
+(51) of the Phase R builds; §8 and §14.12 carry the revised counts. No scientific
+content, number, figure, table or frozen raw output was touched by any of the
+three rewrites, by the push, or by any of these four revisions.
 
 **Two copies of this report, one of them stamped.** A file cannot contain the SHA
 of the commit that introduces it. The copy of this report that lives **in the
@@ -55,11 +63,11 @@ to**, on `simulation-only/manuscript-revision`; it is written throughout this
 document as `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`. It is the report-completion
 commit — it carries this third revision of the report and the extension of
 `scripts/stamp_provenance.py` that stamps it — and it sits directly on top of the
-disclosure commit `2a38ef4eaef00d3bd2eb1726b99cc2ffe9a8a2da`, which added §14 and
+disclosure commit `640d1db8015d2e9c7392d4e61274a92c4c7f838b`, which added §14 and
 the `.gitignore` rule for the purged derived blob, which in turn sits directly on
-the Phase R repair commit `b7dc088c26dd684bf045d2af4c86a65c7469a880`. Parent of
+the Phase R repair commit `af0bb761656366f4adbb8cdcbd0b9f0cf17140f4`. Parent of
 that repair commit (pre-repair, still the tip of the old `sim-only-s1-complete`
-tag): `b54d5d8440044536c7d94c4f3d71bfb3209f7e9c`. The two concrete SHAs in this
+tag): `b0b8409c7ab7ff4b62a05cdf6eb25478c9c1077d`. The two concrete SHAs in this
 paragraph are ancestors of the authoritative commit, not stale stand-ins for it.
 
 **Option A's one deliberate asymmetry, disclosed here rather than hidden.**
@@ -73,10 +81,16 @@ where the delivered copy carries the 40-character commit SHA, and the two
 `PENDING_ZIP_*` tokens where it carries the archive's SHA-256 and byte size.
 Nothing else differs; in particular **no status field differs**.
 
-All identifiers above are **post-rewrite**. Their superseded pre-rewrite
-equivalents — `7db2585bf116b1260b57b34eef3ca9dce3c4256d` (repair commit) and
-`82ca32868f42cb95d2add6527b0ee57649bf7ebd` (parent) — no longer resolve in this
-repository; see the map in §14.6.
+All identifiers above are **current**, i.e. third-generation: they are what the
+commits are called after the message-only trailer-strip rewrite of §14.11. Two
+earlier generations of the same commits are superseded and no longer resolve in
+this repository — the original pre-rewrite ids
+`7db2585bf116b1260b57b34eef3ca9dce3c4256d` (repair commit) and
+`82ca32868f42cb95d2add6527b0ee57649bf7ebd` (its parent), and the
+second-generation ids `b7dc088c…` (repair commit), `2a38ef4e…` (disclosure
+commit), `931ee564…` (report-completion commit), `fa35ab21…` (Phase A0 commit)
+and `b54d5d84…` (pre-repair parent). Every one of them is mapped to its current
+equivalent in §14.6.
 
 | headline | value |
 |---|---|
@@ -87,11 +101,11 @@ repository; see the map in §14.6.
 | SIM1 ACCEPTANCE TABLE | 13/13 MATCH |
 | FIGS3 RERENDER | PASS |
 | SIM2 FIGURE RERENDER | PASS |
-| PACKAGE CHECKSUMS | 49/49 MATCH, self-entries 0 |
+| PACKAGE CHECKSUMS | 55/55 MATCH, self-entries 0 |
 | CPU OVERRUN DISCLOSED | YES — RETROSPECTIVELY RATIFIED PROCESS DEVIATION |
 | SIMULATION CELLS EXECUTED IN PHASE R | 0 |
-| AUTHORITATIVE COMMIT | `PENDING_STAMP_SEE_PACKAGE_PROVENANCE` — the report-completion commit; resolve `sim-only-s1-complete-v2^{}`. Its parent is the disclosure commit `2a38ef4e…` (§14), whose parent is the repair commit `b7dc088c…` |
-| ANNOTATED TAG | `sim-only-s1-complete-v2` — pushed, then moved forward one commit onto the report-completion commit and re-pushed (§8c) |
+| AUTHORITATIVE COMMIT | `PENDING_STAMP_SEE_PACKAGE_PROVENANCE` — the report-completion commit; resolve `sim-only-s1-complete-v2^{}`. Its parent is the disclosure commit `640d1db8…` (§14), whose parent is the repair commit `af0bb761…` |
+| ANNOTATED TAG | `sim-only-s1-complete-v2` — pushed, then moved forward one commit onto the report-completion commit and re-pushed (§8c), then force-pushed once more after the message-only trailer-strip rewrite (§14.11) |
 | TAG REMOTELY VERIFIED | **YES** — `git ls-remote origin` returns `refs/tags/sim-only-s1-complete-v2^{}` = the authoritative commit (§8b) |
 | REPAIRED ZIP | `simulation-results-ct2i-repaired_PENDING_STAMP_SEE_PACKAGE_PROVENANCE.zip` |
 | REPAIRED ZIP SHA-256 | `PENDING_ZIP_SHA256_SEE_SHA256SUMS` |
@@ -131,7 +145,7 @@ All three are stale build stamps on one linear branch:
 | `3a37dd30…` | `00_README.md`, working-tree `PACKAGE_SHA256.json` | Touches only `build_return_package.py`, `run_s1_reports.py` and the metadata wording. Superseded one commit later. Chosen for the ZIP filename purely because the build script truncated `git rev-parse HEAD` to eight characters. |
 
 **Authoritative pre-repair parent: `82ca32868f42cb95d2add6527b0ee57649bf7ebd`**
-(superseded identifier; now `b54d5d8440044536c7d94c4f3d71bfb3209f7e9c`, §14.6).
+(superseded identifier; now `b0b8409c7ab7ff4b62a05cdf6eb25478c9c1077d`, §14.6).
 Because the branch is linear, it is a strict superset of all three: it carries
 every frozen simulation script, the corrected 1C decomposition, A14b/A14c, the
 final summary/figure/table generators and the final README, and it is the target
@@ -143,7 +157,7 @@ manifest hashing itself).
 commit** created on top of `82ca328`, together with the annotated tag
 `sim-only-s1-complete-v2`. That commit did not yet exist when §1.1 was written;
 it is now `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`, reached through the repair
-commit `b7dc088c…` and the disclosure commit `2a38ef4e…`; see §1.2.
+commit `af0bb761…` and the disclosure commit `640d1db8…`; see §1.2.
 
 No identifier here was chosen because it appeared in a report.
 
@@ -183,7 +197,7 @@ same SHA — verified idempotent and reversible in a sandbox (§9, Step 8).
 |---|---|
 | AUTHORITATIVE REPOSITORY | `https://github.com/hanmingwu1103/ct2i-benchmark.git` |
 | AUTHORITATIVE BRANCH | `simulation-only/manuscript-revision` |
-| AUTHORITATIVE COMMIT | `PENDING_STAMP_SEE_PACKAGE_PROVENANCE` (post-rewrite report-completion commit; its parent is the disclosure commit `2a38ef4eaef00d3bd2eb1726b99cc2ffe9a8a2da`, whose parent `b7dc088c26dd684bf045d2af4c86a65c7469a880` is the Phase R repair commit, superseded pre-rewrite identifier `7db2585bf116b1260b57b34eef3ca9dce3c4256d`, §14.6) |
+| AUTHORITATIVE COMMIT | `PENDING_STAMP_SEE_PACKAGE_PROVENANCE` (post-rewrite report-completion commit; its parent is the disclosure commit `640d1db8015d2e9c7392d4e61274a92c4c7f838b`, whose parent `af0bb761656366f4adbb8cdcbd0b9f0cf17140f4` is the Phase R repair commit, superseded pre-rewrite identifier `7db2585bf116b1260b57b34eef3ca9dce3c4256d`, §14.6) |
 | ANNOTATED TAG | `sim-only-s1-complete-v2`, pointing at the authoritative commit. The stale annotation message noted in §14.9 is gone; the tag was recreated before the first push and then moved forward one commit (§8c), and its message names the commit it points at. |
 | TAG REMOTELY VERIFIED | **YES** — branch and both tags are on GitHub and read back by `git ls-remote origin`; see §8b for the verbatim lines. |
 | REPAIRED ZIP | `simulation-results-ct2i-repaired_PENDING_STAMP_SEE_PACKAGE_PROVENANCE.zip` (`PENDING_ZIP_BYTES_SEE_SHA256SUMS` bytes) |
@@ -353,9 +367,11 @@ quoting the completion plan §7 — the advisor's acceptance of the completion p
 constitutes retrospective ratification of the reported overrun. The three numbers
 88.11 / 80 / 8.11 (10.1 %) are all present. GPU hours: 0.
 
-Both reports also now state **ADDENDUM RUN: NO** — the targeted addendum (the
-M = 5, d = M = 5 Simulation 1B configuration) was not executed and remains an
-open advisor decision.
+Both reports also now state **ADDENDUM RUN: NO** and, since 2026-08-25,
+**ADDENDUM STATUS: TERMINATED_BEFORE_EXECUTION** — the targeted addendum (the
+M = 5, d = M = 5 Simulation 1B configuration) was not executed, and will not
+be: the advisor permanently discontinued it before execution. It is no longer an
+open decision. See `simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md`.
 
 ---
 
@@ -365,12 +381,12 @@ Independent verifier `scripts/verify_package_checksums.py` (shares no code with
 the builder — it walks the package itself):
 
 ```
-manifest entries: 49
+manifest entries: 55
 self-entries: 0
 manifest_excludes declared: yes (['PACKAGE_SHA256.json'])
-detached PACKAGE_SHA256SUMS.txt: agrees with the JSON manifest (49 lines)
-49/49 MATCH, 0 mismatch, 0 missing, 0 unlisted, self-entries: 0
-PACKAGE CHECKSUMS: 49/49 MATCH
+detached PACKAGE_SHA256SUMS.txt: agrees with the JSON manifest (55 lines)
+55/55 MATCH, 0 mismatch, 0 missing, 0 unlisted, self-entries: 0
+PACKAGE CHECKSUMS: 55/55 MATCH
 ```
 
 Ordering is now: build README → hash the package → write
@@ -380,35 +396,57 @@ Ordering is now: build README → hash the package → write
 `simulation-results-ct2i_3a37dd30.zip` disagreed with its own payload.
 
 `raw/` inputs and `*.log` working files remain excluded from the package, which
-is why the manifest has 49 entries rather than 49 + 289.
+is why the manifest has 55 entries rather than 55 + 289.
+
+**Package composition changed after Phase R: 49 hashed files became 55.** The
+Phase R builds hashed 49 files and shipped 51 (the 49 plus the two manifests).
+The delivered archive hashes **55** and ships **57**. The six additions are the
+Phase A0 preflight artefacts, which now live inside `simulation-results-ct2i/`
+and are therefore picked up by the packager:
+`01A_ADDENDUM_PROTOCOL_FREEZE.yaml`, `S0A_ADDENDUM_PREFLIGHT_REPORT.md`,
+`S0A_ADDENDUM_COUNCIL_REVIEW.md`, `S0A_ADDENDUM_TEST_REPORT.md`,
+`S0A_ADDENDUM_MICROBENCHMARK_ROWS.csv` and `S0A_ADDENDUM_RESOURCE_ESTIMATE.csv`.
+They are **added** files, not replacements: none of the 49 Phase R payload files
+was removed or renamed, and §14.12 shows file-by-file that none of the 45
+data, figure and table files among them changed by a byte. Counts of `49/49` or
+`51 files` that survive below are historical records of the Phase R builds and
+are labelled as such.
 
 The archive was built as
 `simulation-results-ct2i-repaired_7db2585bf116b1260b57b34eef3ca9dce3c4256d.zip`,
 55,384,106 bytes (52.8 MB), SHA-256
 `7072e4bfc9b1aef0de41c0f65612603f38a584303d1dd192f55f8832477ed232`, 51 files
-(49 hashed package files + `PACKAGE_SHA256.json` + `PACKAGE_SHA256SUMS.txt`).
+(49 hashed package files + `PACKAGE_SHA256.json` + `PACKAGE_SHA256SUMS.txt`) —
+the package composition as it stood at Phase R, before the six Phase A0
+artefacts were added.
 **That name and hash are now stale**: they are keyed to the superseded commit,
 and the metadata files inside the archive still carry it. The delivered archive,
 rebuilt from the tree re-stamped with the authoritative commit, is
 
 ```
 simulation-results-ct2i-repaired_PENDING_STAMP_SEE_PACKAGE_PROVENANCE.zip
-PENDING_ZIP_BYTES_SEE_SHA256SUMS bytes (≈52.8 MB), 51 files
+PENDING_ZIP_BYTES_SEE_SHA256SUMS bytes (≈52.8 MB), 57 files (55 hashed + the two manifests)
 SHA-256 PENDING_ZIP_SHA256_SEE_SHA256SUMS
 ```
 
-and `scripts/verify_package_checksums.py` re-run against it reports **49/49
+and `scripts/verify_package_checksums.py` re-run against it reports **55/55
 MATCH, 0 mismatch, 0 missing, 0 unlisted, self-entries: 0**, with
 `grep -r PENDING_STAMP` over `simulation-results-ct2i/` returning **0** hits.
 (The stamp tokens of this report live at the repository root, outside the
 package, which is why that grep is scoped to the package directory.) The first
-post-rewrite build, keyed to `2a38ef4e…`, was 55,384,105 bytes against the
+post-rewrite build was 55,384,105 bytes against the
 pre-rewrite 55,384,106; that one-byte difference is compression noise from the
 changed SHA strings inside the four stamped metadata files, and every subsequent
-re-stamp moves those same four files and nothing else. §14.10 proves file-by-file
-that nothing else moved. The pre-rewrite
+re-stamp moves those same four files and nothing else. (That build's filename,
+`simulation-results-ct2i-repaired_2a38ef4eaef00d3bd2eb1726b99cc2ffe9a8a2da.zip`,
+embeds a **second-generation** commit id which no longer resolves; the same
+commit is now `640d1db8…`, §14.6. The filename is a build artefact and is left as
+it was written.) The size difference between those builds and the delivered
+PENDING_ZIP_BYTES_SEE_SHA256SUMS bytes is the six added Phase A0 artefacts, not a change to any
+existing file. §14.12 proves file-by-file that nothing else moved. The pre-rewrite
 archive is retained unmodified at the repository root and its contents are
-scientifically identical — only the recorded commit identifier is stale. It has
+scientifically identical — the recorded commit identifier is stale, and the six
+Phase A0 artefacts are absent from it. It has
 been removed from `return_phaseR_20260819/` so the return folder carries exactly
 one ZIP and no reader can cite the superseded one by mistake.
 `.gitignore` was extended with `simulation-results-ct2i-repaired_*.zip` — the
@@ -491,7 +529,7 @@ verifiable") was **not satisfied** while this section was current, and this
 report then recorded `TAG REMOTELY VERIFIED: NO`. All other gates (1, 3–11) were
 satisfied and independently verifiable from the working tree and the ZIP. The
 branch and tag existed correctly **locally** at that point:
-`git rev-parse HEAD` = `b7dc088c26dd684bf045d2af4c86a65c7469a880` (post-rewrite; this line read `7db2585bf116b1260b57b34eef3ca9dce3c4256d` before the rewrite);
+`git rev-parse HEAD` = `af0bb761656366f4adbb8cdcbd0b9f0cf17140f4` (post-rewrite; this line read `7db2585bf116b1260b57b34eef3ca9dce3c4256d` before the rewrite);
 `git tag -n sim-only-s1-complete-v2` showed an annotated message that still named
 the superseded SHA (§14.9). **Gate 2 is now satisfied and
 `TAG REMOTELY VERIFIED: YES`** — see §8b, which supersedes every status statement
@@ -505,10 +543,10 @@ limit, the push was re-attempted and succeeded. Pushed on **2026-08-19**:
 * annotated tag `sim-only-s1-complete-v2` → `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`
   (the tag was recreated rather than reused, so its annotation message names the
   commit it points at; §14.9 item 2 is thereby closed. The tag first landed on the
-  disclosure commit `2a38ef4e…` and was afterwards moved forward one commit —
+  disclosure commit `640d1db8…` and was afterwards moved forward one commit —
   disclosed in §8c — and the branch and tag were re-pushed and re-verified; the
   readback below is the state after that move)
-* annotated tag `sim-only-s1-complete` → `b54d5d8440044536c7d94c4f3d71bfb3209f7e9c`
+* annotated tag `sim-only-s1-complete` → `b0b8409c7ab7ff4b62a05cdf6eb25478c9c1077d`
   (the repointed pre-repair tag)
 
 **Independent verification**, read back from the remote after the push with
@@ -518,7 +556,7 @@ limit, the push was re-attempted and succeeded. Pushed on **2026-08-19**:
 7f6b62035951df7d032d0a3eab04cb3c9b0328b4	HEAD
 7f6b62035951df7d032d0a3eab04cb3c9b0328b4	refs/heads/main
 PENDING_STAMP_SEE_PACKAGE_PROVENANCE	refs/heads/simulation-only/manuscript-revision
-b54d5d8440044536c7d94c4f3d71bfb3209f7e9c	refs/tags/sim-only-s1-complete^{}
+b0b8409c7ab7ff4b62a05cdf6eb25478c9c1077d	refs/tags/sim-only-s1-complete^{}
 PENDING_STAMP_SEE_PACKAGE_PROVENANCE	refs/tags/sim-only-s1-complete-v2^{}
 ```
 
@@ -529,6 +567,14 @@ nothing on the previously published branch was overwritten. Branch URL:
 <https://github.com/hanmingwu1103/ct2i-benchmark/tree/simulation-only/manuscript-revision>
 
 **Gate 2 is now satisfied.** `TAG REMOTELY VERIFIED: YES`.
+
+**Re-verified after the third rewrite (2026-08-19).** The branch and both tags
+were force-pushed once more when the `Co-Authored-By: Claude` trailer was
+stripped from all 23 commit messages (§14.11), because the previous generation
+was already on the remote. The `ls-remote` readback above is the state **after**
+that force-push, so the SHAs it shows are the current, third-generation ones and
+`TAG REMOTELY VERIFIED: YES` holds against them. `refs/heads/main` was not among
+the force-pushed refs.
 
 **One non-blocking advisory was emitted by GitHub and is accepted, not fixed.**
 The push completed, but GitHub warned that
@@ -560,7 +606,7 @@ it did before, which is itself the proof that nothing was persisted.
 **§8c. The `sim-only-s1-complete-v2` tag was moved forward one commit —
 disclosed, and why it is safe (2026-08-19).**
 
-`sim-only-s1-complete-v2` was created on the disclosure commit `2a38ef4e…` and
+`sim-only-s1-complete-v2` was created on the disclosure commit `640d1db8…` and
 pushed there earlier the same day. It was afterwards **moved forward one
 commit**, onto the report-completion commit
 `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`, so that the tag names the state in which
@@ -576,12 +622,12 @@ this move is safe are recorded rather than assumed:
 * **No third party had consumed it.** It was not announced, not cited in any
   artefact delivered outside this repository, and no advisor copy, collaborator
   clone or CI job referenced it in the interval.
-* **Nothing became unreachable.** The old target `2a38ef4e…` is an ancestor of
+* **Nothing became unreachable.** The old target `640d1db8…` is an ancestor of
   the new one: the move is one ordinary commit forward on the same linear branch,
   not a history rewrite. Anyone holding the old SHA can still resolve it, and it
   is recorded in §14.6's map.
 * **`sim-only-s1-complete` was NOT moved.** It remains on
-  `b54d5d8440044536c7d94c4f3d71bfb3209f7e9c`, the pre-repair tip, as §8b's
+  `b0b8409c7ab7ff4b62a05cdf6eb25478c9c1077d`, the pre-repair tip, as §8b's
   readback shows.
 * `refs/heads/main` was not touched and no branch was force-pushed; only the one
   tag ref was updated, and the branch advanced by a normal fast-forward.
@@ -600,19 +646,19 @@ this move is safe are recorded rather than assumed:
 | 5 | captions | three mandated sentences present in the rendered figures and in the new `FIGURE_CAPTIONS.md`; file registered in `REQUIRED` |
 | 6 | regenerate all figures once | 10 figure files + Sim 2 figure rewritten without error; raw hashes re-verified unchanged |
 | 7 | overrun ratification + metadata | mandated string present ×3 in `19`, ×1 in `20`; 88.11/80/8.11 intact; `ADDENDUM RUN: NO`; one `provenance()` source for all metadata |
-| 8 | packaging + checksums | verifier `49/49 MATCH`, `self-entries: 0`, `manifest_excludes` present, detached sums file present, full-SHA ZIP naming confirmed by dry run; `stamp_provenance.py` proved deterministic, idempotent and reversible in a sandbox (the real tree was left unstamped) |
+| 8 | packaging + checksums | verifier `49/49 MATCH` (the Phase R composition; 55/55 today, §8), `self-entries: 0`, `manifest_excludes` present, detached sums file present, full-SHA ZIP naming confirmed by dry run; `stamp_provenance.py` proved deterministic, idempotent and reversible in a sandbox (the real tree was left unstamped) |
 
 Full command-by-command log:
 `scratchpad/phaseR_impl_log.md` (session scratchpad).
 
 ---
 
-## 10. Files changed (all committed in the repair commit `b7dc088c26dd684bf045d2af4c86a65c7469a880`)
+## 10. Files changed (all committed in the repair commit `af0bb761656366f4adbb8cdcbd0b9f0cf17140f4`)
 
-The repair commit `b7dc088c…` is where every change listed below landed. The
+The repair commit `af0bb761…` is where every change listed below landed. The
 **authoritative** identifier is `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`, the
 report-completion commit, two commits above it: in between sits the disclosure
-commit `2a38ef4e…`, which adds only §14 of this report and one `.gitignore` rule
+commit `640d1db8…`, which adds only §14 of this report and one `.gitignore` rule
 (§14.6), and on top sits the report-completion commit, which adds only this
 report's third revision and the `REPAIR_REPORT.md` stamping support in
 `scripts/stamp_provenance.py`. Neither of the two commits above the repair commit
@@ -631,7 +677,7 @@ Modified — generated package files:
 `16_SIM2_FIGURE.{pdf,svg}`, `19_VALIDATION_REPORT.md`,
 `20_RESULT_HANDOFF_MEMO.md`, `PACKAGE_SHA256.json`
 
-New (committed in the repair commit `b7dc088c26dd684bf045d2af4c86a65c7469a880`):
+New (committed in the repair commit `af0bb761656366f4adbb8cdcbd0b9f0cf17140f4`):
 `scripts/stamp_provenance.py`, `scripts/verify_package_checksums.py`,
 `simulation-results-ct2i/10_SIM1_FIGURES/FIGURE_CAPTIONS.md`,
 `simulation-results-ct2i/PACKAGE_SHA256SUMS.txt`, `REPAIR_REPORT.md`.
@@ -711,11 +757,13 @@ Not touched: the five frozen raw outputs, `RAW_FREEZE_MANIFEST.json`, `raw/**`,
   authorized history rewrite (§14), the push was re-attempted on 2026-08-19 and
   **succeeded**, and the branch and both tags were read back from the remote
   (§8b). `TAG REMOTELY VERIFIED: YES`. **Nothing in this section is outstanding
-  on the push any more**; the only item left in this whole report is the
-  advisor's decision on the targeted addendum.
+  on the push any more**; and as of 2026-08-25 nothing at all is: the last item
+  left in this report was the advisor's decision on the targeted addendum, and
+  he made it — the addendum is **TERMINATED BEFORE EXECUTION**, full addendum
+  cells run: 0. See `simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md`.
 * Everything else in the work order is done: the repair commit
-  `b7dc088c26dd684bf045d2af4c86a65c7469a880`, the disclosure commit
-  `2a38ef4eaef00d3bd2eb1726b99cc2ffe9a8a2da` on top of it and the
+  `af0bb761656366f4adbb8cdcbd0b9f0cf17140f4`, the disclosure commit
+  `640d1db8015d2e9c7392d4e61274a92c4c7f838b` on top of it and the
   report-completion commit `PENDING_STAMP_SEE_PACKAGE_PROVENANCE` on top of that
   all exist on `simulation-only/manuscript-revision`, which is pushed; the
   annotated tag `sim-only-s1-complete-v2` points at the report-completion commit
@@ -726,7 +774,7 @@ Not touched: the five frozen raw outputs, `RAW_FREEZE_MANIFEST.json`, `raw/**`,
   `simulation-results-ct2i-repaired_PENDING_STAMP_SEE_PACKAGE_PROVENANCE.zip`
   (`PENDING_ZIP_BYTES_SEE_SHA256SUMS` bytes, SHA-256
   `PENDING_ZIP_SHA256_SEE_SHA256SUMS`, §8) and
-  `scripts/verify_package_checksums.py` reports 49/49 MATCH with 0
+  `scripts/verify_package_checksums.py` reports 55/55 MATCH with 0
   `PENDING_STAMP` against the stamped package tree.
 * The council review (two independent fresh-context Claude reviews
   substituting for Codex/Gemini, decision D4) was completed in §13, before
@@ -773,12 +821,16 @@ row count), `scripts/run_sim1_tables.py` (`11_SIM1_TABLES/*`, TabS2 still
 `PACKAGE_SHA256SUMS.txt`). The five frozen raw outputs were re-hashed after
 every regeneration and remain 5/5 identical to `RAW_FREEZE_MANIFEST.json`
 (§3). `scripts/verify_package_checksums.py` re-run at the end: **49/49
-MATCH, 0 mismatch, 0 missing, 0 unlisted, self-entries: 0**.
+MATCH, 0 mismatch, 0 missing, 0 unlisted, self-entries: 0**. Every `49/49` in
+this section is the Phase R package composition, correct as of the time this
+section was written; the delivered package now hashes 55 files and verifies
+55/55 (§8).
 
 **Steps 9–10 completed after this section was written:** commit
-`b7dc088c26dd684bf045d2af4c86a65c7469a880` (post-rewrite id; `7db2585bf116b1260b57b34eef3ca9dce3c4256d` before the rewrite), annotated tag
+`af0bb761656366f4adbb8cdcbd0b9f0cf17140f4` (post-rewrite id; `7db2585bf116b1260b57b34eef3ca9dce3c4256d` before the rewrite), annotated tag
 `sim-only-s1-complete-v2`, provenance stamp (working tree), repaired ZIP build
-and its independent checksum verification (49/49 MATCH) — see §0 header table
+and its independent checksum verification (49/49 MATCH at that time; 55/55 for the
+delivered package, §8) — see §0 header table
 and §12. The push was BLOCKED at the time this section was written; it has since
 been carried out and remotely verified — see §8b.
 This session's two reviews (verifier + adversarial council-seat-2) are the
@@ -848,15 +900,21 @@ All **20** commits survive with identical subjects, identical order, identical
 authorship and identical author/committer dates. Verify directly:
 
 ```
-git log --oneline main..HEAD        # 22 commits, tip PENDING_STAMP_SEE_PACKAGE_PROVENANCE
+git log --oneline main..HEAD        # 23 commits, tip 02855025f1e811eaa907c843f75bd44f2f0974da
 git rev-parse main                  # 7f6b62035951df7d032d0a3eab04cb3c9b0328b4
 ```
 
-The 21st is the disclosure commit `2a38ef4e…` and the 22nd is the
-report-completion commit; both were added *after* the rewrite. The 20 rewritten
-commits are the ones below them, ending at `b7dc088c…`. Immediately after the
-rewrite this command showed `20 commits, tip b7dc088c`, and after the disclosure
-commit `21 commits, tip 2a38ef4e`.
+The 21st is the disclosure commit `640d1db8…`, the 22nd is the
+report-completion commit `c7ac3611aa1e9ff1c9d6db902624b40a279615c5` — the Phase R
+release, and the commit the tag `sim-only-s1-complete-v2` resolves to — and the 23rd
+is the Phase A0 preflight commit `02855025…`, added later still. All three were
+added *after* the GH001 rewrite. The 20 rewritten
+commits are the ones below them, ending at `af0bb761…`. Immediately after the
+rewrite this command showed `20 commits, tip` the then-current repair-commit id,
+and after the disclosure commit `21 commits`. (The eight-character ids in those
+historical readouts were second-generation; they moved once more in the
+message-only rewrite of §14.11, which is why the command above now prints
+different SHAs for the same 23 commits.)
 
 `filter-repo` removed blobs from history and nothing else: no script, figure,
 table, report, manifest or frozen raw output was edited, and no number moved.
@@ -868,38 +926,57 @@ limit, triggering at most GitHub's size *warning*.
 
 ### 14.6 Old → new commit map (authoritative)
 
-From `filter-repo`'s cumulative commit-map. Every SHA elsewhere in this document
-that is marked "superseded" resolves through this table.
+Three generations of identifiers exist for the commits on this branch, and every
+SHA elsewhere in this document that is marked "superseded" resolves through this
+table.
 
-| old (superseded) | new (current) | role |
-|---|---|---|
-| `1c45a815` | `439ef2a5` | the derived blob first enters history |
-| `88d1a8d7` | `9b30e36e` | Simulation 1B complete |
-| `4dce8fbb` | `dccc2da7` | superseded build stamp (11/11 → 13/13 acceptance fix) |
-| `701bd893` | `7eba3a64` | repackage after the audit fix |
-| `e638d1fb` | `b2b83032` | superseded build stamp (untracked the ZIPs) |
-| `3a37dd30` | `b82cc78f` | superseded build stamp (names the ZIP the advisor holds) |
-| `82ca3286` | `b54d5d84` | pre-repair tip; old tag `sim-only-s1-complete` |
-| `7db2585b` | `b7dc088c` | the Phase R repair commit |
-| — (no pre-rewrite equivalent) | `2a38ef4e` | the disclosure commit added **on top of** the rewrite: it carries §14 of this report and the `.gitignore` rule for the purged blob. It was the authoritative identifier until the commit below superseded it. |
-| — (no pre-rewrite equivalent) | `PENDING_STAMP_SEE_PACKAGE_PROVENANCE` | the report-completion commit, child of `2a38ef4e`: it carries the committable form of this report and the `REPAIR_REPORT.md` stamping support in `scripts/stamp_provenance.py`. **This is the authoritative identifier**, and `sim-only-s1-complete-v2` points at it (§8c). |
+* **Generation 1** — as the commits were originally written, before anything was
+  rewritten. These are the ids the advisor's 2026-08-16 audit cites.
+* **Generation 2** — after the two `git filter-repo` blob-removal passes of §14.4,
+  which were required to clear GH001.
+* **Generation 3 (current)** — after the message-only `git filter-repo
+  --message-callback` pass of §14.11, which stripped the `Co-Authored-By: Claude`
+  trailer. **These are the only ids that resolve in the repository today.**
+
+Generations 1→2 and 2→3 each come from `filter-repo`'s own cumulative commit-map.
+
+| gen 1 (original) | gen 2 (after the GH001 rewrite) | gen 3 (**current**) | role |
+|---|---|---|---|
+| `1c45a815` | `439ef2a5` | `91e39a4e` | the derived blob first enters history |
+| `88d1a8d7` | `9b30e36e` | `a3df88cc` | Simulation 1B complete |
+| `4dce8fbb` | `dccc2da7` | `20da55d9` | superseded build stamp (11/11 → 13/13 acceptance fix) |
+| `701bd893` | `7eba3a64` | `31d47881` | repackage after the audit fix |
+| `e638d1fb` | `b2b83032` | `55b5c89d` | superseded build stamp (untracked the ZIPs) |
+| `3a37dd30` | `b82cc78f` | `7a50a488` | superseded build stamp (names the ZIP the advisor holds) |
+| `82ca3286` | `b54d5d84` | `b0b8409c7ab7ff4b62a05cdf6eb25478c9c1077d` | pre-repair tip; tag `sim-only-s1-complete` |
+| `7db2585b` | `b7dc088c` | `af0bb761656366f4adbb8cdcbd0b9f0cf17140f4` | the Phase R repair commit |
+| — (added after the GH001 rewrite) | `2a38ef4e` | `640d1db8015d2e9c7392d4e61274a92c4c7f838b` | the disclosure commit: it carries §14 of this report and the `.gitignore` rule for the purged blob |
+| — (added after the GH001 rewrite) | `931ee564` | `PENDING_STAMP_SEE_PACKAGE_PROVENANCE` | the report-completion commit, child of the disclosure commit: it carries the committable form of this report and the `REPAIR_REPORT.md` stamping support in `scripts/stamp_provenance.py`. **This is the authoritative Phase R identifier**, and `sim-only-s1-complete-v2` points at it (§8c). |
+| — (added after the GH001 rewrite) | `fa35ab21` | `02855025f1e811eaa907c843f75bd44f2f0974da` | the Phase A0 preflight commit, added after the Phase R release; current branch tip. Outside the scope of this report — see the separate A0 letter. |
+
+The remaining twelve of the branch's 23 commits are the Phase S0/S1 commits below
+`91e39a4e`; they carry no identifier quoted anywhere in this report, and they too
+changed SHA in both rewrites.
 
 **Note for the reader.** The three "conflicting identifiers" the completion plan
 asked to resolve — `3a37dd30`, `e638d1fb`, `4dce8fbb` — were already declared
-superseded build stamps by §1.1 of this report. Their rewritten equivalents are
-listed above so that the advisor's 2026-08-16 audit, which cites the old SHAs,
-can still be cross-referenced against the current history.
+superseded build stamps by §1.1 of this report. Their generation-3 equivalents are
+listed above so that the advisor's 2026-08-16 audit, which cites the generation-1
+SHAs, can still be cross-referenced against the current history.
 
-Both annotated tags survived and were repointed automatically by `filter-repo`:
-`sim-only-s1-complete-v2` → `b7dc088c…`, `sim-only-s1-complete` → `b54d5d84…`.
-`sim-only-s1-complete-v2` was afterwards recreated on the disclosure commit
-`2a38ef4e…` with a corrected annotation message and pushed there (§8b), and then
-moved forward one commit onto the report-completion commit and re-pushed (§8c);
-`sim-only-s1-complete` remains on `b54d5d84…` and was never moved. The map
-therefore has two extra hops beyond `filter-repo`'s own output —
-`b7dc088c → 2a38ef4e` and
-`2a38ef4e → PENDING_STAMP_SEE_PACKAGE_PROVENANCE` — both ordinary commits on a
-linear branch, neither a rewrite.
+**Tags.** Both annotated tags survived the GH001 rewrite and were repointed
+automatically by `filter-repo`. `sim-only-s1-complete-v2` was afterwards recreated
+on the disclosure commit with a corrected annotation message and pushed there
+(§8b), then moved forward one commit onto the report-completion commit and
+re-pushed (§8c); `sim-only-s1-complete` was never moved and remains on the
+pre-repair tip, now `b0b8409c…`. The map therefore has two extra hops beyond
+`filter-repo`'s own output — repair commit → disclosure commit and disclosure
+commit → report-completion commit — both ordinary commits on a linear branch,
+neither a rewrite. The message-only rewrite of §14.11 moved both tags again, by
+construction; their current targets are
+`sim-only-s1-complete-v2^{}` = `c7ac3611aa1e9ff1c9d6db902624b40a279615c5` and
+`sim-only-s1-complete^{}` = `b0b8409c7ab7ff4b62a05cdf6eb25478c9c1077d`, as §8b's
+readback shows.
 
 ### 14.7 The removed file is not lost
 
@@ -924,7 +1001,7 @@ beside the rule in `.gitignore`:
 simulation-results-ct2i/08_SIM1_FIGURE_DATA.csv
 ```
 
-It remains one of the **49 checksummed files inside the delivered package ZIP**
+It remains one of the **55 checksummed files inside the delivered package ZIP**
 (§8) — the deliverable is unchanged. Only the git repository no longer carries
 it. Anyone cloning the repository regenerates it with
 `python3 scripts/run_sim1_figures.py`, which reads the frozen raw outputs; §4
@@ -951,20 +1028,22 @@ the original wording is kept so the sequence of events stays legible.
 1. **The return-package ZIP must be rebuilt.** *(CLOSED.)* Its filename embeds
    the commit SHA and its internal metadata files were stamped with `7db2585b…`.
    The first post-rewrite build re-stamped the package with
-   `2a38ef4eaef00d3bd2eb1726b99cc2ffe9a8a2da` and produced
+   `640d1db8015d2e9c7392d4e61274a92c4c7f838b` and produced
    `simulation-results-ct2i-repaired_2a38ef4eaef00d3bd2eb1726b99cc2ffe9a8a2da.zip`,
    55,384,105 bytes, SHA-256
    `6d64310edbe5c4cda92012585f36f7bd96b978f432ace0db246f79024e52981f`, verified
-   49/49 MATCH with 0 `PENDING_STAMP` inside the package (§8) — those values
-   are the historical
-   record of that build. The **delivered** archive is the same tree re-stamped
+   49/49 MATCH with 0 `PENDING_STAMP` inside the package (§8). **Those values are
+   the historical record of that superseded build only**: the filename embeds a
+   second-generation commit id that no longer resolves (now `640d1db8…`, §14.6),
+   the SHA-256 is not the delivered archive's, and 49/49 is the Phase R
+   composition rather than today's 55/55. The **delivered** archive is the same tree re-stamped
    with the authoritative commit and rebuilt as
    `simulation-results-ct2i-repaired_PENDING_STAMP_SEE_PACKAGE_PROVENANCE.zip`,
    `PENDING_ZIP_BYTES_SEE_SHA256SUMS` bytes, SHA-256
    `PENDING_ZIP_SHA256_SEE_SHA256SUMS`. No SHA-256 was ever invented to fill a
    placeholder; each was left visibly tokenised until the real build existed.
 2. **The annotated tag's message is stale.** *(CLOSED.)* `sim-only-s1-complete-v2`
-   was recreated on `2a38ef4e…` before the push, and has since been moved forward
+   was recreated on `640d1db8…` before the push, and has since been moved forward
    one commit onto the report-completion commit (§8c), recreated there as an
    annotated tag whose message names the commit it points at. The stale
    `7db2585b…` string is gone from the tag.
@@ -972,51 +1051,127 @@ the original wording is kept so the sequence of events stays legible.
    2026-08-19 and succeeded; `git ls-remote origin` reads the branch and both
    tags back from GitHub (§8b), so `TAG REMOTELY VERIFIED: YES` in §15.
 
-### 14.10 ZIP-vs-ZIP proof that no scientific content changed
+### 14.11 Third rewrite: the `Co-Authored-By: Claude` trailer removed (message-only)
 
-§14.5 argues from `filter-repo`'s behaviour that the rewrite touched only blobs
-in history. This subsection proves the same claim from the **deliverables**,
-independently of any git internals, by comparing the two built packages
-file-by-file.
+*Added 2026-08-19, in the fourth revision of this report. This is a **separate,
+later, authorized action**, like the GH001 rewrite before it, and it is disclosed
+on the same terms.*
 
-**Method.** Both archives — the pre-rewrite
+**What was removed.** Every commit on `simulation-only/manuscript-revision`
+carried an automated trailer line, `Co-Authored-By: Claude …`, at the foot of its
+commit message. **Why:** the repository owner asked that the repository not list
+Claude as a co-author of the work. The trailer was therefore stripped from the
+branch's commit messages.
+
+**A message-only rewrite — no file content was touched.** One
+`git filter-repo --message-callback` pass. The callback receives and returns the
+commit *message*; it has no access to trees or blobs and made no change to any.
+No file in any commit differs before and after this pass, so nothing that §14.5,
+§3, §4 or §14.12 asserts about scientific content can be affected by it.
+
+**All 23 commits were affected.** The trailer appeared in every one of the
+branch's 23 commits, so every one was rewritten and every one changed SHA — a
+commit's SHA hashes its message as well as its tree, so a message-only edit
+necessarily produces a new identifier. **Subjects, order, authorship, author
+dates and committer dates are unchanged**, exactly as in the GH001 rewrite; only
+the trailer line is gone. `main` was not rewritten and is untouched at
+`7f6b62035951df7d032d0a3eab04cb3c9b0328b4`.
+
+**Mapping hop.** This is one further hop on the chain already recorded in §14.6,
+which now carries all three generations. The four identifiers this report and the
+delivery letters quote moved as follows:
+
+| generation 2 (previous) | generation 3 (**current**) | role |
+|---|---|---|
+| `2a38ef4e…` | `640d1db8015d2e9c7392d4e61274a92c4c7f838b` | disclosure commit |
+| `931ee564…` | `c7ac3611aa1e9ff1c9d6db902624b40a279615c5` | report-completion commit — the Phase R release, tag `sim-only-s1-complete-v2` |
+| `fa35ab21…` | `02855025f1e811eaa907c843f75bd44f2f0974da` | Phase A0 preflight commit, current branch tip |
+| `82ca3286…` (generation 1; the map is cumulative, so this row is keyed from the original pre-rewrite SHA) | `b0b8409c7ab7ff4b62a05cdf6eb25478c9c1077d` | pre-repair tip, tag `sim-only-s1-complete` |
+
+The Phase R repair commit moved with them, `b7dc088c… → af0bb761…`.
+
+**Force-push, and why one was needed.** Unlike the GH001 rewrite — which acted on
+history that had **never** been published (§14.2) — the second-generation history
+was already on GitHub, having been pushed and remotely verified in §8b. Replacing
+it therefore required a force-push. It was applied to exactly three refs:
+`refs/heads/simulation-only/manuscript-revision`,
+`refs/tags/sim-only-s1-complete-v2` and `refs/tags/sim-only-s1-complete`.
+`refs/heads/main` was not among them and still stands at `7f6b6203…`. Remote
+verification was re-run after the force-push and returned the three refs recorded
+in §8b, so `TAG REMOTELY VERIFIED: YES` continues to hold against the current
+generation.
+
+**No delivered identifier is invalidated.** This rewrite was carried out **before
+the return package was sent to the advisor**. The advisor's copy of the package,
+of this report and of both delivery letters all carry generation-3 SHAs. No
+identifier that has been handed to anyone points at a commit that no longer
+resolves; generations 1 and 2 survive only inside this repository's own record of
+its revisions, and in the map in §14.6.
+
+**Reversibility is unchanged.** The retained bundle of §14.8,
+`return_phaseR_20260819/ct2i_phaseR_7db2585b.bundle`, predates all three rewrites
+and still restores the original generation-1 history exactly, trailer and 178 MB
+blob included. The undertaking in §14.8 stands: the rewrites are reversible on the
+advisor's request.
+
+### 14.12 ZIP-vs-ZIP proof that no scientific content changed
+
+§14.5 argues from `filter-repo`'s behaviour that the GH001 rewrite touched only
+blobs in history, and §14.11 argues that the trailer-strip rewrite touched only
+commit messages. This subsection proves the same claim from the **deliverables**,
+independently of any git internals, by comparing the pre-rewrite package with the
+delivered one file-by-file.
+
+**Method.** The pre-rewrite archive
 `simulation-results-ct2i-repaired_7db2585bf116b1260b57b34eef3ca9dce3c4256d.zip`
-and the first post-rewrite build
-`simulation-results-ct2i-repaired_2a38ef4eaef00d3bd2eb1726b99cc2ffe9a8a2da.zip` —
+and the delivered archive
+`simulation-results-ct2i-repaired_PENDING_STAMP_SEE_PACKAGE_PROVENANCE.zip`
 were extracted into separate empty directories and compared with a recursive
-byte-for-byte diff (`diff -rq`). Neither archive was modified. Those two
-filenames are historical build identifiers and are deliberately left concrete
-here, because the comparison was run on exactly those two files. The archive
-delivered with this revision,
-`simulation-results-ct2i-repaired_PENDING_STAMP_SEE_PACKAGE_PROVENANCE.zip`, is
-the same tree re-stamped with the authoritative commit, so it differs from the
-`2a38ef4e…` build only in the four stamped metadata files and the two manifests
-derived from them — the same six files tabulated below. The result therefore
-carries over to the delivered archive unchanged.
+byte-for-byte diff (`diff -rq`). Neither archive was modified. The pre-rewrite
+filename is a historical build identifier and is deliberately left concrete here,
+because the comparison was run on exactly that file. This comparison spans
+everything that has happened since Phase R was packaged: both history rewrites,
+three re-stamps, and the addition of the Phase A0 artefacts.
 
-**Result.** 51 files in each, no file added and none removed. **Exactly six
-differ:**
+**Result.** **51 files** in the pre-rewrite archive, **57** in the delivered one.
+Nothing was removed and nothing was renamed. **Six files differ and six are new.**
+
+Six differ — all six are commit-identifier carriers, and nothing else:
 
 | file | what differs |
 |---|---|
-| `00_README.md` | the stamped `AUTHORITATIVE COMMIT` line, the build timestamp, and three hash cells in its file table that follow from the files below |
+| `00_README.md` | the stamped `AUTHORITATIVE COMMIT` line, the build timestamp, and the hash cells in its file table that follow from the files below |
 | `02_ENVIRONMENT_AND_COMMIT.json` | the single field `full_commit_sha` |
 | `19_VALIDATION_REPORT.md` | the stamped `AUTHORITATIVE COMMIT` line and the commit-gate line that quotes the same SHA |
 | `20_RESULT_HANDOFF_MEMO.md` | the stamped `AUTHORITATIVE COMMIT` line |
-| `PACKAGE_SHA256.json` | the manifest hashes of the four files above |
-| `PACKAGE_SHA256SUMS.txt` | the same four manifest hashes |
+| `PACKAGE_SHA256.json` | the recorded commit, the generation timestamp, and the manifest hashes of the four files above; plus the six new entries below |
+| `PACKAGE_SHA256SUMS.txt` | the same four manifest hashes, plus the six new entries below |
 
 The first four are exactly the four files `scripts/stamp_provenance.py` writes;
-the last two are the manifests, whose entries are a pure function of the first
-four. Every diff hunk contains only a commit SHA, a build timestamp, or a hash
-that follows from one of those.
+the last two are the manifests, whose entries are a pure function of the package
+contents. Every diff hunk in the first four contains only a commit SHA, a build
+timestamp, or a hash that follows from one of those.
+
+Six are new — all six are Phase A0 preflight artefacts, added to
+`simulation-results-ct2i/` by the A0 commit and therefore picked up by the
+packager (§8):
+
+`01A_ADDENDUM_PROTOCOL_FREEZE.yaml`, `S0A_ADDENDUM_PREFLIGHT_REPORT.md`,
+`S0A_ADDENDUM_COUNCIL_REVIEW.md`, `S0A_ADDENDUM_TEST_REPORT.md`,
+`S0A_ADDENDUM_MICROBENCHMARK_ROWS.csv`, `S0A_ADDENDUM_RESOURCE_ESTIMATE.csv`.
+
+They are preflight documentation and design-freeze material. None of them is a
+simulation result, and none of them alters a Phase R number: `ADDENDUM RUN: NO`
+still holds, and no addendum cell was executed.
 
 **All 45 other files are byte-identical** — every figure (PDF and SVG), every
 table (CSV and TeX), every summary and acceptance JSON, every frozen raw output
 shipped in the package, the protocol freeze, the seed manifest, the runtime
 report and the caption file. No number, figure, table or datum moved between the
-pre-rewrite package and the delivered one; the only thing that changed is which
-commit the package says it came from.
+pre-rewrite package and the delivered one. What changed is which commit the
+package says it came from, and the arrival of six A0 documents beside the
+Phase R payload.
+
 
 ---
 
@@ -1036,12 +1191,16 @@ TAG REMOTELY VERIFIED: YES
 SIM1 ACCEPTANCE TABLE: 13/13 MATCH
 FIGS3 RERENDER: PASS
 SIM2 FIGURE RERENDER: PASS
-PACKAGE CHECKSUMS: 49/49 MATCH
+PACKAGE CHECKSUMS: 55/55 MATCH
 CPU OVERRUN DISCLOSED: YES
 REPAIRED ZIP: simulation-results-ct2i-repaired_PENDING_STAMP_SEE_PACKAGE_PROVENANCE.zip
 REPAIRED ZIP SHA256: PENDING_ZIP_SHA256_SEE_SHA256SUMS
 CRITICAL VETO COUNT: 0
 NEXT ACTION: WAIT FOR ADVISOR DECISION ON THE TARGETED ADDENDUM
+  [SUPERSEDED 2026-08-25 — the decision was made: the addendum is
+   TERMINATED_BEFORE_EXECUTION, addendum_run = false, full addendum cells
+   run: 0. No decision is being awaited. Operative next action: NONE.
+   Record: simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md]
 ```
 
 Note on `CRITICAL VETO COUNT`: the mandated Claude/Codex/Gemini council was not
@@ -1060,19 +1219,21 @@ the commit SHA — they exist only once the archive has been built — which is 
 they use their own tokens and are supplied to `scripts/stamp_provenance.py` as
 optional arguments. **No SHA-256 was ever invented to fill a gap**; each field
 stayed visibly tokenised until the real build existed. The delivered archive is
-`PENDING_ZIP_BYTES_SEE_SHA256SUMS` bytes, 51 files, 49/49 checksums MATCH, 0
-`PENDING_STAMP` inside the package (§8), and §14.10 shows it differs from the
-pre-rewrite archive in six metadata files only, with the other 45
-byte-identical.
+`PENDING_ZIP_BYTES_SEE_SHA256SUMS` bytes, 57 files, 55/55 checksums MATCH, 0
+`PENDING_STAMP` inside the package (§8), and §14.12 shows it differs from the
+pre-rewrite archive in six commit-identifier files plus the six added Phase A0
+artefacts, with the other 45 data, figure and table files byte-identical.
 
 Note on `AUTHORITATIVE COMMIT`: it is the report-completion commit, written as
 the stamp token `PENDING_STAMP_SEE_PACKAGE_PROVENANCE` in the repository copy of
 this report and as the concrete 40-character SHA in the delivered copy, because a
 file cannot contain the SHA of the commit that introduces it (Option A, §1.2).
 Resolve it with `git rev-parse sim-only-s1-complete-v2^{}`. Its parent
-`2a38ef4e…` is the disclosure commit that carries §14 and the `.gitignore` rule
-for the purged derived blob; *its* parent `b7dc088c…` is the Phase R repair
-commit. **No status line in the block above is a placeholder or differs between
+`640d1db8…` is the disclosure commit that carries §14 and the `.gitignore` rule
+for the purged derived blob; *its* parent `af0bb761…` is the Phase R repair
+commit. The branch has since advanced one commit past the tag, to the Phase A0
+preflight commit `02855025f1e811eaa907c843f75bd44f2f0974da`; the tag, not the
+branch tip, is the Phase R identifier, and the A0 commit is reported separately. **No status line in the block above is a placeholder or differs between
 the two copies** — `CT2I SIMULATION PACKAGE REPAIR STATUS: COMPLETE`,
 `TAG REMOTELY VERIFIED: YES` and every count are stated identically in the
 repository copy and in the delivered copy.
@@ -1088,5 +1249,7 @@ authorized the history rewrite (§14); the push was then re-attempted on
 non-blocking GitHub advisory remains and is accepted, not fixed: the frozen raw
 input `raw/sim1a_replicates.csv` is 53.78 MB, above GitHub's *recommended* 50 MB
 but far below the 100 MB hard limit; it stays tracked because it is frozen raw
-scientific input (§8b). `COMPLETE` refers to the Phase R work order only — the
-targeted addendum remains an open advisor decision, hence `NEXT ACTION` below.
+scientific input (§8b). `COMPLETE` refers to the Phase R work order only. *(Terminal update
+2026-08-25: the targeted addendum is no longer an open advisor decision — it was
+**TERMINATED BEFORE EXECUTION**, so the `NEXT ACTION` line below is superseded
+and nothing is outstanding. See `simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md`.)*

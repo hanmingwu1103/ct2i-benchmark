@@ -56,33 +56,98 @@ def write(df: pd.DataFrame, name: str, caption: str):
     print(f"  wrote {name}.csv / .tex  ({len(df)} rows)")
 
 
+# Factor columns of TabS1 whose cells are comma-separated level lists. The
+# advisor's finalization instruction is explicit: "The regenerated table must
+# not truncate level lists." ``lv`` therefore prints EVERY distinct executed
+# level, and ``_assert_no_truncation`` re-derives the counts from the raw frame
+# and refuses to write a table that lost even one level.
+TAB_S1_LEVEL_COLUMNS = ("M", "K", "marginal", "tau", "interaction_count",
+                        "delta_eta", "n_train", "n_test", "activation_rate",
+                        "target_mechanism", "encoder", "bucket_width", "learner")
+
+# Encoder list frozen for Simulation 1B in 01_PROTOCOL_FREEZE.yaml
+# (simulation_1b.encoders). NINE entries. `woe` is ninth alphabetically and was
+# the entry silently dropped by the retired ``sorted(...)[:8]`` truncation.
+SIM1B_PROTOCOL_ENCODERS = ("count", "hash_column", "hash_shared", "homals",
+                           "label", "onehot", "ordered_catboost_sim", "target",
+                           "woe")
+
+
+def _lv(frame, c):
+    """Full, untruncated, sorted level list for column `c`. No slicing, ever."""
+    if c not in frame.columns:
+        return ""
+    return ", ".join(str(x) for x in sorted(frame[c].dropna().unique()))
+
+
+def _assert_no_truncation(row, frame, comp):
+    """Fail loudly if any printed level list is shorter than the raw frame.
+
+    This is the guard that makes the ``[:8]`` defect impossible to reintroduce
+    silently: reinstating any slice in ``_lv`` makes this raise here, and makes
+    tests/test_tabs1_no_truncation.py fail.
+    """
+    for c in TAB_S1_LEVEL_COLUMNS:
+        if c not in frame.columns:
+            continue
+        want = len(frame[c].dropna().unique())
+        got = len([x for x in str(row.get(c, "")).split(", ") if x != ""])
+        if got != want:
+            raise SystemExit(
+                f"TabS1 {comp}: level list for '{c}' is truncated -- printed "
+                f"{got} of {want} executed levels. Refusing to write a table "
+                f"that misrepresents the executed design.")
+    if comp == "1B":
+        got_enc = tuple(x for x in str(row.get("encoder", "")).split(", ") if x)
+        if got_enc != SIM1B_PROTOCOL_ENCODERS:
+            raise SystemExit(
+                f"TabS1 1B: encoder list {got_enc} does not match the nine "
+                f"encoders frozen in 01_PROTOCOL_FREEZE.yaml "
+                f"{SIM1B_PROTOCOL_ENCODERS}.")
+
+
 def tab_s1(a1, c_ex, c_fi, b):
+    """TabS1 from the frozen raw output: the design ACTUALLY EXECUTED.
+
+    Three defects are fixed here relative to the 2026-08-19 table.
+
+    (a) ``lv`` truncated every level list at ``sorted(...)[:8]``. That dropped
+        `woe` -- ninth alphabetically -- from the Simulation 1B encoder list
+        even though it ran to completion (57,600 rows, 100% SUCCESS).
+    (b) The same truncation cut the bucket-width lists in ALL FOUR rows
+        (1A 12->8, 1C exact 11->8, 1C finite 11->8, 1B 15->8).
+    (c) The row count filtered on ``status == "SUCCESS"`` and so reported
+        979,200 for 1B. The EXECUTED count is 1,094,400 = 979,200 SUCCESS +
+        115,200 SKIPPED_INELIGIBLE, the typed-absence oracle rows added under
+        deviation D12. `rows` now reports the executed count and
+        `rows_success` carries the successful subset.
+
+    Level lists are taken from the full executed frame rather than the SUCCESS
+    subset, because the table documents the executed design. The two agree on
+    every factor column in every arm (the D12 skips are a learner x encoder
+    slice, not a level), and ``_assert_no_truncation`` checks that agreement.
+    """
     rows = []
-    for d, comp, note in ((a1, "1A", "exact enumeration; d = M (all coordinates active)"),
-                          (c_ex, "1C exact", "closed form; d = 5 named coordinates"),
-                          (c_fi, "1C finite", "d = 5 named coordinates"),
-                          (b, "1B", "d = 3 in EVERY cell: M varies the number of "
-                                    "pure-noise columns only, so the design does NOT "
-                                    "test dense high-cardinality signal")):
+    for d, comp, note in (
+            (a1, "1A", "exact enumeration; d = M (all coordinates active)"),
+            (c_ex, "1C exact", "closed form; d = 5 named coordinates"),
+            (c_fi, "1C finite", "d = 5 named coordinates"),
+            (b, "1B", "d = 3 informative coordinates in EVERY cell; M varies "
+                      "the number of PURE-NOISE coordinates only, not the "
+                      "signal dimension, so the design does NOT test dense "
+                      "high-cardinality signal")):
         if d is None:
             rows.append(dict(component=comp, status="NOT RUN", notes=note))
             continue
         g = d[d.status == "SUCCESS"]
-
-        def lv(c):
-            return ("" if c not in g.columns
-                    else ", ".join(str(x) for x in sorted(g[c].dropna().unique())[:8]))
-        rows.append(dict(
-            component=comp, M=lv("M"), K=lv("K"), marginal=lv("marginal"),
-            tau=lv("tau"), interaction_count=lv("interaction_count"),
-            delta_eta=lv("delta_eta"), n_train=lv("n_train"), n_test=lv("n_test"),
-            activation_rate=lv("activation_rate"),
-            target_mechanism=lv("target_mechanism"),
-            encoder=lv("encoder"), bucket_width=lv("bucket_width"),
-            learner=lv("learner"),
-            scenarios=g.scenario_id.nunique(),
-            replicate_count=(int(g.replicate.max()) if "replicate" in g else ""),
-            rows=len(g), status="EXECUTED", notes=note))
+        row = dict(component=comp)
+        row.update({c: _lv(d, c) for c in TAB_S1_LEVEL_COLUMNS})
+        _assert_no_truncation(row, d, comp)
+        row.update(
+            scenarios=d.scenario_id.nunique(),
+            replicate_count=(int(d.replicate.max()) if "replicate" in d else ""),
+            rows=len(d), rows_success=len(g), status="EXECUTED", notes=note)
+        rows.append(row)
     write(pd.DataFrame(rows), "TabS1",
           "Simulation design and factor levels as executed.")
 

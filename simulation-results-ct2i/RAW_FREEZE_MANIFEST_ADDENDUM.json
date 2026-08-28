@@ -1,5 +1,8 @@
 {
   "manifest_id": "RAW_FREEZE_MANIFEST_ADDENDUM",
+  "addendum_run": false,
+  "addendum_status": "TERMINATED_BEFORE_EXECUTION",
+  "terminal_status_note": "The dense-signal M = 5, K = 4, d = 5 addendum was PERMANENTLY DISCONTINUED BEFORE EXECUTION by the advisor on 2026-08-25. Full addendum cells run: 0. The three entries under categories.pending_a1_addendum_outputs were declared for a Phase A1 that will never run: those files WILL NEVER EXIST and no hash will ever be filled in for them. They are retained, unhashed, as design-audit provenance of what the terminated arm would have frozen -- not as work that is pending. Every other entry in this manifest covers a COMPLETED, frozen raw output and is unaffected. Decision record: simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md",
   "ruling": "D15 (01B_ADDENDUM_ADVISOR_RULINGS.yaml)",
   "purpose": "Closes the AD10 hole: RAW_FREEZE_MANIFEST.json has no entry for anything under raw/, so a line-count check on raw/sim1b_replicates.csv could pass on altered content with an unchanged row count. This manifest adds SHA-256 coverage for every top-level raw/*.csv file, carries forward (as a strict superset) every entry already protected by RAW_FREEZE_MANIFEST.json, and declares -- without inventing hashes -- the new addendum raw outputs Phase A1 must hash on creation.",
   "generated_at_utc": "2026-08-24T13:34:03.271866+00:00",
@@ -94,18 +97,21 @@
     "pending_a1_addendum_outputs": {
       "03A_ADDENDUM_SEED_MANIFEST.csv": {
         "expected_relative_path": "03A_ADDENDUM_SEED_MANIFEST.csv",
-        "status": "PENDING_A1",
-        "note": "Realised addendum seed manifest; analogue of 03_SEED_MANIFEST.csv. Hash to be filled in by A1 on creation, before any addendum cell is inspected."
+        "status": "TERMINATED_BEFORE_EXECUTION_NEVER_PRODUCED",
+        "will_never_exist": true,
+        "note": "Realised addendum seed manifest; analogue of 03_SEED_MANIFEST.csv. Would have been hashed by A1 on creation. A1 was terminated before execution; this file will never exist."
       },
       "05e_SIM1B_DENSE_ADDENDUM_RESULTS.parquet": {
         "expected_relative_path": "05e_SIM1B_DENSE_ADDENDUM_RESULTS.parquet",
-        "status": "PENDING_A1",
-        "note": "Primary frozen addendum replicate results, per protocol freeze comment 'frozen before any summary is inspected'. Analogue of 05a-05d."
+        "status": "TERMINATED_BEFORE_EXECUTION_NEVER_PRODUCED",
+        "will_never_exist": true,
+        "note": "Primary frozen addendum replicate results, per protocol freeze comment 'frozen before any summary is inspected'. Analogue of 05a-05d. A1 was terminated before execution; this file will never exist."
       },
       "06A_SIM1B_DENSE_ADDENDUM_SUMMARY.csv": {
         "expected_relative_path": "06A_SIM1B_DENSE_ADDENDUM_SUMMARY.csv",
-        "status": "PENDING_A1",
-        "note": "Aggregated addendum summary table derived from 05e; declared for coverage because it is tabular and downstream-citable like 12_SIM2_RESULTS.csv."
+        "status": "TERMINATED_BEFORE_EXECUTION_NEVER_PRODUCED",
+        "will_never_exist": true,
+        "note": "Aggregated addendum summary table derived from 05e; declared for coverage because it is tabular and downstream-citable like 12_SIM2_RESULTS.csv. A1 was terminated before execution; this file will never exist."
       }
     }
   },
@@ -113,7 +119,7 @@
     "raw/sim1b_replicates_parts/*.csv": "288 files, ~260MB. Not matched by the literal D15 scope 'every raw/*.csv' (non-recursive glob); these are intermediate parts artifacts, not one of the raw/*.csv files AD10 originally named. Flagged as ambiguous -- see report.",
     "raw/sim1b.log": "log file, not a raw CSV; excluded like the old package verifier excludes *.log.",
     "raw/sim1c_finite.log": "log file, not a raw CSV; excluded like the old package verifier excludes *.log.",
-    "08A_SIM1B_DENSE_ADDENDUM_FIGURE_DATA.csv": "declared gitignored per D9 in the protocol freeze outputs list; not a stable freeze target, so intentionally not declared PENDING_A1.",
+    "08A_SIM1B_DENSE_ADDENDUM_FIGURE_DATA.csv": "declared gitignored per D9 in the protocol freeze outputs list; not a stable freeze target, so intentionally not declared as an A1 output. Moot in any case: the addendum was terminated before execution.",
     "07A_SIM1B_DENSE_ADDENDUM_ACCEPTANCE_REPORT.json": "derived analysis/report output, not a raw evidentiary file; out of D15 scope."
   }
 }

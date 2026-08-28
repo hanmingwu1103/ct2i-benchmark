@@ -52,7 +52,11 @@ def git(*a):
 # Every metadata file draws from provenance() so they cannot disagree.
 # --------------------------------------------------------------------------
 SHA_PLACEHOLDER = "PENDING_STAMP_SEE_PACKAGE_PROVENANCE"
-AUTHORITATIVE_TAG = "sim-only-s1-complete-v2"
+AUTHORITATIVE_TAG = "ct2i-simulations-v1.0"
+# The Phase R release tag. It is NOT deleted and NOT re-pointed: it keeps naming
+# the Phase R report-completion commit c7ac3611, and every metadata file states
+# that role explicitly so no reader can mistake it for the current release.
+SUPERSEDED_PHASE_R_TAG = "sim-only-s1-complete-v2"
 AUTHORITATIVE_BRANCH = "simulation-only/manuscript-revision"
 PRE_REPAIR_PARENT = "82ca32868f42cb95d2add6527b0ee57649bf7ebd"
 
@@ -79,7 +83,7 @@ def commit_gate_line(sha: str) -> str:
                 "identifiers.")
     return (f"- [ ] {COMMIT_GATE} \u2014 NOT YET SATISFIED IN THIS COPY. Option A "
             "(deviation D1): the commit SHA is stamped into the working tree by "
-            "`scripts/stamp_provenance.py` immediately after the Phase R commit "
+            "`scripts/stamp_provenance.py` immediately after the release commit "
             "is tagged, and the delivered ZIP is built from that stamped tree; "
             "the in-repo copy intentionally carries the placeholder "
             f"`{SHA_PLACEHOLDER}`, because a file inside a commit cannot carry "
@@ -92,6 +96,7 @@ def provenance() -> dict:
     return dict(repository=git("remote", "get-url", "origin"),
                 branch=git("rev-parse", "--abbrev-ref", "HEAD") or AUTHORITATIVE_BRANCH,
                 annotated_tag=AUTHORITATIVE_TAG,
+                superseded_phase_r_tag=SUPERSEDED_PHASE_R_TAG,
                 full_commit_sha=SHA_PLACEHOLDER,
                 pre_repair_parent_commit=PRE_REPAIR_PARENT)
 
@@ -283,15 +288,30 @@ def main() -> int:
                baseline_commit="7f6b62035951df7d032d0a3eab04cb3c9b0328b4",
                release_tag=AUTHORITATIVE_TAG,
                provenance_note="repository, branch and annotated tag are the "
-                               "authoritative identifiers. full_commit_sha is "
+                               "authoritative identifiers; the authoritative "
+                               "final release tag is "
+                               f"{AUTHORITATIVE_TAG} and "
+                               f"{SUPERSEDED_PHASE_R_TAG} is the superseded "
+                               "Phase R release tag, retained as history. "
+                               "full_commit_sha is "
                                "stamped into this file, 00_README.md, "
                                "19_VALIDATION_REPORT.md and "
                                "20_RESULT_HANDOFF_MEMO.md by "
-                               "scripts/stamp_provenance.py once the Phase R "
+                               "scripts/stamp_provenance.py once the release "
                                "commit exists; a file inside a commit cannot "
                                "carry that commit's own SHA at write time.",
                head_at_report_generation=commit,
                addendum_run=False,
+               addendum_status="TERMINATED_BEFORE_EXECUTION",
+               addendum_status_note="The dense-signal M = 5, K = 4, d = 5 "
+                                    "Simulation 1B addendum was PERMANENTLY "
+                                    "DISCONTINUED BEFORE EXECUTION by the "
+                                    "advisor on 2026-08-25. Full addendum "
+                                    "cells run: 0. It is not pending, not "
+                                    "planned and not awaiting approval; Phase "
+                                    "A1 will never run. Decision record: "
+                                    "simulation-results-ct2i/"
+                                    "DENSE_ADDENDUM_DECISION.md",
                raw_freeze_status="FROZEN; the five raw outputs listed in "
                                  "RAW_FREEZE_MANIFEST.json are byte-identical "
                                  "to their pre-repair state",
@@ -369,12 +389,18 @@ def main() -> int:
          f"**Generated:** {now}  ",
          f"**Repository:** {prov['repository']}  ",
          f"**Branch:** `{prov['branch']}`  ",
-         f"**Annotated tag (authoritative identifier):** `{AUTHORITATIVE_TAG}`  ",
+         f"**Annotated tag (authoritative identifier):** `{AUTHORITATIVE_TAG}` "
+         "\u2014 the final simulation release tag; quote this one. Superseded "
+         f"Phase R tag: `{SUPERSEDED_PHASE_R_TAG}` (the Phase R release, kept "
+         "as history, not the current release).  ",
          f"AUTHORITATIVE COMMIT: `{prov['full_commit_sha']}`  ",
          f"**Pre-repair parent commit:** `{PRE_REPAIR_PARENT}`  ",
          "**ADDENDUM RUN: NO** — the targeted addendum (the M = 5, d = M = 5 "
-         "Simulation 1B configuration) was NOT run; it remains an open advisor "
-         "decision, see the handoff memo.", "",
+         "Simulation 1B configuration) was NOT run. **ADDENDUM STATUS: "
+         "TERMINATED_BEFORE_EXECUTION** — the advisor permanently discontinued "
+         "it before execution on 2026-08-25. It is not an open decision, not "
+         "pending and not planned; full addendum cells run: 0. See "
+         "`DENSE_ADDENDUM_DECISION.md`.", "",
          "**Scope:** SIMULATION ONLY. Real-data models run: 0. Real-data files "
          "modified: 0. Manuscripts modified: 0. Completed raw result files "
          "changed: 0. GPU hours: 0.", "",
@@ -468,13 +494,21 @@ def main() -> int:
     M = ["# 20 Result Handoff Memo", "",
          f"**Repository:** {prov['repository']}  ",
          f"**Branch:** `{prov['branch']}`  ",
-         f"**Annotated tag (authoritative identifier):** `{AUTHORITATIVE_TAG}`  ",
+         f"**Annotated tag (authoritative identifier):** `{AUTHORITATIVE_TAG}` "
+         "\u2014 the final simulation release tag; quote this one. Superseded "
+         f"Phase R tag: `{SUPERSEDED_PHASE_R_TAG}` (the Phase R release, kept "
+         "as history, not the current release).  ",
          f"AUTHORITATIVE COMMIT: `{prov['full_commit_sha']}`  ",
          f"**Pre-repair parent commit:** `{PRE_REPAIR_PARENT}`  ",
          f"**Generated:** {now}", "",
-         "**ADDENDUM RUN: NO.** The targeted addendum (one additional "
-         "Simulation 1B configuration at M = 5, d = M = 5) was NOT executed. It "
-         "is open decision 1 below and awaits the advisor.", "",
+         "**ADDENDUM RUN: NO. ADDENDUM STATUS: TERMINATED_BEFORE_EXECUTION.** "
+         "The targeted addendum (one additional Simulation 1B configuration at "
+         "M = 5, d = M = 5) was NOT executed, and will not be: the advisor "
+         "permanently discontinued it before execution on 2026-08-25. Full "
+         "addendum cells run: 0. It is **not** an open decision and nothing "
+         "awaits the advisor on it \u2014 where \"open decision 1\" appears "
+         "below, read it as closed by that termination. Authoritative record: "
+         "`DENSE_ADDENDUM_DECISION.md`.", "",
          f"**Acceptance:** {npass}/{npass + nfail} criteria passed. "
          "**Raw freeze:** " + ("all five completed raw result files verified "
          "byte-identical" if frozen_ok else "VERIFICATION FAILED") + ". "
@@ -513,12 +547,21 @@ def main() -> int:
          "| deviations | `19_VALIDATION_REPORT.md` |",
          "| council review | `S0_COUNCIL_REVIEW.md` |", "",
          "## Open decisions for the advisor", "",
-         "1. **The `d = min(M, 3)` arm.** Two independent provider organisations "
-         "ranked this the most significant residual weakness. The fix is one "
-         "additional 1B configuration at M = 5, d = M = 5: fully enumerable "
-         "(1024 cells), negligible cost, and it gives the design one point where "
-         "signal dimension and feature width move together. It is a design "
-         "ADDITION, so it was not added unilaterally. **Recommended.**",
+         "*(Item 1 is CLOSED — the addendum was terminated before execution on "
+         "2026-08-25. Items 2 and 3 concern the manuscript and the release "
+         "identifier, not the simulations.)*", "",
+         "1. ~~**The `d = min(M, 3)` arm.**~~ **CLOSED 2026-08-25 — DECIDED: DO "
+         "NOT RUN.** Two independent provider organisations had ranked this the "
+         "most significant residual weakness, and the proposed fix was one "
+         "additional 1B configuration at M = 5, d = M = 5. The advisor "
+         "**permanently discontinued it before execution**: the proposed "
+         "contrast had no single stable prespecified estimand, alternative "
+         "reasonable normalizations changed its direction, the inferential-unit "
+         "premise behind its ruling D13 was false, and Simulations 1A, 1B and 1C "
+         "are sufficient for the paper. `addendum_status = "
+         "TERMINATED_BEFORE_EXECUTION`; full addendum cells run: 0; Phase A1 "
+         "will never run. See `DENSE_ADDENDUM_DECISION.md`. **Nothing is "
+         "required of the advisor on this item.**",
          "2. **H1/H2 naming.** Both reviewers noted these are implementation "
          "verification rather than falsifiable hypotheses. They are named in the "
          "authoritative plan, so they were not renamed.",

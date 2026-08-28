@@ -1,5 +1,15 @@
 """Phase A0.1 / D17: independent reference check for acceptance criteria AD1, AD2.
 
+TERMINAL STATUS (2026-08-25)
+----------------------------
+The dense-signal M = 5, K = 4, d = 5 addendum was PERMANENTLY DISCONTINUED
+BEFORE EXECUTION by the advisor.  addendum_run = false;
+addendum_status = TERMINATED_BEFORE_EXECUTION; full addendum cells run: 0;
+Phase A1 will never run.  Nothing here is pending, planned or awaiting
+approval.  This script is retained ONLY as design-audit provenance; nothing it
+measures is a study result.  Decision record:
+simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md
+
 WHY THIS EXISTS
 ---------------
 `sim1_core.exact_gap_report` computes `gap = R(Z) - R(X)` and `theoretical_gap`
@@ -65,8 +75,10 @@ ARMS
              Production values already exist, so the harness is validated here
              WITHOUT executing a single addendum cell (prohibition PR1).
   addendum   the dense-signal addendum, d = 5, S1BD-0001..S1BD-0048 x 13.
-             Switching arms is a parameter change, not a rewrite.  This arm is
-             an A1 gate and must not be run before the advisor authorises A1.
+             Switching arms is a parameter change, not a rewrite.  This arm was
+             an A1 gate and CAN NEVER BE RUN: it needs addendum production rows,
+             and the addendum was TERMINATED BEFORE EXECUTION (see above), so
+             those rows will never exist.  Retained as design-audit provenance.
 
 FROZEN SAMPLING RULE (read, not re-derived, from
 01B_ADDENDUM_ADVISOR_RULINGS.yaml key

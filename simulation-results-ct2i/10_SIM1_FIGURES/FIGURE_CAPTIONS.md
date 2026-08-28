@@ -72,10 +72,25 @@ single number.
 
 **[MANDATED CLARIFICATION]** The completed Simulation 1B arm uses **d = 3 signal
 coordinates in every existing cell**; M varies the number of pure-noise columns
-only, so this design does **not** test dense high-cardinality signal. Cells whose
-population gap is `NOT_IDENTIFIED` are **omitted from panel (a), not assigned
-zero** — the count of omitted rows is annotated on the panel. A blank is not a
-zero.
+only, so this design does **not** test dense high-cardinality signal. Simulation
+1B is therefore a sparse-signal finite-sample experiment and must not be
+described as establishing the pure effect of increasing signal dimension: exact
+dense-signal behaviour is carried by Simulation 1A, and the binary-width
+mechanism by Simulation 1C.
+
+**[MANDATED CLARIFICATION]** Cells whose population gap is `NOT_IDENTIFIED` are
+**omitted from panel (a), not assigned zero** — the count of omitted rows is
+annotated on the panel. A blank is not a zero, and no failed or unidentified
+cell is represented as zero or as chance performance anywhere in this figure.
+
+*Rendering note.* This caption is the full methodological qualification for
+FigS4. It previously lived as a single unwrapped `fig.text()` line inside the
+figure, which stretched the `bbox_inches="tight"` canvas to 20.26 in wide and
+made the panels unusable at manuscript width. The figure is now drawn on a fixed
+6.9 x 3.15 in canvas and carries only a three-line condensed statement of the
+two mandated clarifications above, so the disclosure cannot be lost by a caption
+edit while the long qualification sits here, outside the graphics canvas. No
+plotted value changed.
 
 ## Simulation 2 figure (16_SIM2_FIGURE)
 

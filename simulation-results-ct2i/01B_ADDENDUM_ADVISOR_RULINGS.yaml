@@ -1,3 +1,61 @@
+# #############################################################################
+# ###                                                                       ###
+# ###   TERMINAL STATUS — THE DENSE-SIGNAL ADDENDUM WAS TERMINATED          ###
+# ###   BEFORE EXECUTION.  addendum_run = false.                            ###
+# ###   addendum_status = TERMINATED_BEFORE_EXECUTION.                      ###
+# ###   FULL ADDENDUM CELLS RUN: 0.  PHASE A1 WILL NEVER RUN.               ###
+# ###                                                                       ###
+# #############################################################################
+#
+# On 2026-08-25 the advisor PERMANENTLY DISCONTINUED the dense-signal
+# M = 5, K = 4, d = 5 Simulation 1B addendum, before any addendum cell was run.
+# It is not pending, not planned, not paused, not awaiting approval and not
+# scheduled.  Nothing in this file is an open item or a next action.
+#
+# CONSEQUENCES FOR READING THIS FILE
+#   * Every ruling D13-D18 below governs an arm that WILL NEVER BE EXECUTED.
+#   * Every `advisor_confirmation_requested` question Q1-Q8 is CLOSED BY
+#     TERMINATION, not by answer.  They are kept verbatim: the audit value is
+#     in seeing exactly what was asked and never resolved.
+#   * Every `operative_until_he_rules` default below is MOOT.  He did not rule
+#     on the question; he ended the arm the question governed.  No default in
+#     this file was ever applied to a result, because there are no results.
+#   * Every gate, criterion, tolerance and outcome class here is a DESIGN
+#     RECORD.  None of it produced a study result and none may be cited as one.
+#
+# THIS FILE IS RETAINED ONLY AS A METHODOLOGICAL AUDIT RECORD — design-audit
+# provenance.  Authoritative decision record, with reasons and file:line
+# evidence: simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md
+#
+# Everything below this box is the record AS IT STOOD BEFORE THE TERMINATION
+# and is preserved unaltered apart from the `terminal_status:` block, the
+# AMENDMENT-6 log entry, and the status/closure fields on
+# `advisor_confirmation_requested`.  The advisor's verbatim ruling text is
+# NEVER edited and is byte-identical to the received ruling.
+# #############################################################################
+
+terminal_status:
+  addendum_run: false
+  addendum_status: TERMINATED_BEFORE_EXECUTION
+  full_addendum_cells_run: 0
+  decision_date: 2026-08-25
+  decided_by: advisor
+  phase_A1: WILL_NEVER_RUN
+  decision_record: simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md
+  decision_source: >
+    CT2I_MINIMUM_CLOSURE_PLAN.md sections 1 and 3.4, and
+    CT2I_STUDENT_ONE_PASS_FINALIZATION_PROMPT.md "Binding decision" /
+    "Required actions -> 1. Record termination of the addendum".
+  reason:
+    - the proposed contrast did not have one stable prespecified estimand
+    - alternative reasonable normalizations changed the direction
+    - the inferential-unit premise used in the advisor ruling was false
+    - the completed Simulation 1A, 1B and 1C arms are sufficient for the paper
+  retention_basis: METHODOLOGICAL_AUDIT_RECORD_ONLY
+  citable_as_a_study_result: false
+  open_questions_Q1_to_Q8: CLOSED_BY_TERMINATION_NOT_BY_ANSWER
+  operative_defaults_status: MOOT_NO_RESULT_WAS_EVER_PRODUCED_UNDER_THEM
+
 # =============================================================================
 # cT2I Dense-Signal Simulation 1B Addendum — ADVISOR RULINGS (Phase A0.1)
 #
@@ -265,6 +323,37 @@ amendments:
       in it is a function of the exact 1024-state cell law or of the existing
       frozen d = 3 arm read read-only. No frozen raw output changed, no manifest
       entry changed, and no acceptance criterion A1-A15 or AD1-AD15 changed.
+
+  - id: AMENDMENT-6
+    date: 2026-08-25
+    phase: TERMINAL
+    scope: [terminal_status, advisor_confirmation_requested]
+    kind: TERMINATION_OF_THE_ADDENDUM_BEFORE_EXECUTION
+    requires_advisor_ratification: false
+    ratification_question: NONE — this amendment RECORDS the advisor's own decision
+    trigger: >
+      The advisor permanently discontinued the dense-signal M = 5, K = 4, d = 5
+      addendum before execution, on the grounds that the proposed contrast had
+      no single stable prespecified estimand, that alternative reasonable
+      normalizations changed the direction of the answer, that the
+      inferential-unit premise used in ruling D13 was false, and that the
+      completed Simulation 1A, 1B and 1C arms are sufficient for the paper.
+      Executing the arm at this point would have forced a choice of estimand and
+      normalization AFTER it was known that the choice changes the sign.
+    changed:
+      - "terminal_status — ADDED as a top-level block: addendum_run = false, addendum_status = TERMINATED_BEFORE_EXECUTION, full_addendum_cells_run = 0."
+      - "A terminal-status header box was added above the original file header."
+      - "advisor_confirmation_requested.status — OPEN_ADOPTED_READINGS_NOT_SETTLED_DECISIONS -> CLOSED_BY_TERMINATION_OF_THE_ADDENDUM."
+      - "advisor_confirmation_requested.closed_by_termination — ADDED, explaining that Q1-Q8 are closed because the arm they govern will never run, NOT because any of them was answered."
+      - "advisor_confirmation_requested.operative_until_he_rules_defaults — ADDED: every such default in this file is MOOT; none was ever applied to a result."
+    not_changed:
+      - "advisor_ruling_verbatim.text — untouched, byte-identical to the received ruling."
+      - "Every ruling D13-D18, every question Q1-Q8 and every operative default is preserved verbatim. The audit value is in seeing exactly what was asked, defaulted and never resolved."
+      - "No frozen raw output, no S0A_* file, no 01A entry and no completed result file was touched."
+    amendment_policy_note: >
+      The file's own amendment_policy permits amendments only before the Phase
+      A1 run begins. Phase A1 never began and never will; this amendment records
+      the reason it never will, and closes the file permanently.
 
 # -----------------------------------------------------------------------------
 # The advisor ruling, embedded VERBATIM so the repository carries the source of
@@ -1792,7 +1881,32 @@ new_acceptance_criteria:
 # LEGITIMATE.
 # -----------------------------------------------------------------------------
 advisor_confirmation_requested:
-  status: OPEN_ADOPTED_READINGS_NOT_SETTLED_DECISIONS
+  # ===================================================================
+  # CLOSED BY TERMINATION — 2026-08-25 (AMENDMENT-6).
+  # The eight questions below are NOT open. They are NOT awaiting an
+  # answer. The advisor terminated the addendum before execution, so the
+  # arm every one of them governs will never run and none of them will
+  # ever be answered. They are preserved verbatim, in full, because the
+  # audit value of this section is precisely the record of what was asked
+  # and never resolved. Read every "OPEN", "BLOCKS_A1", "operative until
+  # he rules" and "required before A1" phrase below as historical text.
+  # ===================================================================
+  status: CLOSED_BY_TERMINATION_OF_THE_ADDENDUM
+  status_before_termination: OPEN_ADOPTED_READINGS_NOT_SETTLED_DECISIONS
+  closed_by_termination: >
+    All eight questions are closed because the dense-signal addendum was
+    TERMINATED BEFORE EXECUTION on 2026-08-25, not because any of them was
+    answered. No answer is being sought, none is outstanding, and nothing in
+    this package waits on one. Two of them — Q6 (which inferential unit
+    governs) and Q8 (how the normalized contrast aggregates) — are among the
+    stated REASONS for the termination: see
+    simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md sections 2 and 3.
+  operative_until_he_rules_defaults: >
+    MOOT. Every `operative_until_he_rules` value in this section was a
+    placeholder for a run that never happened. None was ever applied to a
+    result, because zero addendum cells were executed. They are retained
+    verbatim as design-audit provenance and must not be read as live defaults.
+  citable_as_a_study_result: false
   count: 8
   promoted_at: 2026-08-24
   promoted_by: [AMENDMENT-2, AMENDMENT-3, AMENDMENT-4, AMENDMENT-5]

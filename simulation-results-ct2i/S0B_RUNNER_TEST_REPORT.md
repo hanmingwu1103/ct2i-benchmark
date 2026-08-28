@@ -1,3 +1,28 @@
+> # ⛔ TERMINAL STATUS — THE DENSE-SIGNAL ADDENDUM WAS TERMINATED BEFORE EXECUTION
+>
+> ```text
+> addendum_run     = false
+> addendum_status  = TERMINATED_BEFORE_EXECUTION
+> full addendum cells run: 0        decided: 2026-08-25 by the advisor
+> ```
+>
+> The dense-signal `M = 5, K = 4, d = 5` Simulation 1B addendum was **permanently
+> discontinued before execution**. It is not pending, not planned, not paused, not awaiting
+> approval and not scheduled. **Phase A1 will never run.** Nothing in this document is an
+> open item, a next action, or work still to be done.
+>
+> **This file is retained ONLY as a methodological audit record — design-audit provenance.
+> None of its projected, exploratory or measured contrasts is a study result, and none may be
+> cited as one.**
+>
+> Authoritative decision record, with the reasons and their file:line evidence:
+> [`DENSE_ADDENDUM_DECISION.md`](DENSE_ADDENDUM_DECISION.md).
+> Everything below this box is the record **as it stood on 2026-08-25 before the termination**
+> and is preserved unaltered for audit; read every verdict, gate, question, default and "next
+> action" in it as **superseded and closed by the termination**.
+
+---
+
 # S0B — RUNNER TEST REPORT (Phase A0.1, decision D18 / criterion AD15)
 
 Scope: the TEST-MIGRATION half of D18. The property tests now exercise the real

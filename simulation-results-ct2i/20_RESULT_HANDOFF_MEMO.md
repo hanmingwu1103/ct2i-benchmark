@@ -2,12 +2,12 @@
 
 **Repository:** https://github.com/hanmingwu1103/ct2i-benchmark.git  
 **Branch:** `simulation-only/manuscript-revision`  
-**Annotated tag (authoritative identifier):** `sim-only-s1-complete-v2`  
+**Annotated tag (authoritative identifier):** `ct2i-simulations-v1.0` — the final simulation release tag; quote this one. Superseded Phase R tag: `sim-only-s1-complete-v2` (the Phase R release, kept as history, not the current release).  
 AUTHORITATIVE COMMIT: `PENDING_STAMP_SEE_PACKAGE_PROVENANCE`  
 **Pre-repair parent commit:** `82ca32868f42cb95d2add6527b0ee57649bf7ebd`  
-**Generated:** 2026-08-18T17:05:12.131158+00:00
+**Generated:** 2026-08-28T16:18:43.230721+00:00
 
-**ADDENDUM RUN: NO.** The targeted addendum (one additional Simulation 1B configuration at M = 5, d = M = 5) was NOT executed. It is open decision 1 below and awaits the advisor.
+**ADDENDUM RUN: NO. ADDENDUM STATUS: TERMINATED_BEFORE_EXECUTION.** The targeted addendum (one additional Simulation 1B configuration at M = 5, d = M = 5) was NOT executed, and will not be: the advisor permanently discontinued it before execution on 2026-08-25. Full addendum cells run: 0. It is **not** an open decision and nothing awaits the advisor on it — where "open decision 1" appears below, read it as closed by that termination. Authoritative record: `DENSE_ADDENDUM_DECISION.md`.
 
 **Acceptance:** 13/13 criteria passed. **Raw freeze:** all five completed raw result files verified byte-identical. **CPU:** measured 88.11 core-hours against an 80 core-hour ceiling, over by 8.11 (10.1%), status RETROSPECTIVELY RATIFIED PROCESS DEVIATION (completion plan section 7).
 
@@ -52,6 +52,8 @@ For hash-encoder cells where the population Bayes-on-Z risk is not identified, *
 
 ## Open decisions for the advisor
 
-1. **The `d = min(M, 3)` arm.** Two independent provider organisations ranked this the most significant residual weakness. The fix is one additional 1B configuration at M = 5, d = M = 5: fully enumerable (1024 cells), negligible cost, and it gives the design one point where signal dimension and feature width move together. It is a design ADDITION, so it was not added unilaterally. **Recommended.**
+*(Item 1 is CLOSED — the addendum was terminated before execution on 2026-08-25. Items 2 and 3 concern the manuscript and the release identifier, not the simulations.)*
+
+1. ~~**The `d = min(M, 3)` arm.**~~ **CLOSED 2026-08-25 — DECIDED: DO NOT RUN.** Two independent provider organisations had ranked this the most significant residual weakness, and the proposed fix was one additional 1B configuration at M = 5, d = M = 5. The advisor **permanently discontinued it before execution**: the proposed contrast had no single stable prespecified estimand, alternative reasonable normalizations changed its direction, the inferential-unit premise behind its ruling D13 was false, and Simulations 1A, 1B and 1C are sufficient for the paper. `addendum_status = TERMINATED_BEFORE_EXECUTION`; full addendum cells run: 0; Phase A1 will never run. See `DENSE_ADDENDUM_DECISION.md`. **Nothing is required of the advisor on this item.**
 2. **H1/H2 naming.** Both reviewers noted these are implementation verification rather than falsifiable hypotheses. They are named in the authoritative plan, so they were not renamed.
 3. **Release tag and DOI** for the data/code availability statement (placeholder REPO-01).

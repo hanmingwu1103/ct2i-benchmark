@@ -15,9 +15,15 @@ Checks
      a strict superset, not a re-statement with drifted values
   3. every top-level raw/*.csv file on disk is listed (nothing unlisted, nothing
      missing) -- glob is re-derived from disk, never copied from the manifest
-  4. pending_a1_addendum_outputs entries carry status PENDING_A1 and NO sha256
-     key (a real hash there would mean someone invented a placeholder hash,
-     which is explicitly prohibited)
+  4. pending_a1_addendum_outputs entries carry the terminal status
+     TERMINATED_BEFORE_EXECUTION_NEVER_PRODUCED and NO sha256 key (a real hash
+     there would mean someone invented a placeholder hash, which is explicitly
+     prohibited). NOTE: the addendum was PERMANENTLY DISCONTINUED BEFORE
+     EXECUTION on 2026-08-25 -- full addendum cells run: 0 -- so those three
+     declared outputs will never exist and no hash will ever be filled in for
+     them. The category key keeps its historical name; its contents are
+     design-audit provenance, not pending work. See
+     simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md.
   5. ZERO self-entries: the manifest must not contain any entry whose relative
      path or expected_relative_path resolves to the manifest's own filename
 
@@ -69,6 +75,9 @@ def main() -> int:
     print(f"addendum manifest entries: raw_csv_top_level={len(raw_csv)}, "
           f"frozen_result_outputs_carried_forward={len(carried)}, "
           f"pending_a1_addendum_outputs={len(pending)}")
+    print(f"addendum status: {addendum.get('addendum_status', 'UNDECLARED')} "
+          f"(addendum_run={addendum.get('addendum_run')}) -- the "
+          f"{len(pending)} declared A1 outputs will never exist")
 
     matched = mismatched = missing = 0
     self_entries = []
@@ -140,13 +149,19 @@ def main() -> int:
     for u in phantom:
         print(f"  IN MANIFEST BUT NOT ON DISK: raw/{u}")
 
-    # --- 4: pending entries must be spec-only, never hashed ---
+    # --- 4: terminated addendum entries must be spec-only, never hashed ---
+    # The addendum was TERMINATED BEFORE EXECUTION (2026-08-25): these three
+    # declared outputs will never be produced, so a hash on any of them would be
+    # fabricated. The historical "PENDING_A1" token is still accepted so that an
+    # older copy of the manifest verifies, but the terminal token is the one the
+    # shipped manifest carries.
+    TERMINAL_STATUS = "TERMINATED_BEFORE_EXECUTION_NEVER_PRODUCED"
     bad_pending = []
     for name, meta in sorted(pending.items()):
         rel = meta.get("expected_relative_path", name)
         if own_name_hit(rel):
             self_entries.append(rel)
-        if meta.get("status") != "PENDING_A1":
+        if meta.get("status") not in (TERMINAL_STATUS, "PENDING_A1"):
             bad_pending.append((name, "missing/incorrect status"))
         if "sha256" in meta:
             bad_pending.append((name, "carries a sha256 -- fabricated hash for a nonexistent file"))

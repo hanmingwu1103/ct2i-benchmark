@@ -1,5 +1,15 @@
 """Phase A0.1 / D13: is the addendum's inferential unit the BLOCK or the DRAW?
 
+TERMINAL STATUS (2026-08-25)
+----------------------------
+The dense-signal M = 5, K = 4, d = 5 addendum was PERMANENTLY DISCONTINUED
+BEFORE EXECUTION by the advisor.  addendum_run = false;
+addendum_status = TERMINATED_BEFORE_EXECUTION; full addendum cells run: 0;
+Phase A1 will never run.  Nothing here is pending, planned or awaiting
+approval.  This script is retained ONLY as design-audit provenance; nothing it
+measures is a study result.  Decision record:
+simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md
+
 WHY THIS EXISTS
 ---------------
 Advisor ruling D13 (`01B_ADDENDUM_ADVISOR_RULINGS.yaml`) fixes block-clustered

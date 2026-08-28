@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 """Gate-4 (canonical partition fingerprint) bite proof on the frozen d=3 arm.
 
+TERMINAL STATUS (2026-08-25)
+----------------------------
+The dense-signal M = 5, K = 4, d = 5 addendum was PERMANENTLY DISCONTINUED
+BEFORE EXECUTION by the advisor.  addendum_run = false;
+addendum_status = TERMINATED_BEFORE_EXECUTION; full addendum cells run: 0;
+Phase A1 will never run.  Nothing here is pending, planned or awaiting
+approval.  This script is retained ONLY as design-audit provenance; nothing it
+measures is a study result.  Decision record:
+simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md
+
 WHY THIS SCRIPT EXISTS
 ----------------------
 `05b_SIM1B_REPLICATE_RESULTS.parquet` predates the `fiber_fingerprint` column
@@ -14,7 +24,7 @@ print.
 This driver supplies the missing precondition explicitly and reproducibly: it
 builds the stored fingerprint map from the CLEAN recomputed digests already
 persisted in `S0B_REFERENCE_GAP_CHECK_d3_frozen.csv` — exactly what a conforming
-A1 runner would have written — and injects it into `load_stored` in-process.
+A1 runner would have written, had A1 ever run — and injects it into `load_stored` in-process.
 Everything else is the production checker, unmodified.
 
 WHAT THIS IS NOT

@@ -1,3 +1,28 @@
+> # ⛔ TERMINAL STATUS — THE DENSE-SIGNAL ADDENDUM WAS TERMINATED BEFORE EXECUTION
+>
+> ```text
+> addendum_run     = false
+> addendum_status  = TERMINATED_BEFORE_EXECUTION
+> full addendum cells run: 0        decided: 2026-08-25 by the advisor
+> ```
+>
+> The dense-signal `M = 5, K = 4, d = 5` Simulation 1B addendum was **permanently
+> discontinued before execution**. It is not pending, not planned, not paused, not awaiting
+> approval and not scheduled. **Phase A1 will never run.** Nothing in this document is an
+> open item, a next action, or work still to be done.
+>
+> **This file is retained ONLY as a methodological audit record — design-audit provenance.
+> None of its projected, exploratory or measured contrasts is a study result, and none may be
+> cited as one.**
+>
+> Authoritative decision record, with the reasons and their file:line evidence:
+> [`DENSE_ADDENDUM_DECISION.md`](DENSE_ADDENDUM_DECISION.md).
+> Everything below this box is the record **as it stood on 2026-08-25 before the termination**
+> and is preserved unaltered for audit; read every verdict, gate, question, default and "next
+> action" in it as **superseded and closed by the termination**.
+
+---
+
 # S0B — the normalized d = 5 minus d = 3 contrast: what D16 leaves unsaid, and how far it moves the answer
 
 **Phase A0.1 · written 2026-08-25 · zero addendum cells executed · zero frozen artefacts modified**
@@ -233,6 +258,7 @@ The draft below is retained as the source text; 01B carries the house-style vers
 > second removes the raw/normalized reversal entirely. Level (b) moves the estimate by less
 > than 0.002; level (c) moves it by a factor of 2 (−0.0235 at Δη = 0 to −0.0107 at Δη = 0.3).
 > **Required: one sentence fixing (a), and a statement on (c), before A1 is authorised.**
+> *(SUPERSEDED 2026-08-25: nothing is required. A1 was never authorised and never will be — the addendum was TERMINATED BEFORE EXECUTION, and this very instability is one of the stated reasons. Q8 is closed by termination, not by answer.)*
 > Related: D16's inference line still inherits D13's refuted premise (Q6).
 
 ## 8. Integrity

@@ -1,5 +1,30 @@
 """Phase A1 runner: dense-signal Simulation 1B addendum (d = M = 5, K = 4).
 
+########################################################################
+###  TERMINATED BEFORE EXECUTION — THIS RUNNER WAS NEVER EXECUTED.   ###
+###  addendum_run = false                                            ###
+###  addendum_status = TERMINATED_BEFORE_EXECUTION                   ###
+###  full addendum cells run: 0                                      ###
+########################################################################
+
+On 2026-08-25 the advisor PERMANENTLY DISCONTINUED the dense-signal
+M = 5, K = 4, d = 5 addendum, before any addendum cell was run. Phase A1
+does not exist and will never run. This module is retained ONLY as
+design-audit provenance: it is the single source of truth for the seed
+rule that the A0/A0.1 property tests exercise, and the record of the arm
+that was designed and deliberately not executed.
+
+`--execute` IS REFUSED. It exits non-zero without running a cell. There
+is no flag, environment variable or argument that re-enables execution;
+re-enabling it would require a new advisor decision reversing the
+termination, and none exists.
+
+Nothing in this file is pending, planned or awaiting approval. Reasons
+for the termination, with file:line evidence:
+    simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md
+
+Everything below is preserved as it stood before the termination.
+
 SIMULATION ONLY. No real dataset, no image, no GPU, no manuscript.
 
 Design authority
@@ -84,11 +109,15 @@ value -- never 0.
 Usage
 -----
   run_sim1b_dense_addendum.py --dry-run                 enumerate, run nothing
-  run_sim1b_dense_addendum.py --execute [--out PATH]    run the arm
+  run_sim1b_dense_addendum.py --execute                 REFUSED, exits non-zero
 
-`--dry-run` is the DEFAULT. Executing cells requires the explicit `--execute`
-flag AND a present, valid 01B ruling file, because Phase A1 execution is gated
-on advisor approval.
+`--dry-run` is the DEFAULT and the only mode that still does anything. As
+originally written, `--execute` required the explicit flag AND a present, valid
+01B ruling file, because Phase A1 execution was gated on advisor approval. That
+gate is now permanently closed: the advisor terminated the addendum before
+execution on 2026-08-25, so `--execute` refuses unconditionally and returns exit
+code 3. See `TERMINATION` above and
+`simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md`.
 """
 from __future__ import annotations
 
@@ -134,6 +163,35 @@ DEFAULT_OUT = RAW / "sim1b_dense_addendum_replicates.csv"
 # so a drift between this module and the freeze is a test failure, not a
 # silent divergence.
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# TERMINATION GATE. The advisor permanently discontinued this addendum before
+# execution on 2026-08-25. `--execute` refuses unconditionally; the module is
+# retained only as design-audit provenance. Do not remove this gate without a
+# new, written advisor decision reversing the termination.
+# ---------------------------------------------------------------------------
+ADDENDUM_RUN = False
+ADDENDUM_STATUS = "TERMINATED_BEFORE_EXECUTION"
+ADDENDUM_TERMINATION_DATE = "2026-08-25"
+ADDENDUM_DECISION_RECORD = "simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md"
+TERMINATION_BANNER = (
+    f"addendum_status = {ADDENDUM_STATUS}  (decided {ADDENDUM_TERMINATION_DATE}; "
+    f"addendum_run = {ADDENDUM_RUN}; full addendum cells run: 0)")
+TERMINATION_REFUSAL = "\n".join([
+    "REFUSING TO EXECUTE: THE DENSE-SIGNAL ADDENDUM WAS TERMINATED BEFORE EXECUTION.",
+    f"  addendum_status = {ADDENDUM_STATUS}",
+    f"  addendum_run    = {ADDENDUM_RUN}",
+    "  full addendum cells run: 0",
+    f"  decided {ADDENDUM_TERMINATION_DATE} by the advisor; Phase A1 will never run.",
+    "  The addendum is not pending, not planned and not awaiting approval. This",
+    "  runner is retained only as design-audit provenance.",
+    f"  Decision record: {ADDENDUM_DECISION_RECORD}",
+    "  Reasons: no single stable prespecified estimand; alternative reasonable",
+    "  normalizations changed the direction; the inferential-unit premise behind",
+    "  ruling D13 was false; Simulations 1A, 1B and 1C suffice for the paper.",
+    "  No cell executed. Use --dry-run to inspect the design that was not run.",
+])
+EXIT_TERMINATED = 3
+
 COMPONENT = "1BD"
 M_ADD, K_ADD, D_ADD = 5, 4, 5
 N_CELLS = K_ADD ** D_ADD                     # 1024, exactly enumerable
@@ -1364,6 +1422,7 @@ def print_summary(summary: dict) -> None:
 def print_dry_run(rulings_missing: list[str], freeze_findings: list[str]) -> dict:
     wl = work_list()
     print("cT2I dense-signal Simulation 1B addendum -- DRY RUN (no cell executed)")
+    print(f"  {TERMINATION_BANNER}")
     print(f"  design authority   {FREEZE_01A.relative_to(REPO)}")
     print(f"  advisor rulings    {RULINGS_01B.relative_to(REPO)}"
           f"{'  [MISSING]' if not RULINGS_01B.exists() else ''}")
@@ -1375,11 +1434,14 @@ def print_dry_run(rulings_missing: list[str], freeze_findings: list[str]) -> dic
     print(f"  parameter draws per arm (blocks x replicates)"
           f"                      {wl['blocks'] * wl['replicates']}")
     print( "  inferential unit                                "
-           "                  OPEN -- 01B Q6")
+           "                  MOOT -- 01B Q6 CLOSED BY TERMINATION")
     print( "    D13 as ruled: the 8 blocks, 7 df. MEASURED: parameters are drawn")
     print( "    afresh per replicate, so there are 400 draws per arm, clustered")
-    print( "    as (block, replicate) with 6 scenarios each. This runner does NOT")
-    print( "    choose; see 01B advisor_confirmation_requested.Q6 and")
+    print( "    as (block, replicate) with 6 scenarios each. This runner never")
+    print( "    chose, and never will: the addendum was TERMINATED BEFORE")
+    print( "    EXECUTION on 2026-08-25 and Q6 is closed by termination, not by")
+    print( "    answer. See 01B terminal_status,")
+    print( "    simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md and")
     print( "    simulation-results-ct2i/S0B_D13_PREMISE_INVESTIGATION.md.")
     print(f"  encoder configurations          {wl['encoder_configs']}")
     print(f"  replicates per scenario         {wl['replicates']}")
@@ -1403,7 +1465,8 @@ def print_dry_run(rulings_missing: list[str], freeze_findings: list[str]) -> dic
         print(f"\n  !! 01B keys not available ({len(rulings_missing)}):")
         for k in rulings_missing:
             print(f"     - {k}")
-        print("     --execute is refused until these are provided.")
+        print("     (moot: --execute is refused unconditionally -- see the "
+              "termination notice above)")
     return wl
 
 
@@ -1413,7 +1476,9 @@ def main(argv=None) -> int:
                     help="enumerate the work list and print the projected cell "
                          "count without executing any cell (the default)")
     ap.add_argument("--execute", action="store_true", default=False,
-                    help="actually run the arm; requires a valid 01B ruling file")
+                    help="REFUSED: the addendum was TERMINATED BEFORE EXECUTION "
+                         "on 2026-08-25; this flag now exits non-zero without "
+                         "running a cell")
     ap.add_argument("--out", default=str(DEFAULT_OUT))
     ap.add_argument("--workers", type=int,
                     default=int(os.environ.get("S1_WORKERS", 8)))
@@ -1422,14 +1487,26 @@ def main(argv=None) -> int:
                          "output is then NOT the frozen arm)")
     args = ap.parse_args(argv)
 
+    # TERMINATION GATE -- first, unconditional, and before anything is read,
+    # loaded or written. The addendum was discontinued before execution; there
+    # is no state of the repository in which --execute may run a cell.
+    if args.execute:
+        print(TERMINATION_REFUSAL, file=sys.stderr)
+        return EXIT_TERMINATED
+
     freeze_findings = verify_against_freeze()
     _rulings, missing = load_rulings_01b(strict=False)
 
-    if not args.execute:
+    if not args.execute:                # always true: the gate above returned
         print_dry_run(missing, freeze_findings)
-        print("\nNo cell executed. Pass --execute to run Phase A1.")
+        print("\nNo cell executed. --execute is REFUSED: the addendum was "
+              "TERMINATED BEFORE EXECUTION.")
         return 0
 
+    # ---- NOT REACHABLE AT RUNTIME --------------------------------------
+    # The original Phase A1 execution path, retained verbatim as design-audit
+    # provenance so a reader can see exactly what would have run. The
+    # termination gate at the top of main() returns before any of it is reached.
     if freeze_findings:
         print("REFUSING TO EXECUTE: runner constants disagree with 01A:")
         for b in freeze_findings:

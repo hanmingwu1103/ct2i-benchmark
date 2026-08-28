@@ -1,4 +1,14 @@
 """Phase A0.1 / D16: how far does the NORMALIZED d=5 minus d=3 contrast move
+
+TERMINAL STATUS (2026-08-25)
+----------------------------
+The dense-signal M = 5, K = 4, d = 5 addendum was PERMANENTLY DISCONTINUED
+BEFORE EXECUTION by the advisor.  addendum_run = false;
+addendum_status = TERMINATED_BEFORE_EXECUTION; full addendum cells run: 0;
+Phase A1 will never run.  Nothing here is pending, planned or awaiting
+approval.  This script is retained ONLY as design-audit provenance; nothing it
+measures is a study result.  Decision record:
+simulation-results-ct2i/DENSE_ADDENDUM_DECISION.md
 when a competent implementer resolves what D16 leaves unsaid?
 
 WHY THIS EXISTS
@@ -31,8 +41,9 @@ runner computes them from `sim1_core.exact_gap_report` and
 `population_signal_scales` with no learner, no training sample and no
 evaluation sample (`scripts/run_sim1b_dense_addendum.py`, the `pop`/`rel`
 block).  The primary statistics of D16 E1a and E1b are therefore computable
-EXACTLY before A1 runs, which is what makes this sensitivity analysis possible
-without executing a single addendum cell.
+EXACTLY without A1, which is what made this sensitivity analysis possible
+without executing a single addendum cell -- and, in the event, what made the
+sign instability visible in time to stop the arm being run at all.
 
 The d = 3 partner arm is RECOMPUTED here from its frozen seed rule
 (`sim1_core.dgp_block_seed("1B", ...)`) through the identical population path,
