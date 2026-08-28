@@ -192,9 +192,11 @@ at release time and are covered by `PACKAGE_SHA256.json`.
 `10_SIM1_FIGURES/FIGURE_CAPTIONS.md` carries the final caption text for every
 figure above. **Insert those captions as written.** FigS4's two mandated
 clarifications — `d = 3` in every Simulation 1B cell, and `NOT_IDENTIFIED`
-population gaps omitted rather than set to zero — live in that caption because
-they are too long for the graphics canvas; a figure inserted without them is
-missing a required disclosure.
+population gaps omitted rather than set to zero — appear in two places. The
+figure canvas carries a three-line condensed restatement, so the disclosure
+survives a caption edit; the full mandated wording is too long for the canvas
+and lives only in the caption. Insert the caption: a figure inserted on the
+strength of the on-canvas lines alone is missing a required disclosure.
 
 ### Tables (insert the `.tex`; the `.csv` is the same table as data)
 
@@ -220,6 +222,18 @@ missing a required disclosure.
   pure-noise coordinates only (limitation 1 above).
 * `NOT_IDENTIFIED` is an absence, not a zero.
 * The dense-signal addendum was `TERMINATED_BEFORE_EXECUTION`; 0 cells run.
+
+Where each belongs, so an integrator does not have to guess:
+
+| statement | goes in |
+|---|---|
+| Simulation 1B is sparse-signal, `d = 3` in every cell | the Methods description of Simulation 1B, and the Limitations paragraph |
+| `NOT_IDENTIFIED` is an absence, not a zero | the FigS4 caption (already in `FIGURE_CAPTIONS.md`) and the Methods note on population gaps |
+| the addendum was `TERMINATED_BEFORE_EXECUTION` | nowhere in the manuscript — it is a provenance fact for the repository and for a reviewer response if asked. Do not introduce the abandoned addendum into the paper. |
+
+The first two are manuscript text. The third is not: naming a discontinued
+experiment in the paper would raise a question the paper does not otherwise
+invite.
 
 ### Not for insertion
 

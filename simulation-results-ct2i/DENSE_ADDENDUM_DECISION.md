@@ -119,9 +119,10 @@ parameters are drawn once per block and reused across the 50 replicates. That fa
 So there are **400 independent parameter draws per arm, not 8**. The only cluster is
 `(block, replicate)`, with 6 members (3 `delta_eta` × 2 `n_train`), and the 8 blocks are a
 complete, exhaustively enumerated 2×2×2 factorial of **fixed** design factors, not a random
-sample from a population of blocks. D13's conclusion could still have been defended as a
-deliberate *estimand choice*, but it was written as a fact about the parameter draws and cited
-`seed.nunique() == 400` — a count of draws — in its own support.
+sample from a population of blocks. D13 was stated as a fact about the parameter draws rather
+than as an estimand choice, so it is superseded by the verification above rather than reopened
+as a design question. Treating the eight blocks as fixed factors and the parameter draw as the
+inferential unit remains available to any future analysis that wants it.
 
 The unit is not cosmetic: it moves `t` by a factor of 1.5–2.3 without touching the estimate
 (`S0B_NORMALIZED_CONTRAST_SENSITIVITY.md:165-171`), and D16's E1 clauses are one-sided tests

@@ -6,8 +6,10 @@ inside `scripts/run_sim1_figures.py` and `scripts/run_sim2_figures.py`, with no
 durable artefact the advisor could paste into the manuscript.
 
 The three clarifications mandated by the completion plan are marked **[MANDATED
-CLARIFICATION]**. They also appear on the rendered figures themselves, so the
-statement cannot be lost by a caption edit.
+CLARIFICATION]**. A condensed restatement of each is also printed on the
+rendered figure itself, so a caption edit cannot lose the disclosure entirely.
+The condensed on-canvas text is a pointer, not a substitute: the full mandated
+wording exists only here, and the figure is incomplete without this caption.
 
 Nothing here changes a number. `01_PROTOCOL_FREEZE.yaml` is immutable and was
 not touched.
